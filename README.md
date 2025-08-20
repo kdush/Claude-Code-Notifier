@@ -4,6 +4,7 @@
   <img src="assets/logo.png" alt="Claude Code Notifier Logo" width="160">
   
 </p>
+语言: 中文 | [English](README_en.md)
 
 **智能化的 Claude Code 通知系统 - 提供实时、多渠道的操作通知和智能限制功能**
 
