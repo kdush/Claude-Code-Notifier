@@ -3,42 +3,61 @@
 
 """
 通知渠道模块
-集中管理所有通知渠道
+集中管理所有通知渠道，支持动态扩展
 """
 
 from typing import Dict, Type, List, Optional
+import logging
 
 # 导入基础类
 from .base import BaseChannel
 
-# 导入所有渠道实现
-from .dingtalk import DingtalkChannel
-from .feishu import FeishuChannel
-from .telegram import TelegramChannel
-from .email import EmailChannel
-from .serverchan import ServerChanChannel
+# 导入可用的渠道实现
+logger = logging.getLogger(__name__)
 
-# 尝试导入企业微信 (可选)
+# 先只导入已实现的渠道
+_available_channels = {}
+
+# 导入钉钉渠道
 try:
-    from .wechat_work import WechatWorkChannel
-    _WECHAT_WORK_AVAILABLE = True
-except ImportError:
-    _WECHAT_WORK_AVAILABLE = False
-    WechatWorkChannel = None
+    from .dingtalk import DingtalkChannel
+    _available_channels['dingtalk'] = DingtalkChannel
+except ImportError as e:
+    logger.debug(f"钉钉渠道导入失败: {e}")
 
+# 后续可以逐步添加更多渠道
+# try:
+#     from .feishu import FeishuChannel
+#     _available_channels['feishu'] = FeishuChannel
+# except ImportError:
+#     pass
+
+# try:
+#     from .telegram import TelegramChannel
+#     _available_channels['telegram'] = TelegramChannel
+# except ImportError:
+#     pass
+
+# try:
+#     from .email import EmailChannel
+#     _available_channels['email'] = EmailChannel
+# except ImportError:
+#     pass
+
+# try:
+#     from .serverchan import ServerChanChannel
+#     _available_channels['serverchan'] = ServerChanChannel
+# except ImportError:
+#     pass
+
+# try:
+#     from .wechat_work import WechatWorkChannel
+#     _available_channels['wechat_work'] = WechatWorkChannel
+# except ImportError:
+#     pass
 
 # 渠道注册表
-CHANNEL_REGISTRY: Dict[str, Type[BaseChannel]] = {
-    'dingtalk': DingtalkChannel,
-    'feishu': FeishuChannel,
-    'telegram': TelegramChannel,
-    'email': EmailChannel,
-    'serverchan': ServerChanChannel,
-}
-
-# 添加可选渠道
-if _WECHAT_WORK_AVAILABLE and WechatWorkChannel:
-    CHANNEL_REGISTRY['wechat_work'] = WechatWorkChannel
+CHANNEL_REGISTRY: Dict[str, Type[BaseChannel]] = _available_channels.copy()
 
 
 def get_available_channels() -> List[str]:
@@ -98,14 +117,9 @@ def get_channel_info() -> Dict[str, Dict[str, str]]:
 # 向后兼容的别名
 CHANNEL_CLASSES = CHANNEL_REGISTRY
 
-__all__ = [
+# 构建导出列表
+_exports = [
     'BaseChannel',
-    'DingtalkChannel',
-    'FeishuChannel', 
-    'TelegramChannel',
-    'EmailChannel',
-    'ServerChanChannel',
-    'WechatWorkChannel',
     'CHANNEL_REGISTRY',
     'get_available_channels',
     'get_channel_class',
@@ -115,3 +129,9 @@ __all__ = [
     # 向后兼容
     'CHANNEL_CLASSES',
 ]
+
+# 动态添加可用的渠道类到导出列表
+for channel_name, channel_class in _available_channels.items():
+    _exports.append(channel_class.__name__)
+
+__all__ = _exports
