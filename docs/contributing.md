@@ -336,7 +336,7 @@ docs/
 ├── configuration.md       # 配置指南
 ├── channels.md           # 渠道配置
 ├── development.md        # 开发文档
-├── CONTRIBUTING.md       # 贡献指南
+├── contributing.md       # 贡献指南
 └── advanced-usage.md     # 高级用法
 ```
 

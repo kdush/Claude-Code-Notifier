@@ -220,7 +220,7 @@ claude-notifier cache status
 1. 📖 [详细配置指南](configuration.md) - 深入了解所有配置选项
 2. 📱 [渠道配置指南](channels.md) - 配置各种通知渠道
 3. 🛠️ [开发文档](development.md) - 了解架构和扩展开发
-4. 🤝 [贡献指南](CONTRIBUTING.md) - 参与项目贡献
+4. 🤝 [贡献指南](contributing.md) - 参与项目贡献
 
 ### 社区资源
 - 📖 [完整文档](../README.md) - 项目主文档
