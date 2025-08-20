@@ -1,5 +1,3 @@
-<div align="center">
-
 # 🔔 Claude Code Notifier
 
 ![Claude Code Notifier Logo](assets/logo.png)
@@ -11,8 +9,6 @@
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-85%2B-brightgreen.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-244K%20ops%2Fs-orange.svg)](tests/test_performance_benchmarks.py)
-
-</div>
 
 ## ✨ 特性
 

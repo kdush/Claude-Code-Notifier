@@ -19,7 +19,7 @@
     "automation"
   ],
   "author": "Your Name <your.email@example.com>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/your-username/claude-code-notifier.git"
