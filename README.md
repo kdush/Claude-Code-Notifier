@@ -4,28 +4,46 @@
 
 <img src="assets/logo.png" alt="Claude Code Notifier Logo" width="200" height="200">
 
-**一个强大的 Claude Code 通知系统，支持多种通知渠道，让你随时掌握 Claude Code 的执行状态。**
+**智能化的 Claude Code 通知系统 - 提供实时、多渠道的操作通知和智能限制功能**
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.7+-green.svg)](https://python.org)
-[![GitHub Stars](https://img.shields.io/github/stars/kdush/Claude-Code-Notifier?style=social)](https://github.com/kdush/Claude-Code-Notifier)
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://python.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-85%2B-brightgreen.svg)](tests/)
+[![Performance](https://img.shields.io/badge/performance-244K%20ops%2Fs-orange.svg)](tests/test_performance_benchmarks.py)
 
 </div>
 
 ## ✨ 特性
 
-- 🎯 **智能检测** - 自动检测权限操作和任务完成
-- 🌍 **全局生效** - 一次配置，所有项目自动启用  
-- 🔌 **多渠道支持** - 支持 10+ 种通知渠道
-- 🎨 **美化通知** - 精美的卡片格式和分层设计
-- ⚙️ **易于配置** - 简单的配置文件和安装脚本
-- 🔒 **安全可靠** - 支持签名验证和加密传输
-- 🎛️ **事件开关** - 灵活的事件启用/禁用配置
-- 🔧 **自定义事件** - 支持用户自定义触发条件和通知内容
-- 📋 **模板系统** - 可自定义通知卡片样式和内容
-- 🔄 **多渠道路由** - 不同事件可配置不同的通知渠道组合
-- ⏰ **智能限流** - 防止通知轰炸，支持冷却时间和频率控制
-- 📊 **统计监控** - 事件统计和通知效果分析
+### 🎯 核心功能
+- **智能检测** - 自动检测权限操作和任务完成
+- **全局生效** - 一次配置，所有项目自动启用  
+- **多渠道支持** - 支持 6+ 种主流通知渠道
+- **美化通知** - 精美的卡片格式和分层设计
+- **易于配置** - 简单的配置文件和安装脚本
+- **安全可靠** - 支持签名验证和加密传输
+
+### 🧠 智能功能
+- **智能限流** - 防止通知轰炸，支持冷却时间和频率控制
+- **消息分组** - 自动合并相似通知，避免重复打扰
+- **操作门控** - 智能识别敏感操作，需要用户确认
+- **自适应调节** - 根据使用模式自动优化通知策略
+
+### ⚙️ 高级配置
+- **事件开关** - 灵活的事件启用/禁用配置
+- **自定义事件** - 支持用户自定义触发条件和通知内容
+- **模板系统** - 统一的模板引擎，支持自定义样式
+- **多渠道路由** - 不同事件可配置不同的通知渠道组合
+- **统计监控** - 事件统计和通知效果分析
+- **配置备份** - 支持配置备份和恢复功能
+
+## 🆕 最新改进 (v0.0.2)
+
+- ✅ **配置系统增强** - 修复配置备份/恢复功能，确保配置安全
+- ✅ **模板系统统一** - 统一模板引擎API，消除重复实现 
+- ✅ **导入问题修复** - 解决模块导入问题，提高兼容性
+- ✅ **文档完善** - 更新所有文档以反映当前功能状态
 
 ## 📱 支持的通知渠道
 
@@ -184,12 +202,62 @@ detection:
 
 编辑 `~/.claude-notifier/config.yaml` 中的 `detection` 部分。
 
+## 🔧 CLI 使用示例
+
+```bash
+# 发送通知
+claude-notifier send "Hello World!"
+
+# 测试配置
+claude-notifier test
+
+# 查看状态
+claude-notifier status --intelligence
+
+# 配置管理
+claude-notifier config show
+claude-notifier config backup
+
+# 实时监控
+claude-notifier monitor --watch
+
+# 系统诊断
+claude-notifier debug diagnose --full
+```
+
 ## 📚 文档
 
-- [快速开始](docs/quickstart.md)
-- [配置指南](docs/configuration.md)
-- [渠道配置](docs/channels.md)
-- [开发文档](docs/development.md)
+- [快速开始](docs/quickstart.md) - 安装和基础配置
+- [配置指南](docs/configuration.md) - 详细配置说明
+- [渠道配置](docs/channels.md) - 各渠道具体配置
+- [高级使用](docs/advanced_usage.md) - 自定义事件和高级功能
+- [ccusage 集成](docs/ccusage-integration.md) - 使用统计和成本分析
+- [开发文档](docs/development.md) - 架构和开发指南
+
+## 📊 使用统计与分析
+
+本项目集成了 [ccusage](https://github.com/ryoppippi/ccusage) 来分析 Claude Code 的 token 使用和成本统计：
+
+```bash
+# 分析本地使用数据
+npx ccusage
+bunx ccusage
+
+# 查看月度统计
+ccusage --monthly
+
+# 生成使用报告
+ccusage --output usage-report.json
+```
+
+**ccusage 功能**：
+- 📈 **令牌使用分析** - 详细的 token 消费统计
+- 💰 **成本追踪** - 不同 Claude 模型的费用分解  
+- 📅 **时间段报告** - 日/月/会话级别的使用分析
+- ⚡ **实时监控** - 5小时计费窗口监控
+- 📊 **离线分析** - 基于本地 JSONL 文件的数据处理
+
+感谢 [@ryoppippi](https://github.com/ryoppippi) 开发的这个优秀工具！
 
 ## 🤝 贡献
 

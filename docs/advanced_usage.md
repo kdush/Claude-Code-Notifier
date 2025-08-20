@@ -2,8 +2,50 @@
 
 本文档介绍 Claude Code Notifier 的高级功能，包括自定义事件、模板系统和多渠道配置。
 
+## 📊 使用统计与成本分析
+
+Claude Code Notifier 集成了 [ccusage](https://github.com/ryoppippi/ccusage) 工具来提供详细的使用统计：
+
+### 基础使用统计
+```bash
+# 快速查看使用统计
+npx ccusage
+
+# 查看详细的月度报告
+npx ccusage --monthly --detailed
+
+# 按模型分析成本
+npx ccusage --by-model
+```
+
+### 高级统计功能
+```bash
+# 生成 JSON 格式报告
+npx ccusage --output usage-stats.json
+
+# 实时监控模式
+npx ccusage --watch
+
+# 指定日期范围分析
+npx ccusage --from 2025-08-01 --to 2025-08-31
+```
+
+### 集成到通知系统
+可以将 ccusage 统计结果集成到通知中：
+
+```yaml
+custom_events:
+  usage_report:
+    enabled: true
+    schedule: "0 9 * * 1"  # 每周一早上9点
+    channels: ["email", "dingtalk"]
+    template: "weekly_usage_report"
+    command: "npx ccusage --monthly --json"
+```
+
 ## 📋 目录
 
+- [使用统计与成本分析](#使用统计与成本分析)
 - [自定义事件配置](#自定义事件配置)
 - [模板系统使用](#模板系统使用)
 - [多渠道配置](#多渠道配置)
