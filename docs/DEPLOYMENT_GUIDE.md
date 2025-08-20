@@ -355,7 +355,7 @@ def notify():
 
 ### 获取帮助
 
-1. 查看文档: `docs/advanced_usage.md`
+1. 查看文档: `docs/advanced-usage.md`
 2. 运行示例: `python3 examples/usage_examples.py`
 3. 查看测试: `python3 tests/test_events.py`
 
