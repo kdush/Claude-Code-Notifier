@@ -1,3 +1,11 @@
+# 核心依赖
 requests>=2.25.0
 PyYAML>=5.4.0
 pytz>=2021.1
+
+# 智能限流系统依赖
+# 所有功能都使用标准库，无需额外依赖
+
+# 可选依赖 (通过 pip install claude-code-notifier[monitoring] 安装)
+# psutil>=5.8.0          # 系统监控 (可选)
+# cryptography>=3.4.0    # 配置加密 (可选)

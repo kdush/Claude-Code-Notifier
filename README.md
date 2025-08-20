@@ -1,6 +1,16 @@
+<div align="center">
+
 # 🔔 Claude Code Notifier
 
-一个强大的 Claude Code 通知系统，支持多种通知渠道，让你随时掌握 Claude Code 的执行状态。
+<img src="assets/logo.png" alt="Claude Code Notifier Logo" width="200" height="200">
+
+**一个强大的 Claude Code 通知系统，支持多种通知渠道，让你随时掌握 Claude Code 的执行状态。**
+
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.7+-green.svg)](https://python.org)
+[![GitHub Stars](https://img.shields.io/github/stars/kdush/Claude-Code-Notifier?style=social)](https://github.com/kdush/Claude-Code-Notifier)
+
+</div>
 
 ## ✨ 特性
 
@@ -33,8 +43,8 @@
 ### 方式一：快速配置（推荐）
 
 ```bash
-git clone https://github.com/your-username/claude-code-notifier.git
-cd claude-code-notifier
+git clone https://github.com/kdush/Claude-Code-Notifier.git
+cd Claude-Code-Notifier
 chmod +x install.sh scripts/quick_setup.py
 ./install.sh
 python3 scripts/quick_setup.py
@@ -50,8 +60,8 @@ python3 scripts/quick_setup.py
 ### 方式二：手动配置
 
 ```bash
-git clone https://github.com/your-username/claude-code-notifier.git
-cd claude-code-notifier
+git clone https://github.com/kdush/Claude-Code-Notifier.git
+cd Claude-Code-Notifier
 chmod +x install.sh
 ./install.sh
 
@@ -189,9 +199,10 @@ detection:
 
 Apache License
 
-## 🌟 Star History
+## ⭐ Star History
 
-如果这个项目对你有帮助，请给个 ⭐️ 支持一下！
+[![Star History Chart](https://api.star-history.com/svg?repos=kdush/Claude-Code-Notifier&type=Date)](https://star-history.com/#kdush/Claude-Code-Notifier&Date)
+
 
 ---
 

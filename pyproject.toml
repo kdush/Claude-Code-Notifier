@@ -1,0 +1,157 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-notifier"
+dynamic = ["version"]
+description = "Claude Code智能通知系统 - 轻量级、模块化、生产就绪"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "kdush", email = "your-email@example.com"},
+]
+maintainers = [
+    {name = "kdush", email = "your-email@example.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Tools",
+    "Topic :: System :: Monitoring",
+    "Topic :: Communications",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8", 
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Framework :: AsyncIO",
+]
+keywords = [
+    "claude-code", "notification", "webhook", "monitoring", 
+    "dingtalk", "feishu", "telegram", "email", "development-tools",
+    "rate-limiting", "intelligent", "automation"
+]
+requires-python = ">=3.7"
+dependencies = [
+    "requests>=2.25.0",
+    "PyYAML>=5.4.0",
+    "pytz>=2021.1",
+    "click>=8.0.0",
+]
+
+[project.optional-dependencies]
+# 智能功能模块
+intelligence = [
+    "psutil>=5.8.0",
+]
+# 监控功能模块
+monitoring = [
+    "flask>=2.0.0",
+    "plotly>=5.0.0",
+]
+# 集成功能模块
+integration = [
+    "jinja2>=3.0.0",
+]
+# 开发依赖
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=2.20.0",
+]
+# 完整安装
+all = [
+    "psutil>=5.8.0",
+    "flask>=2.0.0", 
+    "plotly>=5.0.0",
+    "jinja2>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kdush/Claude-Code-Notifier"
+Documentation = "https://claude-notifier.readthedocs.io"
+Repository = "https://github.com/kdush/Claude-Code-Notifier.git"
+"Bug Reports" = "https://github.com/kdush/Claude-Code-Notifier/issues"
+Changelog = "https://github.com/kdush/Claude-Code-Notifier/blob/main/CHANGELOG.md"
+
+[project.scripts]
+claude-notifier = "claude_notifier.cli.main:main"
+claude-notify = "claude_notifier.cli.main:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "claude_notifier.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+claude_notifier = [
+    "templates/*.md",
+    "templates/*.html",
+    "config/*.yaml",
+    "hooks/*.sh",
+    "static/*.css",
+    "static/*.js",
+]
+
+# 开发工具配置
+[tool.black]
+line-length = 88
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # 排除目录
+  \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=claude_notifier",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=80"
+]
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "yaml",
+    "requests",
+    "flask"
+]
+ignore_missing_imports = true

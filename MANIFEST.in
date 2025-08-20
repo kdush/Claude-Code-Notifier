@@ -1,0 +1,35 @@
+# MANIFEST.in - 指定要包含在分发包中的文件
+
+# 包含所有文档文件
+include README.md
+include LICENSE
+include CHANGELOG.md
+recursive-include docs *.md *.rst *.txt
+
+# 包含配置文件和模板
+recursive-include config *.yaml *.template *.json
+recursive-include templates *.md *.html *.txt *.jinja2
+
+# 包含脚本文件
+recursive-include scripts *.sh *.py *.bat
+recursive-include src/hooks *.sh *.py
+
+# 包含测试文件
+recursive-include tests *.py *.yaml *.json *.txt
+
+# 包含资源文件
+recursive-include assets *.png *.jpg *.svg *.ico
+include requirements.txt
+include setup.py
+
+# 排除不需要的文件
+global-exclude *.pyc
+global-exclude *.pyo 
+global-exclude *~
+global-exclude .DS_Store
+global-exclude __pycache__
+prune .git
+prune .github
+prune .pytest_cache
+prune .vscode
+prune node_modules

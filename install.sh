@@ -28,11 +28,22 @@ fi
 # 创建配置目录
 CONFIG_DIR="$HOME/.claude-notifier"
 echo "📁 创建配置目录: $CONFIG_DIR"
-mkdir -p "$CONFIG_DIR"/{logs,hooks}
+mkdir -p "$CONFIG_DIR"/{logs,hooks,session_states,templates,plugins}
+mkdir -p "$CONFIG_DIR/data"/{cache,metrics,stats}
 
 # 安装 Python 依赖
 echo "📦 安装 Python 依赖..."
-python3 -m pip install --user requests pyyaml
+if [ -f "requirements.txt" ]; then
+    python3 -m pip install --user -r requirements.txt
+else
+    python3 -m pip install --user requests pyyaml pytz
+fi
+
+# 检查额外的可选依赖
+echo "🔍 检查可选依赖..."
+if ! python3 -c "import smtplib" 2>/dev/null; then
+    echo "⚠️  警告: 邮件功能可能需要额外配置"
+fi
 
 # 复制源代码
 echo "📋 复制程序文件..."
@@ -53,14 +64,31 @@ chmod +x "$CONFIG_DIR/notifier"
 # 复制配置文件模板
 if [ ! -f "$CONFIG_DIR/config.yaml" ]; then
     echo "⚙️  创建配置文件模板..."
-    cp config/config.yaml.template "$CONFIG_DIR/config.yaml"
-    echo "   配置文件位置: $CONFIG_DIR/config.yaml"
+    if [ -f "config/enhanced_config.yaml.template" ]; then
+        cp "config/enhanced_config.yaml.template" "$CONFIG_DIR/config.yaml"
+        echo "   已安装增强配置模板: $CONFIG_DIR/config.yaml"
+    elif [ -f "config/config.yaml.template" ]; then
+        cp "config/config.yaml.template" "$CONFIG_DIR/config.yaml"
+        echo "   已安装基础配置模板: $CONFIG_DIR/config.yaml"
+    else
+        echo "❌ 未找到配置模板文件"
+        exit 1
+    fi
+fi
+
+# 复制模板文件
+echo "📄 复制消息模板..."
+if [ -d "templates" ]; then
+    cp -r templates/* "$CONFIG_DIR/templates/"
+    echo "   模板文件已复制到: $CONFIG_DIR/templates/"
 fi
 
 # 复制脚本
 echo "📜 复制管理脚本..."
-cp -r scripts/* "$CONFIG_DIR/"
-chmod +x "$CONFIG_DIR"/*.sh
+if [ -d "scripts" ]; then
+    cp -r scripts/* "$CONFIG_DIR/"
+    chmod +x "$CONFIG_DIR"/*.sh
+fi
 
 # 创建 Claude Code 钩子
 echo "🪝 配置 Claude Code 钩子..."
@@ -213,13 +241,47 @@ elif [ -d "/usr/local/bin" ] && [ -w "/usr/local/bin" ]; then
 fi
 
 echo ""
-echo "🎉 安装完成！"
+# 初始化智能限流系统数据
+echo "🧠 初始化智能限流系统..."
+python3 -c "
+import sys
+sys.path.insert(0, '$CONFIG_DIR/src')
+try:
+    from utils.time_utils import RateLimitTracker
+    from utils.cooldown_manager import CooldownManager
+    
+    # 创建初始配置验证
+    print('✅ 智能限流组件验证通过')
+except ImportError as e:
+    print(f'⚠️  警告: 智能限流组件加载失败: {e}')
+except Exception as e:
+    print(f'⚠️  警告: 系统初始化异常: {e}')
+"
+
+echo ""
+echo "🎉 Claude Code Notifier 安装完成！"
+echo ""
+echo "🧠 新功能特性:"
+echo "   ✅ 智能操作阻止机制"
+echo "   ✅ 通知频率自动控制"
+echo "   ✅ 消息智能分组合并"
+echo "   ✅ 多层级冷却管理"
+echo "   ✅ 实时监控和统计"
 echo ""
 echo "📋 接下来的步骤:"
 echo "   1. 配置通知渠道: $CONFIG_DIR/configure.sh"
 echo "   2. 测试通知功能: $CONFIG_DIR/test.sh"
 echo "   3. 编辑配置文件: nano $CONFIG_DIR/config.yaml"
+echo "   4. 查看监控状态: $CONFIG_DIR/notifier status"
 echo ""
-echo "🚀 现在可以在任何项目中使用 Claude Code，系统会自动发送通知！"
+echo "🚀 现在可以在任何项目中使用 Claude Code，享受智能通知体验！"
 echo ""
-echo "📖 查看文档: https://github.com/your-username/claude-code-notifier"
+echo "📊 配置目录结构:"
+echo "   $CONFIG_DIR/"
+echo "   ├── src/           # 程序源码"
+echo "   ├── hooks/         # Claude Code 钩子"
+echo "   ├── templates/     # 消息模板"
+echo "   ├── data/          # 数据和缓存"
+echo "   └── logs/          # 日志文件"
+echo ""
+echo "📖 查看文档: https://github.com/kdush/Claude-Code-Notifier"
