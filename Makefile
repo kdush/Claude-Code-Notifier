@@ -1,7 +1,19 @@
 # Makefile for Claude Notifier
 # PyPI标准化开发和发布流程
 
-.PHONY: help install install-dev test lint format type-check security clean build upload upload-test docs
+.PHONY: \
+  help \
+  install install-dev install-all \
+  test test-cov test-all \
+  lint format type-check security quality \
+  clean build check-build upload-test upload \
+  docs docs-serve \
+  version-patch version-minor version-major \
+  dev-setup dev-test \
+  ci-install ci-test ci-build ci-local \
+  pre-release \
+  docker-build docker-test \
+  verify-install
 
 # 默认目标
 help:
@@ -46,28 +58,28 @@ test:
 	pytest
 
 test-cov:
-	pytest --cov=claude_notifier --cov-report=html --cov-report=term-missing
+	pytest --cov=src --cov-report=xml --cov-report=html --cov-report=term-missing
 
 test-all:
-	pytest --cov=claude_notifier --cov-report=html --cov-report=term-missing tests/
+	pytest --cov=src --cov-report=html --cov-report=term-missing tests/
 
 # 代码质量
 lint:
-	flake8 src/claude_notifier tests/
+	flake8 src tests/
 	@echo "✅ Lint检查通过"
 
 format:
-	black src/claude_notifier tests/
+	black src tests/
 	@echo "✅ 代码格式化完成"
 
 type-check:
-	mypy src/claude_notifier
+	mypy src
 	@echo "✅ 类型检查通过"
 
 security:
 	@echo "🔍 安全检查..."
 	@command -v bandit >/dev/null 2>&1 || pip install bandit
-	bandit -r src/claude_notifier -f json -o security-report.json || true
+	bandit -r src -f json -o security-report.json || true
 	@if [ -f security-report.json ]; then \
 		echo "⚠️  安全报告已生成: security-report.json"; \
 	else \
@@ -86,15 +98,20 @@ clean:
 	rm -rf htmlcov/
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
+	rm -rf .mypy_cache/
+	rm -rf .ruff_cache/
+	rm -f .coverage coverage.xml security-report.json
 	@echo "🧹 清理完成"
 
 build: clean
+	@python -c "import build" >/dev/null 2>&1 || pip install build
 	python -m build
 	@echo "📦 构建完成"
 	@echo "分发包:"
 	@ls -la dist/
 
 check-build: build
+	@python -c "import twine" >/dev/null 2>&1 || pip install twine
 	python -m twine check dist/*
 	@echo "✅ 分发包检查通过"
 

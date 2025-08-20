@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claude-notifier"
-dynamic = ["version"]
+version = "0.0.1"
 description = "Claude Code智能通知系统 - 轻量级、模块化、生产就绪"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = {file = "LICENSE.txt"}
 authors = [
     {name = "kdush", email = "your-email@example.com"},
 ]
@@ -88,8 +88,6 @@ Changelog = "https://github.com/kdush/Claude-Code-Notifier/blob/main/CHANGELOG.m
 claude-notifier = "claude_notifier.cli.main:main"
 claude-notify = "claude_notifier.cli.main:main"
 
-[tool.setuptools.dynamic]
-version = {attr = "claude_notifier.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]

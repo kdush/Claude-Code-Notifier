@@ -11,18 +11,18 @@ import sys
 from setuptools import setup, find_packages
 
 # 确保 Python 版本
-if sys.version_info < (3, 6):
-    print("错误: Claude Code Notifier 需要 Python 3.6 或更高版本")
+if sys.version_info < (3, 8):
+    print("错误: Claude Code Notifier 需要 Python 3.8 或更高版本")
     sys.exit(1)
 
 # 读取版本信息
 def get_version():
-    version_file = os.path.join(os.path.dirname(__file__), 'src', '__version__.py')
+    version_file = os.path.join(os.path.dirname(__file__), 'src', 'claude_notifier', '__version__.py')
     if os.path.exists(version_file):
         with open(version_file, 'r', encoding='utf-8') as f:
             exec(f.read())
-            return locals().get('__version__', '1.0.0')
-    return '1.0.0'
+            return locals().get('__version__', '0.0.1')
+    return '0.0.1'
 
 # 读取 README
 def get_long_description():
@@ -101,13 +101,13 @@ setup(
         "Operating System :: OS Independent",
         "Environment :: Console",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     install_requires=get_requirements(),
     extras_require=optional_requirements,
     entry_points={
         "console_scripts": [
-            "claude-notifier=notifier:main",
-            "claude-notify=notifier:main",
+            "claude-notifier=claude_notifier.cli.main:cli",
+            "claude-notify=claude_notifier.cli.main:cli",
         ],
     },
     keywords=[
