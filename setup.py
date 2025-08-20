@@ -90,9 +90,8 @@ setup(
         "Topic :: Software Development :: Tools",
         "Topic :: System :: Monitoring",
         "Topic :: Communications",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -117,5 +116,5 @@ setup(
     ],
     zip_safe=False,
     platforms=["any"],
-    license="MIT",
+    license="Apache-2.0",
 )
