@@ -67,11 +67,13 @@ jobs:
         
         # Check if __version__.py exists and matches
         if [ -f "src/claude_notifier/__version__.py" ]; then
-          PACKAGE_VERSION=$(python -c "
-import sys; sys.path.insert(0, 'src')
-from claude_notifier.__version__ import __version__
-print(__version__)
-")
+          PACKAGE_VERSION="$(
+            python <<'PY'
+            import sys; sys.path.insert(0, 'src')
+            from claude_notifier.__version__ import __version__
+            print(__version__)
+        PY
+          )"
           echo "📦 Package version: ${PACKAGE_VERSION}"
           echo "🏷️ Release version: ${VERSION}"
           
@@ -108,12 +110,12 @@ print(__version__)
         sed -i "s/__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/claude_notifier/__version__.py
         
         # Verify the change
-        python -c "
-import sys; sys.path.insert(0, 'src')
-from claude_notifier.__version__ import __version__
-assert __version__ == '${VERSION}', f'Version update failed: {__version__} != ${VERSION}'
-print(f'✅ Version updated to {__version__}')
-"
+        python <<PY
+          import sys; sys.path.insert(0, 'src')
+          from claude_notifier.__version__ import __version__
+          assert __version__ == '${VERSION}', f'Version update failed: {__version__} != ${VERSION}'
+          print(f'✅ Version updated to {__version__}')
+        PY
         
     - name: Build package
       run: |
@@ -130,17 +132,17 @@ print(f'✅ Version updated to {__version__}')
         
         # Additional package inspection
         pip install dist/*.whl
-        python -c "
-import claude_notifier
-print(f'✅ Package import successful: {claude_notifier.__version__}')
+        python <<'PY'
+          import claude_notifier
+          print(f'✅ Package import successful: {claude_notifier.__version__}')
 
-# Test basic functionality
-from claude_notifier import Notifier, get_feature_status
-print('✅ Core functionality verified')
+          # Test basic functionality
+          from claude_notifier import Notifier, get_feature_status
+          print('✅ Core functionality verified')
 
-status = get_feature_status()
-print(f'📊 Feature status: {status}')
-"
+          status = get_feature_status()
+          print(f'📊 Feature status: {status}')
+        PY
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
@@ -176,22 +178,22 @@ print(f'📊 Feature status: {status}')
         pip install dist/*.whl
         
         # Test basic functionality
-        python -c "
-import claude_notifier
-print(f'✅ Package version: {claude_notifier.__version__}')
+        python <<'PY'
+          import claude_notifier
+          print(f'✅ Package version: {claude_notifier.__version__}')
 
-from claude_notifier import Notifier
-notifier = Notifier()
-print('✅ Basic functionality works')
+          from claude_notifier import Notifier
+          notifier = Notifier()
+          print('✅ Basic functionality works')
 
-# Test CLI
-import subprocess
-result = subprocess.run(['claude-notifier', '--version'], capture_output=True, text=True)
-if result.returncode == 0:
-    print('✅ CLI tool works')
-else:
-    print('⚠️ CLI test failed (may be expected in some environments)')
-"
+          # Test CLI
+          import subprocess
+          result = subprocess.run(['claude-notifier', '--version'], capture_output=True, text=True)
+          if result.returncode == 0:
+              print('✅ CLI tool works')
+          else:
+              print('⚠️ CLI test failed (may be expected in some environments)')
+        PY
 
   publish-testpypi:
     needs: [validate-release, build, test-install]
@@ -223,10 +225,10 @@ else:
           --extra-index-url https://pypi.org/simple/ \
           claude-notifier==${{ needs.validate-release.outputs.version }}
           
-        python -c "
-import claude_notifier
-print(f'✅ Test PyPI installation successful: {claude_notifier.__version__}')
-"
+        python <<'PY'
+          import claude_notifier
+          print(f'✅ Test PyPI installation successful: {claude_notifier.__version__}')
+        PY
 
   publish-pypi:
     needs: [validate-release, build, test-install]
@@ -254,15 +256,15 @@ print(f'✅ Test PyPI installation successful: {claude_notifier.__version__}')
         
         pip install claude-notifier==${{ needs.validate-release.outputs.version }}
         
-        python -c "
-import claude_notifier
-print(f'🎉 PyPI publication successful: {claude_notifier.__version__}')
-"
+        python <<'PY'
+          import claude_notifier
+          print(f'🎉 PyPI publication successful: {claude_notifier.__version__}')
+        PY
 
   post-release:
     needs: [validate-release, publish-pypi]
     runs-on: ubuntu-latest
-    if: always() && (needs.publish-pypi.result == 'success' || needs.publish-testpypi.result == 'success')
+    if: always() && (needs.publish-pypi.result == 'success' || needs.validate-release.outputs.is-prerelease == 'true')
     steps:
     - uses: actions/checkout@v4
     
