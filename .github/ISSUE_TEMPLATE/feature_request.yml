@@ -1,0 +1,161 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Claude Notifier
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible.
+        
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested
+          required: true
+        - label: I have read the documentation to understand current capabilities
+          required: true
+        - label: This feature would benefit other users, not just my specific use case
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: A clear and concise description of the feature you'd like to see
+      placeholder: Describe the feature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the current limitation?
+      placeholder: |
+        Is your feature request related to a problem? Please describe.
+        A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work?
+      placeholder: |
+        Describe the solution you'd like...
+        A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: |
+        Describe alternatives you've considered...
+        A clear and concise description of any alternative solutions or features you've considered.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What type of feature is this?
+      options:
+        - "Notification Channels - New channel support"
+        - "Intelligence - Smart features (throttling, grouping, etc.)"
+        - "Monitoring - Stats, dashboards, reporting"
+        - "Integration - Claude Code hooks, external tools"
+        - "CLI - Command line interface improvements"
+        - "Configuration - Config management, templates"
+        - "Performance - Speed, efficiency improvements"
+        - "Security - Authentication, encryption, safety"
+        - "Documentation - Guides, examples, tutorials"
+        - "Developer Tools - APIs, SDKs, plugins"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - "Nice to have - Would be useful but not essential"
+        - "Important - Would significantly improve my workflow"
+        - "Critical - Blocking my use of the tool"
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case & Examples
+      description: Provide specific examples of how this feature would be used
+      placeholder: |
+        Example scenarios where this feature would be helpful:
+        
+        1. When using Claude Code for...
+        2. In environments where...
+        3. For projects that...
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockup
+    attributes:
+      label: API/Interface Design (Optional)
+      description: If you have ideas about how this should work technically
+      placeholder: |
+        ```python
+        # Example API usage
+        notifier = Notifier()
+        notifier.new_feature(...)
+        ```
+        
+        ```yaml
+        # Example configuration
+        new_feature:
+          enabled: true
+          option: value
+        ```
+      render: markdown
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation Willingness
+      options:
+        - label: I would be willing to implement this feature myself
+        - label: I would be willing to test this feature
+        - label: I would be willing to help with documentation
+        - label: I would be willing to provide feedback during development
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any additional context, mockups, or references
+      placeholder: |
+        Add any other context or screenshots about the feature request here.
+        
+        Links to similar features in other tools:
+        - Tool A: https://...
+        - Tool B: https://...
+
+  - type: checkboxes
+    id: breaking-changes
+    attributes:
+      label: Breaking Changes
+      description: Would this feature require breaking changes?
+      options:
+        - label: This feature could be implemented without breaking existing functionality
+        - label: This feature might require minor breaking changes (acceptable for minor version)
+        - label: This feature would require major breaking changes (needs major version)
+        - label: I'm not sure about backward compatibility impact

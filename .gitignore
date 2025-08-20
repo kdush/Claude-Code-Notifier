@@ -1,0 +1,11 @@
+# Python build artifacts
+dist/
+build/
+*.egg-info/
+
+# Caches
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.claude/settings.local.json

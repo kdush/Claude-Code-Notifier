@@ -36,20 +36,15 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[all,dev]
+        make ci-install
+    
+    - name: Install make (Windows)
+      if: runner.os == 'Windows'
+      run: choco install make -y
         
-    - name: Lint with flake8
+    - name: Run quality and tests (Makefile)
       run: |
-        flake8 src/claude_notifier --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 src/claude_notifier --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
-        
-    - name: Type check with mypy
-      run: |
-        mypy src/claude_notifier --ignore-missing-imports
-        
-    - name: Test with pytest
-      run: |
-        pytest --cov=claude_notifier --cov-report=xml --cov-report=term-missing
+        make ci-test
         
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest'
@@ -75,9 +70,9 @@ jobs:
         pip install -e .[dev]
         pip install bandit safety
         
-    - name: Security check with bandit
+    - name: Security check with bandit (Makefile)
       run: |
-        bandit -r src/claude_notifier -f json -o bandit-report.json || true
+        make security || true
         
     - name: Safety check
       run: |
@@ -103,18 +98,9 @@ jobs:
       with:
         python-version: '3.9'
         
-    - name: Install build dependencies
+    - name: Build and check package (Makefile)
       run: |
-        python -m pip install --upgrade pip
-        pip install build twine
-        
-    - name: Build package
-      run: |
-        python -m build
-        
-    - name: Check package
-      run: |
-        python -m twine check dist/*
+        make ci-build
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3

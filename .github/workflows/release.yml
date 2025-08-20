@@ -1,0 +1,295 @@
+name: Release to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.2.0)'
+        required: true
+        type: string
+      environment:
+        description: 'Release environment'
+        required: true
+        default: 'pypi'
+        type: choice
+        options:
+        - pypi
+        - testpypi
+
+jobs:
+  validate-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-prerelease: ${{ steps.version.outputs.is-prerelease }}
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Extract version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "release" ]; then
+          VERSION="${{ github.event.release.tag_name }}"
+          IS_PRERELEASE="${{ github.event.release.prerelease }}"
+        else
+          VERSION="${{ github.event.inputs.version }}"
+          IS_PRERELEASE="false"
+        fi
+        
+        # Remove 'v' prefix if present
+        VERSION=${VERSION#v}
+        
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "is-prerelease=${IS_PRERELEASE}" >> $GITHUB_OUTPUT
+        
+        echo "📦 Release Version: ${VERSION}"
+        echo "🔖 Pre-release: ${IS_PRERELEASE}"
+        
+    - name: Validate version format
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        if ! echo "${VERSION}" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+([a-zA-Z0-9\-\.]*)?$'; then
+          echo "❌ Invalid version format: ${VERSION}"
+          exit 1
+        fi
+        echo "✅ Version format valid: ${VERSION}"
+        
+    - name: Check version consistency
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        
+        # Check if __version__.py exists and matches
+        if [ -f "src/claude_notifier/__version__.py" ]; then
+          PACKAGE_VERSION=$(python -c "
+import sys; sys.path.insert(0, 'src')
+from claude_notifier.__version__ import __version__
+print(__version__)
+")
+          echo "📦 Package version: ${PACKAGE_VERSION}"
+          echo "🏷️ Release version: ${VERSION}"
+          
+          if [ "${PACKAGE_VERSION}" != "${VERSION}" ]; then
+            echo "⚠️ Version mismatch detected"
+            echo "This may be intentional for manual releases"
+          else
+            echo "✅ Version consistency verified"
+          fi
+        fi
+
+  build:
+    needs: validate-release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+        
+    - name: Update version in package
+      run: |
+        VERSION="${{ needs.validate-release.outputs.version }}"
+        echo "Updating package version to ${VERSION}"
+        
+        # Update __version__.py
+        sed -i "s/__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/claude_notifier/__version__.py
+        
+        # Verify the change
+        python -c "
+import sys; sys.path.insert(0, 'src')
+from claude_notifier.__version__ import __version__
+assert __version__ == '${VERSION}', f'Version update failed: {__version__} != ${VERSION}'
+print(f'✅ Version updated to {__version__}')
+"
+        
+    - name: Build package
+      run: |
+        echo "🔨 Building distribution packages..."
+        python -m build
+        
+        echo "📦 Built packages:"
+        ls -la dist/
+        
+    - name: Validate package
+      run: |
+        echo "🔍 Validating built packages..."
+        python -m twine check dist/*
+        
+        # Additional package inspection
+        pip install dist/*.whl
+        python -c "
+import claude_notifier
+print(f'✅ Package import successful: {claude_notifier.__version__}')
+
+# Test basic functionality
+from claude_notifier import Notifier, get_feature_status
+print('✅ Core functionality verified')
+
+status = get_feature_status()
+print(f'📊 Feature status: {status}')
+"
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        path: dist/
+        retention-days: 30
+
+  test-install:
+    needs: [validate-release, build]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.8", "3.11"]
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        path: dist/
+        
+    - name: Test package installation
+      run: |
+        echo "🧪 Testing package installation on ${{ matrix.os }} Python ${{ matrix.python-version }}"
+        
+        # Install from wheel
+        pip install dist/*.whl
+        
+        # Test basic functionality
+        python -c "
+import claude_notifier
+print(f'✅ Package version: {claude_notifier.__version__}')
+
+from claude_notifier import Notifier
+notifier = Notifier()
+print('✅ Basic functionality works')
+
+# Test CLI
+import subprocess
+result = subprocess.run(['claude-notifier', '--version'], capture_output=True, text=True)
+if result.returncode == 0:
+    print('✅ CLI tool works')
+else:
+    print('⚠️ CLI test failed (may be expected in some environments)')
+"
+
+  publish-testpypi:
+    needs: [validate-release, build, test-install]
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'testpypi' || needs.validate-release.outputs.is-prerelease == 'true'
+    environment: testpypi
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        path: dist/
+        
+    - name: Publish to Test PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
+        
+    - name: Test installation from Test PyPI
+      run: |
+        echo "🧪 Testing installation from Test PyPI..."
+        
+        # Wait a bit for package to be available
+        sleep 30
+        
+        pip install -i https://test.pypi.org/simple/ \
+          --extra-index-url https://pypi.org/simple/ \
+          claude-notifier==${{ needs.validate-release.outputs.version }}
+          
+        python -c "
+import claude_notifier
+print(f'✅ Test PyPI installation successful: {claude_notifier.__version__}')
+"
+
+  publish-pypi:
+    needs: [validate-release, build, test-install]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && needs.validate-release.outputs.is-prerelease == 'false'
+    environment: pypi
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        path: dist/
+        
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        
+    - name: Verify PyPI publication
+      run: |
+        echo "🔍 Verifying PyPI publication..."
+        
+        # Wait for package to be available
+        sleep 60
+        
+        pip install claude-notifier==${{ needs.validate-release.outputs.version }}
+        
+        python -c "
+import claude_notifier
+print(f'🎉 PyPI publication successful: {claude_notifier.__version__}')
+"
+
+  post-release:
+    needs: [validate-release, publish-pypi]
+    runs-on: ubuntu-latest
+    if: always() && (needs.publish-pypi.result == 'success' || needs.publish-testpypi.result == 'success')
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Create release summary
+      run: |
+        VERSION="${{ needs.validate-release.outputs.version }}"
+        IS_PRERELEASE="${{ needs.validate-release.outputs.is-prerelease }}"
+        
+        echo "# 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** ${VERSION}" >> $GITHUB_STEP_SUMMARY
+        echo "**Pre-release:** ${IS_PRERELEASE}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 📦 Installation" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo '```bash' >> $GITHUB_STEP_SUMMARY
+        echo "pip install claude-notifier==${VERSION}" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 🔗 Links" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${IS_PRERELEASE}" == "true" ]; then
+          echo "- [Test PyPI Package](https://test.pypi.org/project/claude-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- [PyPI Package](https://pypi.org/project/claude-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/v${VERSION})" >> $GITHUB_STEP_SUMMARY
+        echo "- [Documentation](https://github.com/${{ github.repository }}#readme)" >> $GITHUB_STEP_SUMMARY

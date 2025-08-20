@@ -10,15 +10,15 @@ import time
 import logging
 from typing import Dict, Any, List, Optional, Tuple, Union
 
-from ..core.notifier import Notifier
-from ..utils.helpers import merge_dict_recursive
+from claude_notifier.core.notifier import Notifier
+from claude_notifier.utils.helpers import merge_dict_recursive
 
 # 智能模块导入 (延迟导入，避免依赖问题)
 try:
-    from ..utils.operation_gate import OperationGate, OperationRequest, OperationResult
-    from ..utils.notification_throttle import NotificationThrottle, NotificationRequest, ThrottleAction
-    from ..utils.message_grouper import MessageGrouper, GroupingStrategy
-    from ..utils.cooldown_manager import CooldownManager
+    from claude_notifier.utils.operation_gate import OperationGate, OperationRequest, OperationResult
+    from claude_notifier.utils.notification_throttle import NotificationThrottle, NotificationRequest, ThrottleAction
+    from claude_notifier.utils.message_grouper import MessageGrouper, GroupingStrategy
+    from claude_notifier.utils.cooldown_manager import CooldownManager
     INTELLIGENCE_AVAILABLE = True
 except ImportError:
     INTELLIGENCE_AVAILABLE = False

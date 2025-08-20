@@ -259,10 +259,14 @@ class ConfigManager:
                 # 合并配置
                 self._deep_merge(self.config, imported_config)
             else:
-                # 替换配置
-                self.config = imported_config
+                # 完全替换配置
+                self.config = imported_config.copy()
                 
-            return self.save_config()
+            # 保存配置并重新加载以确保一致性
+            if self.save_config():
+                self.config = self._load_config()
+                return True
+            return False
             
         except Exception as e:
             self.logger.error(f"导入配置失败: {e}")

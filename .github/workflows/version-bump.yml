@@ -1,0 +1,295 @@
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      pre_release:
+        description: 'Pre-release identifier (optional: alpha, beta, rc)'
+        required: false
+        type: string
+      create_release:
+        description: 'Create GitHub release after version bump'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    outputs:
+      new-version: ${{ steps.bump.outputs.new-version }}
+      old-version: ${{ steps.bump.outputs.old-version }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install packaging
+        
+    - name: Get current version
+      id: current
+      run: |
+        CURRENT_VERSION=$(python -c "
+import sys; sys.path.insert(0, 'src')
+from claude_notifier.__version__ import __version__
+print(__version__)
+")
+        echo "current-version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+        echo "📦 Current version: ${CURRENT_VERSION}"
+        
+    - name: Calculate new version
+      id: bump
+      run: |
+        python << 'EOF'
+import sys
+from packaging import version
+
+current_version = "${{ steps.current.outputs.current-version }}"
+bump_type = "${{ github.event.inputs.bump_type }}"
+pre_release = "${{ github.event.inputs.pre_release }}"
+
+print(f"Current version: {current_version}")
+print(f"Bump type: {bump_type}")
+print(f"Pre-release: {pre_release}")
+
+# Parse current version
+v = version.parse(current_version)
+
+# Calculate new version
+if bump_type == "major":
+    new_major = v.major + 1
+    new_minor = 0
+    new_micro = 0
+elif bump_type == "minor":
+    new_major = v.major
+    new_minor = v.minor + 1
+    new_micro = 0
+else:  # patch
+    new_major = v.major
+    new_minor = v.minor
+    new_micro = v.micro + 1
+
+# Create new version string
+new_version = f"{new_major}.{new_minor}.{new_micro}"
+
+# Add pre-release if specified
+if pre_release:
+    if pre_release in ["alpha", "beta", "rc"]:
+        # Find existing pre-release number or start at 1
+        if hasattr(v, 'pre') and v.pre and v.pre[0] == pre_release:
+            pre_number = v.pre[1] + 1
+        else:
+            pre_number = 1
+        new_version += f"{pre_release}{pre_number}"
+    else:
+        print(f"⚠️ Unknown pre-release type: {pre_release}")
+
+print(f"New version: {new_version}")
+
+# Write to GitHub outputs
+with open(sys.environ['GITHUB_OUTPUT'], 'a') as f:
+    f.write(f"new-version={new_version}\n")
+    f.write(f"old-version={current_version}\n")
+EOF
+        
+    - name: Update version files
+      run: |
+        NEW_VERSION="${{ steps.bump.outputs.new-version }}"
+        OLD_VERSION="${{ steps.bump.outputs.old-version }}"
+        
+        echo "🔄 Updating version from ${OLD_VERSION} to ${NEW_VERSION}"
+        
+        # Update __version__.py
+        sed -i "s/__version__ = \"${OLD_VERSION}\"/__version__ = \"${NEW_VERSION}\"/" src/claude_notifier/__version__.py
+        
+        # Update __version_info__
+        VERSION_INFO=$(python -c "
+v = '${NEW_VERSION}'.split('.')
+major, minor, patch = int(v[0]), int(v[1]), int(v[2].split('a')[0].split('b')[0].split('rc')[0])
+print(f'({major}, {minor}, {patch})')
+")
+        sed -i "s/__version_info__ = .*/__version_info__ = ${VERSION_INFO}/" src/claude_notifier/__version__.py
+        
+        # Verify changes
+        python -c "
+import sys; sys.path.insert(0, 'src')
+from claude_notifier.__version__ import __version__, __version_info__
+print(f'✅ Updated to version: {__version__}')
+print(f'✅ Version info: {__version_info__}')
+assert __version__ == '${NEW_VERSION}', f'Version mismatch: {__version__} != ${NEW_VERSION}'
+"
+        
+    - name: Update CHANGELOG.md
+      run: |
+        NEW_VERSION="${{ steps.bump.outputs.new-version }}"
+        DATE=$(date +"%Y-%m-%d")
+        
+        echo "📝 Updating CHANGELOG.md for version ${NEW_VERSION}"
+        
+        # Create temporary file with new entry
+        cat > changelog_entry.md << EOF
+## [${NEW_VERSION}] - ${DATE}
+
+### Added
+- Version bump to ${NEW_VERSION}
+
+### Changed
+- Updated for release ${NEW_VERSION}
+
+EOF
+        
+        # Insert after [Unreleased] section
+        awk '
+        /^## \[Unreleased\]/ {
+            print $0
+            print ""
+            while ((getline line < "changelog_entry.md") > 0) {
+                print line
+            }
+            next
+        }
+        { print }
+        ' CHANGELOG.md > CHANGELOG_new.md
+        
+        mv CHANGELOG_new.md CHANGELOG.md
+        rm changelog_entry.md
+        
+        echo "✅ CHANGELOG.md updated"
+        
+    - name: Configure git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+    - name: Commit version bump
+      run: |
+        NEW_VERSION="${{ steps.bump.outputs.new-version }}"
+        OLD_VERSION="${{ steps.bump.outputs.old-version }}"
+        
+        git add -A
+        git commit -m "chore: Bump version from ${OLD_VERSION} to ${NEW_VERSION}
+
+- Update package version to ${NEW_VERSION}
+- Update CHANGELOG.md with release notes
+- Automated version bump via GitHub Actions
+
+[skip ci]"
+        
+        echo "✅ Version bump committed"
+        
+    - name: Create and push tag
+      run: |
+        NEW_VERSION="${{ steps.bump.outputs.new-version }}"
+        
+        git tag -a "v${NEW_VERSION}" -m "Release version ${NEW_VERSION}
+
+Automated release tag created by GitHub Actions.
+See CHANGELOG.md for detailed release notes."
+        
+        git push origin main --tags
+        
+        echo "✅ Tag v${NEW_VERSION} created and pushed"
+
+  create-release:
+    needs: bump-version
+    runs-on: ubuntu-latest
+    if: github.event.inputs.create_release == 'true'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        
+    - name: Generate release notes
+      id: release-notes
+      run: |
+        NEW_VERSION="${{ needs.bump-version.outputs.new-version }}"
+        OLD_VERSION="${{ needs.bump-version.outputs.old-version }}"
+        
+        echo "📝 Generating release notes for v${NEW_VERSION}"
+        
+        # Extract changelog section for this version
+        awk "
+        /^## \[${NEW_VERSION}\]/ {
+            found=1
+            next
+        }
+        found && /^## \[/ {
+            found=0
+        }
+        found && !/^## \[/ {
+            print
+        }
+        " CHANGELOG.md > release_notes.md
+        
+        # Add installation instructions
+        cat >> release_notes.md << EOF
+
+## 📦 Installation
+
+\`\`\`bash
+pip install claude-notifier==${NEW_VERSION}
+\`\`\`
+
+## 🔄 Upgrade
+
+\`\`\`bash
+pip install --upgrade claude-notifier
+\`\`\`
+
+## 📖 Documentation
+
+See the [README](https://github.com/${{ github.repository }}#readme) for usage instructions and examples.
+EOF
+        
+        # Set multiline output
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+        cat release_notes.md >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ needs.bump-version.outputs.new-version }}
+        release_name: Claude Notifier v${{ needs.bump-version.outputs.new-version }}
+        body: ${{ steps.release-notes.outputs.RELEASE_NOTES }}
+        draft: false
+        prerelease: ${{ contains(needs.bump-version.outputs.new-version, 'alpha') || contains(needs.bump-version.outputs.new-version, 'beta') || contains(needs.bump-version.outputs.new-version, 'rc') }}
+        
+    - name: Summary
+      run: |
+        NEW_VERSION="${{ needs.bump-version.outputs.new-version }}"
+        OLD_VERSION="${{ needs.bump-version.outputs.old-version }}"
+        
+        echo "# 🎉 Version Bump Complete" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Previous Version:** ${OLD_VERSION}" >> $GITHUB_STEP_SUMMARY
+        echo "**New Version:** ${NEW_VERSION}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The release workflow will automatically trigger and publish to PyPI." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 🔗 Links" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- [Release Page](https://github.com/${{ github.repository }}/releases/tag/v${NEW_VERSION})" >> $GITHUB_STEP_SUMMARY
+        echo "- [Compare Changes](https://github.com/${{ github.repository }}/compare/v${OLD_VERSION}...v${NEW_VERSION})" >> $GITHUB_STEP_SUMMARY
