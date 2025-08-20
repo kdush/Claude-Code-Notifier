@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Tools",
     "Topic :: System :: Monitoring",
     "Topic :: Communications",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8", 
