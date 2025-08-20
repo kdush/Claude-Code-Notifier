@@ -2,12 +2,12 @@
 
 # 🔔 Claude Code Notifier
 
-<img src="assets/logo.png" alt="Claude Code Notifier Logo" width="200" height="200">
+![Claude Code Notifier Logo](assets/logo.png)
 
 **智能化的 Claude Code 通知系统 - 提供实时、多渠道的操作通知和智能限制功能**
 
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://python.org)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE.txt)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-85%2B-brightgreen.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-244K%20ops%2Fs-orange.svg)](tests/test_performance_benchmarks.py)
@@ -230,7 +230,7 @@ claude-notifier debug diagnose --full
 - [快速开始](docs/quickstart.md) - 安装和基础配置
 - [配置指南](docs/configuration.md) - 详细配置说明
 - [渠道配置](docs/channels.md) - 各渠道具体配置
-- [高级使用](docs/advanced_usage.md) - 自定义事件和高级功能
+- [高级使用](docs/advanced-usage.md) - 自定义事件和高级功能
 - [ccusage 集成](docs/ccusage-integration.md) - 使用统计和成本分析
 - [开发文档](docs/development.md) - 架构和开发指南
 
