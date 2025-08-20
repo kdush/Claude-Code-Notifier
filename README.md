@@ -229,8 +229,7 @@ claude-notifier debug diagnose --full
 - [快速开始](docs/quickstart.md) - 安装和基础配置
 - [配置指南](docs/configuration.md) - 详细配置说明
 - [渠道配置](docs/channels.md) - 各渠道具体配置
-- [高级使用](docs/advanced-usage.md) - 自定义事件和高级功能
-- [ccusage 集成](docs/ccusage-integration.md) - 使用统计和成本分析
+- [高级使用](docs/advanced-usage.md) - 自定义事件和ccusage集成
 - [开发文档](docs/development.md) - 架构和开发指南
 
 ## 📊 使用统计与分析
