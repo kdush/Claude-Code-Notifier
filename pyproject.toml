@@ -3,16 +3,16 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "claude-notifier"
-version = "0.0.1"
+name = "claude-code-notifier"
+dynamic = ["version"]
 description = "Claude Code智能通知系统 - 轻量级、模块化、生产就绪"
 readme = "README.md"
 license = {file = "LICENSE.txt"}
 authors = [
-    {name = "kdush", email = "your-email@example.com"},
+    {name = "kdush", email = "zhangdaleik@gmail.com"},
 ]
 maintainers = [
-    {name = "kdush", email = "your-email@example.com"},
+    {name = "kdush", email = "zhangdaleik@gmail.com"},
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -22,7 +22,6 @@ classifiers = [
     "Topic :: Communications",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8", 
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -37,7 +36,7 @@ keywords = [
     "dingtalk", "feishu", "telegram", "email", "development-tools",
     "rate-limiting", "intelligent", "automation"
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = [
     "requests>=2.25.0",
     "PyYAML>=5.4.0",
@@ -79,14 +78,14 @@ all = [
 
 [project.urls]
 Homepage = "https://github.com/kdush/Claude-Code-Notifier"
-Documentation = "https://claude-notifier.readthedocs.io"
+Documentation = "https://github.com/kdush/Claude-Code-Notifier#readme"
 Repository = "https://github.com/kdush/Claude-Code-Notifier.git"
 "Bug Reports" = "https://github.com/kdush/Claude-Code-Notifier/issues"
 Changelog = "https://github.com/kdush/Claude-Code-Notifier/blob/main/CHANGELOG.md"
 
 [project.scripts]
-claude-notifier = "claude_notifier.cli.main:main"
-claude-notify = "claude_notifier.cli.main:main"
+claude-notifier = "claude_notifier.cli.main:cli"
+claude-notify = "claude_notifier.cli.main:cli"
 
 
 [tool.setuptools.packages.find]
@@ -102,20 +101,16 @@ claude_notifier = [
     "static/*.js",
 ]
 
+[tool.setuptools.dynamic]
+version = {file = "src/claude_notifier/__version__.py"}
+
 # 开发工具配置
 [tool.black]
 line-length = 88
-target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
-include = '\.pyi?$'
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\\.pyi?$'
 extend-exclude = '''
-/(
-  # 排除目录
-  \.git
-  | \.venv
-  | build
-  | dist
-)/
-'''
+/(\n   # 排除目录\n   \\.git\n   | \\.venv\n   | build\n   | dist\n )/\n '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -132,7 +127,7 @@ addopts = [
 ]
 
 [tool.mypy]
-python_version = "3.7"
+python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

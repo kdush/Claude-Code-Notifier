@@ -62,7 +62,7 @@ setup(
     name="claude-code-notifier",
     version=get_version(),
     author="kdush",
-    author_email="your-email@example.com",
+    author_email="zhangdaleik@gmail.com",
     description="Claude Code 智能通知系统 - 具备操作阻止、频率控制、消息分组的高级通知管理",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
