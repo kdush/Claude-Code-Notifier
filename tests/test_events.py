@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-事件系统单元测试
+事件系统单元测试 (现代化版本 - 轻量级架构)
 """
 
 import unittest
@@ -10,18 +10,21 @@ import sys
 import os
 from pathlib import Path
 
-# 添加项目路径
-sys.path.append(str(Path(__file__).parent.parent))
+# 添加项目路径和src路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / 'src'))
 
-from src.events.builtin import (
+# 使用现有架构的导入路径
+from events.builtin import (
     SensitiveOperationEvent, 
     TaskCompletionEvent,
     RateLimitEvent,
     ErrorOccurredEvent,
     SessionStartEvent
 )
-from src.events.custom import CustomEvent
-from src.managers.event_manager import EventManager
+from events.custom import CustomEvent
+from managers.event_manager import EventManager
 
 class TestBuiltinEvents(unittest.TestCase):
     """内置事件测试"""

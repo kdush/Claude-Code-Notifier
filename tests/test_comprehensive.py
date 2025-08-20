@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-综合测试套件 - 测试所有功能模块
+现代化综合测试套件 - 测试所有功能模块 (轻量级架构)
 """
 
 import os
@@ -14,35 +14,58 @@ import time
 from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 
-# 添加项目路径
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# 添加项目路径和src路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / 'src'))
 
-from src.channels.base import BaseChannel
-from src.channels.dingtalk import DingtalkChannel
-from src.channels.feishu import FeishuChannel
-from src.channels.telegram import TelegramChannel
-from src.channels.email import EmailChannel
-from src.channels.serverchan import ServerChanChannel
-from src.channels.wechat_work import WechatWorkChannel
+# 使用现有架构的导入
+from channels.base import BaseChannel
+from channels.dingtalk import DingtalkChannel
+from channels.feishu import FeishuChannel
+from channels.telegram import TelegramChannel
+from channels.email import EmailChannel
+from channels.serverchan import ServerChanChannel
+from channels.wechat_work import WechatWorkChannel
 
-from src.events.base import BaseEvent, EventType, EventPriority
-from src.events.builtin import (
+from events.base import BaseEvent, EventType, EventPriority
+from events.builtin import (
     SensitiveOperationEvent, TaskCompletionEvent, RateLimitEvent,
     ConfirmationRequiredEvent, SessionStartEvent, ErrorOccurredEvent
 )
-from src.events.custom import CustomEvent, CustomEventRegistry
+from events.custom import CustomEvent, CustomEventRegistry
 
-from src.managers.event_manager import EventManager
-from src.config_manager import ConfigManager
-from src.templates.template_engine import TemplateEngine
-from src.notifier import ClaudeCodeNotifier
+from managers.event_manager import EventManager
+from config_manager import ConfigManager
+from templates.template_engine import TemplateEngine
+from notifier import ClaudeCodeNotifier
 
-from src.utils.helpers import (
+from utils.helpers import (
     is_sensitive_operation, truncate_text, escape_markdown,
     parse_command_output, check_rate_limit_status, validate_webhook_url
 )
-from src.utils.time_utils import TimeManager, RateLimitTracker
-from src.utils.statistics import StatisticsManager
+from utils.time_utils import TimeManager, RateLimitTracker
+from utils.statistics import StatisticsManager
+
+# 导入新的智能组件 (可选组件，优雅降级)
+try:
+    from claude_notifier.utils.operation_gate import OperationGate
+    from claude_notifier.utils.notification_throttle import NotificationThrottle
+    from claude_notifier.utils.message_grouper import MessageGrouper
+    from claude_notifier.utils.cooldown_manager import CooldownManager
+    INTELLIGENCE_AVAILABLE = True
+except ImportError:
+    INTELLIGENCE_AVAILABLE = False
+
+# 导入监控组件
+try:
+    from claude_notifier.monitoring.statistics import StatisticsManager as EnhancedStatisticsManager
+    from claude_notifier.monitoring.health_check import HealthChecker
+    from claude_notifier.monitoring.performance import PerformanceMonitor
+    from claude_notifier.monitoring.dashboard import MonitoringDashboard
+    MONITORING_AVAILABLE = True
+except ImportError:
+    MONITORING_AVAILABLE = False
 
 
 class TestChannels(unittest.TestCase):
@@ -516,7 +539,7 @@ class TestConfigManager(unittest.TestCase):
 class TestIntegration(unittest.TestCase):
     """集成测试"""
     
-    @patch('src.notifier.ClaudeCodeNotifier._init_channels')
+    @patch('claude_notifier.notifier.ClaudeCodeNotifier._init_channels')
     def test_notifier_initialization(self, mock_init):
         """测试通知器初始化"""
         notifier = ClaudeCodeNotifier()
@@ -567,6 +590,244 @@ class TestIntegration(unittest.TestCase):
                 self.assertIn('dingtalk', event.get('channels', []))
 
 
+class TestIntelligentComponents(unittest.TestCase):
+    """测试智能组件 (可选功能)"""
+    
+    def setUp(self):
+        """设置测试环境"""
+        if not INTELLIGENCE_AVAILABLE:
+            self.skipTest("智能组件不可用")
+            
+    def test_operation_gate_initialization(self):
+        """测试操作门初始化"""
+        config = {
+            'enabled': True,
+            'strategies': {
+                'critical_operations': {
+                    'type': 'hard_block',
+                    'patterns': ['sudo rm -rf', 'DROP TABLE']
+                }
+            }
+        }
+        gate = OperationGate(config)
+        self.assertTrue(gate.config['enabled'])
+        
+    def test_operation_gate_blocking(self):
+        """测试操作门阻止功能"""
+        config = {
+            'enabled': True,
+            'strategies': {
+                'critical_operations': {
+                    'type': 'hard_block',
+                    'patterns': ['sudo rm -rf'],
+                    'message': 'Critical operation blocked'
+                }
+            }
+        }
+        gate = OperationGate(config)
+        
+        from claude_notifier.utils.operation_gate import OperationRequest
+        request = OperationRequest(
+            command='sudo rm -rf /',
+            context={'project': 'test'},
+            priority='normal'
+        )
+        
+        result, message = gate.should_allow_operation(request)
+        from claude_notifier.utils.operation_gate import OperationResult
+        self.assertEqual(result, OperationResult.BLOCKED)
+        
+    def test_notification_throttle(self):
+        """测试通知限流"""
+        config = {
+            'enabled': True,
+            'limits': {
+                'per_minute': 10,
+                'per_hour': 100
+            }
+        }
+        throttle = NotificationThrottle(config)
+        
+        from claude_notifier.utils.notification_throttle import NotificationRequest
+        request = NotificationRequest(
+            content='test notification',
+            channel='test',
+            event_type='test'
+        )
+        
+        action, message, delay = throttle.should_allow_notification(request)
+        from claude_notifier.utils.notification_throttle import ThrottleAction
+        self.assertEqual(action, ThrottleAction.ALLOW)
+        
+    def test_message_grouper(self):
+        """测试消息分组"""
+        config = {
+            'enabled': True,
+            'strategies': {
+                'similarity_threshold': 0.8,
+                'time_window': 300
+            }
+        }
+        grouper = MessageGrouper(config)
+        
+        message = {
+            'content': 'Test error message',
+            'type': 'error',
+            'timestamp': time.time()
+        }
+        
+        should_group, group_id, merge_action = grouper.should_group_message(message)
+        self.assertIsInstance(should_group, bool)
+        
+    def test_cooldown_manager(self):
+        """测试冷却管理器"""
+        config = {
+            'enabled': True,
+            'cooldown_rules': [
+                {
+                    'scope': 'global',
+                    'type': 'static',
+                    'duration': 60
+                }
+            ]
+        }
+        manager = CooldownManager(config)
+        
+        context = {'event_type': 'test_event'}
+        should_cooldown, reason, remaining = manager.should_cooldown(context)
+        self.assertIsInstance(should_cooldown, bool)
+
+
+class TestMonitoringComponents(unittest.TestCase):
+    """测试监控组件"""
+    
+    def setUp(self):
+        """设置测试环境"""
+        if not MONITORING_AVAILABLE:
+            self.skipTest("监控组件不可用")
+        
+        # 创建临时统计文件
+        self.temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json')
+        self.temp_file.close()
+        
+    def tearDown(self):
+        """清理测试环境"""
+        if hasattr(self, 'temp_file') and os.path.exists(self.temp_file.name):
+            os.unlink(self.temp_file.name)
+            
+    def test_enhanced_statistics_manager(self):
+        """测试增强的统计管理器"""
+        stats_manager = EnhancedStatisticsManager(self.temp_file.name)
+        
+        # 测试记录智能事件
+        stats_manager.record_intelligence_event('operation_gate', 'blocked', {'reason': 'test'})
+        
+        stats = stats_manager.get_intelligence_stats()
+        self.assertIn('operation_gate', stats)
+        self.assertEqual(stats['operation_gate']['blocked'], 1)
+        
+    def test_health_checker(self):
+        """测试健康检查器"""
+        config = {
+            'enabled': True,
+            'check_interval': 60,
+            'components': ['channels', 'events', 'intelligence']
+        }
+        checker = HealthChecker(config)
+        
+        # 测试系统健康检查
+        health = checker.get_system_health()
+        self.assertIn('status', health)
+        self.assertIn('components', health)
+        self.assertIn('timestamp', health)
+        
+    def test_performance_monitor(self):
+        """测试性能监控器"""
+        config = {
+            'enabled': True,
+            'metrics': ['cpu', 'memory', 'response_time'],
+            'thresholds': {
+                'cpu_warning': 70.0,
+                'memory_warning': 80.0
+            }
+        }
+        monitor = PerformanceMonitor(config)
+        
+        # 收集性能指标
+        metrics = monitor.collect_all_metrics()
+        self.assertIsInstance(metrics, dict)
+        
+        # 测试警报检查
+        alerts = monitor.check_alerts()
+        self.assertIsInstance(alerts, list)
+        
+    def test_monitoring_dashboard(self):
+        """测试监控仪表板"""
+        # 创建依赖组件
+        stats_manager = EnhancedStatisticsManager(self.temp_file.name)
+        health_checker = HealthChecker({'enabled': True})
+        performance_monitor = PerformanceMonitor({'enabled': True})
+        
+        dashboard = MonitoringDashboard(
+            stats_manager=stats_manager,
+            health_checker=health_checker,
+            performance_monitor=performance_monitor
+        )
+        
+        # 测试仪表板视图
+        overview = dashboard.get_dashboard_view('overview')
+        self.assertIsInstance(overview, str)
+        self.assertIn('系统状态', overview)
+        
+        # 测试系统状态
+        status = dashboard.get_system_status()
+        self.assertIn('health', status)
+        self.assertIn('performance', status)
+        self.assertIn('statistics', status)
+
+
+class TestCLIComponents(unittest.TestCase):
+    """测试CLI组件"""
+    
+    def test_cli_imports(self):
+        """测试CLI模块导入"""
+        try:
+            from claude_notifier.cli.main import cli
+            self.assertTrue(callable(cli))
+        except ImportError:
+            self.skipTest("CLI组件不可用")
+            
+    def test_config_validation(self):
+        """测试配置验证"""
+        config = {
+            'channels': {
+                'dingtalk': {
+                    'enabled': True,
+                    'webhook': 'https://oapi.dingtalk.com/robot/send?access_token=test'
+                }
+            },
+            'intelligent_limiting': {
+                'enabled': True,
+                'operation_gate': {'enabled': True},
+                'notification_throttle': {'enabled': True}
+            }
+        }
+        
+        # 基本配置结构验证
+        self.assertIn('channels', config)
+        self.assertIn('intelligent_limiting', config)
+        
+        # 渠道配置验证
+        dingtalk_config = config['channels']['dingtalk']
+        self.assertTrue(dingtalk_config['enabled'])
+        self.assertIn('webhook', dingtalk_config)
+        
+        # 智能限制配置验证
+        intelligent_config = config['intelligent_limiting']
+        self.assertTrue(intelligent_config['enabled'])
+        self.assertIn('operation_gate', intelligent_config)
+
+
 def run_tests():
     """运行所有测试"""
     # 创建测试套件
@@ -582,6 +843,9 @@ def run_tests():
         TestStatistics,
         TestEventManager,
         TestConfigManager,
+        TestIntelligentComponents,
+        TestMonitoringComponents,
+        TestCLIComponents,
         TestIntegration
     ]
     
