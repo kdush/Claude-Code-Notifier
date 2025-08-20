@@ -1,0 +1,256 @@
+# Claude Code Notifier 增强配置文件
+
+# 通知渠道配置
+channels:
+  # 钉钉机器人
+  dingtalk:
+    enabled: false
+    webhook: ""
+    secret: ""
+    
+  # 飞书机器人
+  feishu:
+    enabled: false
+    webhook: ""
+    secret: ""
+    
+  # 企业微信机器人
+  wechat_work:
+    enabled: false
+    webhook: ""
+    
+  # Telegram Bot
+  telegram:
+    enabled: false
+    bot_token: ""
+    chat_id: ""
+    
+  # 邮箱 SMTP
+  email:
+    enabled: false
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    sender: ""
+    password: ""
+    receivers: []
+    use_tls: true
+    
+  # Server酱（微信推送）
+  serverchan:
+    enabled: false
+    send_key: ""
+    api_url: "https://sctapi.ftqq.com"
+
+# 内置事件配置
+events:
+  # 敏感操作检测事件
+  sensitive_operation:
+    enabled: true
+    priority: high  # low, normal, high, critical
+    channels: []    # 空数组表示使用默认渠道，可指定 ["dingtalk", "telegram"]
+    template: "sensitive_operation_default"  # 模板名称
+    cooldown: 60    # 冷却时间（秒），避免重复通知
+    conditions:     # 附加条件
+      risk_levels: ["medium", "high"]  # 只通知中高风险操作
+      
+  # 任务完成事件
+  task_completion:
+    enabled: true
+    priority: normal
+    channels: []
+    template: "task_completion_default"
+    delay: 3        # 延迟时间（秒），确保任务真正完成
+    conditions:
+      min_duration: 5  # 最小持续时间（秒），避免短任务通知
+      
+  # Claude 限流冷却事件
+  rate_limit:
+    enabled: true
+    priority: critical
+    channels: []
+    template: "rate_limit_default"
+    conditions:
+      notify_immediately: true  # 立即通知
+      
+  # 错误发生事件
+  error_occurred:
+    enabled: true
+    priority: high
+    channels: []
+    template: "error_default"
+    conditions:
+      error_types: ["network", "permission", "timeout"]  # 只通知特定类型错误
+      
+  # 会话开始事件
+  session_start:
+    enabled: false   # 默认禁用，避免频繁通知
+    priority: low
+    channels: []
+    template: "session_start_default"
+
+# 自定义事件配置
+custom_events:
+  # 自定义事件示例1：代码提交检测
+  git_commit_detected:
+    enabled: false
+    priority: normal
+    channels: ["dingtalk"]
+    template: "git_commit_custom"
+    trigger:
+      type: "pattern_match"     # always, hook_event, tool_name, pattern_match, condition
+      pattern: "git\\s+commit"
+      extract_fields: ["tool_input", "project"]
+    message:
+      title: "📝 代码提交检测"
+      content: "检测到代码提交操作"
+      action: "请确认提交内容是否正确"
+      
+  # 自定义事件示例2：生产环境操作
+  production_operation:
+    enabled: false
+    priority: critical
+    channels: ["dingtalk", "telegram"]
+    template: "production_alert_custom"
+    trigger:
+      type: "condition"
+      condition: "'prod' in project.lower() or 'production' in tool_input.lower()"
+      extract_fields: ["tool_name", "tool_input", "project"]
+    message:
+      title: "🚨 生产环境操作警告"
+      content: "检测到生产环境相关操作"
+      action: "请谨慎操作并确认无误"
+
+# 通知设置
+notifications:
+  # 默认通知渠道（当事件没有指定渠道时使用）
+  default_channels: []
+  
+  # 通知频率限制
+  rate_limiting:
+    enabled: true
+    max_per_minute: 10        # 每分钟最大通知数
+    max_per_hour: 60          # 每小时最大通知数
+    cooldown_events: []       # 需要冷却的事件列表
+    
+  # 通知时间窗口
+  time_windows:
+    enabled: false
+    quiet_hours:              # 静默时间
+      start: "22:00"
+      end: "08:00"
+      timezone: "Asia/Shanghai"
+    working_hours:            # 工作时间加强通知
+      start: "09:00"
+      end: "18:00"
+      priority_boost: true    # 工作时间内提升通知优先级
+      
+  # 通知分组
+  grouping:
+    enabled: true
+    group_window: 300         # 分组时间窗口（秒）
+    max_group_size: 5         # 最大分组数量
+    similar_events: true      # 相似事件分组
+
+# 模板设置
+templates:
+  # 自定义模板目录
+  custom_dir: "~/.claude-notifier/templates"
+  
+  # 模板缓存
+  cache_enabled: true
+  cache_ttl: 3600             # 缓存时间（秒）
+  
+  # 模板变量
+  global_variables:
+    company_name: "My Company"
+    support_email: "support@company.com"
+    dashboard_url: "https://dashboard.company.com"
+
+# 高级设置
+advanced:
+  # 日志设置
+  logging:
+    enabled: true
+    level: "info"              # debug, info, warn, error
+    file: "~/.claude-notifier/logs/notifier.log"
+    max_size_mb: 10
+    backup_count: 5
+    
+  # 事件处理
+  event_processing:
+    async_enabled: true       # 异步处理事件
+    queue_size: 100          # 事件队列大小
+    worker_threads: 2        # 工作线程数
+    
+  # 重试机制
+  retry:
+    enabled: true
+    max_attempts: 3
+    backoff_factor: 2        # 退避因子
+    initial_delay: 1         # 初始延迟（秒）
+    
+  # 监控和统计
+  monitoring:
+    enabled: true
+    stats_file: "~/.claude-notifier/stats.json"
+    metrics_interval: 60     # 统计间隔（秒）
+
+# Claude使用统计（可选功能）
+statistics:
+  # 是否启用统计功能
+  enabled: false
+  
+  # ccusage集成（需要单独安装: npm install -g ccusage）
+  ccusage:
+    enabled: false           # 是否使用ccusage进行统计
+    auto_install: false      # 是否自动安装ccusage（不推荐）
+    tracking:
+      tokens: true           # 跟踪Token使用
+      costs: true            # 跟踪成本
+      rate_limits: true      # 跟踪限流状态
+    notifications:
+      daily_summary: false   # 每日使用摘要
+      cost_alerts: false     # 成本警告
+      rate_limit_warnings: true  # 限流警告
+      thresholds:
+        daily_cost: 10.0     # 日成本警告阈值（美元）
+        monthly_cost: 100.0  # 月成本警告阈值（美元）
+  
+  # 内置统计（轻量级，无需外部依赖）
+  builtin:
+    enabled: true            # 使用内置统计
+    track_events: true       # 跟踪事件统计
+    track_notifications: true # 跟踪通知统计
+    track_sessions: true     # 跟踪会话统计
+    reports:
+      daily: false           # 每日报告
+      weekly: false          # 周报
+      monthly: false         # 月报
+
+# 插件和扩展
+plugins:
+  # 自定义插件目录
+  plugin_dir: "~/.claude-notifier/plugins"
+  
+  # 启用的插件
+  enabled_plugins: []
+  
+  # 插件配置
+  plugin_configs: {}
+
+# 安全设置
+security:
+  # 敏感信息加密
+  encryption:
+    enabled: false
+    algorithm: "AES-256"
+    
+  # 访问控制
+  access_control:
+    enabled: false
+    allowed_users: []
+    
+  # 审计日志
+  audit:
+    enabled: true
+    audit_file: "~/.claude-notifier/logs/audit.log"

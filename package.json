@@ -1,0 +1,45 @@
+{
+  "name": "claude-code-notifier",
+  "version": "1.0.0",
+  "description": "A powerful notification system for Claude Code with multi-channel support",
+  "main": "src/notifier.py",
+  "scripts": {
+    "install": "./install.sh",
+    "configure": "./scripts/configure.sh",
+    "test": "./scripts/test.sh"
+  },
+  "keywords": [
+    "claude-code",
+    "notification",
+    "dingtalk",
+    "feishu",
+    "wechat",
+    "telegram",
+    "webhook",
+    "automation"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/claude-code-notifier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/claude-code-notifier/issues"
+  },
+  "homepage": "https://github.com/your-username/claude-code-notifier#readme",
+  "engines": {
+    "python": ">=3.6"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "requirements": {
+    "python": [
+      "requests>=2.25.1",
+      "pyyaml>=5.4.1"
+    ]
+  }
+}

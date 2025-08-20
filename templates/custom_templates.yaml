@@ -1,0 +1,141 @@
+# 自定义通知模板示例
+
+# Git 提交检测模板
+git_commit_custom:
+  title: '📝 代码提交检测'
+  content: '在项目 ${project} 中检测到 Git 提交操作'
+  fields:
+    - label: '项目名称'
+      value: '${project}'
+      short: true
+    - label: '提交命令'
+      value: '${operation}'
+      short: false
+    - label: '检测时间'
+      value: '${timestamp}'
+      short: true
+  actions:
+    - text: '查看提交历史'
+      type: 'button'
+      url: 'git://log'
+    - text: '查看差异'
+      type: 'button'
+      url: 'git://diff'
+  color: '#28a745'
+
+# 生产环境操作警告模板
+production_alert_custom:
+  title: '🚨 生产环境操作警告'
+  content: '⚠️ 检测到生产环境相关操作，请谨慎处理！'
+  fields:
+    - label: '项目名称'
+      value: '${project}'
+      short: true
+    - label: '操作工具'
+      value: '${tool_name}'
+      short: true
+    - label: '操作内容'
+      value: '${tool_input}'
+      short: false
+    - label: '风险等级'
+      value: '🔴 高风险'
+      short: true
+    - label: '检测时间'
+      value: '${timestamp}'
+      short: true
+  actions:
+    - text: '立即确认'
+      type: 'button'
+      style: 'danger'
+    - text: '暂停操作'
+      type: 'button'
+      style: 'primary'
+    - text: '查看日志'
+      type: 'button'
+      url: 'logs://'
+  color: '#dc3545'
+
+# 简洁版任务完成模板
+task_completion_simple:
+  title: '✅ ${project} 完成'
+  content: '🎉 任务执行完毕！'
+  fields:
+    - label: '完成时间'
+      value: '${timestamp}'
+      short: true
+  color: '#28a745'
+
+# 详细版错误通知模板
+error_detailed:
+  title: '❌ 执行错误'
+  content: '在 ${project} 项目中发生错误，需要处理'
+  fields:
+    - label: '项目'
+      value: '${project}'
+      short: true
+    - label: '错误类型'
+      value: '${error_type}'
+      short: true
+    - label: '错误信息'
+      value: '${error_message}'
+      short: false
+    - label: '堆栈跟踪'
+      value: '${stack_trace}'
+      short: false
+    - label: '发生时间'
+      value: '${timestamp}'
+      short: true
+  actions:
+    - text: '查看详情'
+      type: 'button'
+      url: 'error://details'
+    - text: '重试操作'
+      type: 'button'
+      style: 'primary'
+  color: '#dc3545'
+
+# 限流通知模板（带倒计时）
+rate_limit_countdown:
+  title: '⏰ Claude 限流中'
+  content: '已达到 Claude 使用限制，请等待冷却'
+  fields:
+    - label: '项目'
+      value: '${project}'
+      short: true
+    - label: '冷却时间'
+      value: '${cooldown_time}'
+      short: true
+    - label: '预计恢复'
+      value: '约 ${cooldown_time} 后'
+      short: true
+    - label: '限流时间'
+      value: '${timestamp}'
+      short: true
+  actions:
+    - text: '设置提醒'
+      type: 'button'
+      style: 'primary'
+  color: '#ffc107'
+
+# 会话开始欢迎模板
+session_welcome:
+  title: '🚀 开始编程'
+  content: '欢迎使用 Claude Code，开始您的编程之旅！'
+  fields:
+    - label: '项目'
+      value: '${project}'
+      short: true
+    - label: '会话ID'
+      value: '${session_id}'
+      short: true
+    - label: '开始时间'
+      value: '${start_time}'
+      short: true
+  actions:
+    - text: '查看项目'
+      type: 'button'
+      url: 'project://'
+    - text: '使用指南'
+      type: 'button'
+      url: 'help://'
+  color: '#007bff'
