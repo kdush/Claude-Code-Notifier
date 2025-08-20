@@ -347,7 +347,7 @@ class QuickSetup:
         
         print(f"\n💡 下一步:")
         print(f"  1. 运行 './scripts/test.sh' 测试通知")
-        print(f"  2. 查看 'docs/advanced_usage.md' 了解高级功能")
+        print(f"  2. 查看 'docs/advanced-usage.md' 了解高级功能")
         print(f"  3. 使用 'examples/usage_examples.py' 查看更多示例")
         
         # 创建备份
