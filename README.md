@@ -1,6 +1,9 @@
 # 🔔 Claude Code Notifier
 
-![Claude Code Notifier Logo](assets/logo.png)
+<p align="center">
+  <img src="assets/logo.png" alt="Claude Code Notifier Logo" width="160">
+  
+</p>
 
 **智能化的 Claude Code 通知系统 - 提供实时、多渠道的操作通知和智能限制功能**
 
