@@ -2,7 +2,7 @@
 
 # 包含所有文档文件
 include README.md
-include LICENSE
+include LICENSE.txt
 include CHANGELOG.md
 recursive-include docs *.md *.rst *.txt
 
