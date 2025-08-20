@@ -2,6 +2,9 @@
 dist/
 build/
 *.egg-info/
+*.pyc
+*.pyo
+*.pyd
 
 # Caches
 __pycache__/
@@ -9,3 +12,26 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .claude/settings.local.json
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+*.backup
+*~
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Development artifacts
+.coverage
+htmlcov/
+.tox/
+.venv/
+venv/
+env/
