@@ -10,17 +10,8 @@ import sys
 import click
 from typing import Optional, List
 
-# 核心功能导入
-from ..core.notifier import Notifier
-from .. import get_feature_status, print_feature_status
-
-# 监控功能导入
-try:
-    from ..monitoring.dashboard import MonitoringDashboard, DashboardMode
-    from ..monitoring import MONITORING_AVAILABLE, PERFORMANCE_AVAILABLE, DASHBOARD_AVAILABLE
-    MONITORING_CLI_AVAILABLE = True
-except ImportError:
-    MONITORING_CLI_AVAILABLE = False
+# 注意：避免在顶层导入重型依赖，按需在命令中惰性导入
+# 这样 `claude-notifier --version` 仅加载最少模块，降低在 CI 环境卡住的风险
 
 
 @click.group(invoke_without_command=True)
@@ -49,8 +40,10 @@ def cli(ctx, version, status):
         return
         
     if status:
+        from .. import print_feature_status
         print_feature_status()
         try:
+            from ..core.notifier import Notifier
             notifier = Notifier()
             status_info = notifier.get_status()
             print(f"\n📊 系统状态:")
@@ -161,6 +154,7 @@ def setup(auto, claude_code_only):
     # 1. 基础配置检查（除非只配置Claude Code）
     if not claude_code_only:
         try:
+            from ..core.notifier import Notifier
             notifier = Notifier()
             status_info = notifier.get_status()
             
@@ -313,6 +307,7 @@ def send(message, channels, event_type, priority, throttle, project):
                 click.echo("❌ 智能功能未安装: pip install claude-notifier[intelligence]")
                 return False
         else:
+            from ..core.notifier import Notifier
             notifier = Notifier()
             
         # 构建消息数据
@@ -344,6 +339,7 @@ def test(channels):
         claude-notifier test -c dingtalk,email
     """
     try:
+        from ..core.notifier import Notifier
         notifier = Notifier()
         
         channels_list = None
@@ -395,9 +391,11 @@ def status(intelligence, export):
     """
     try:
         # 基础状态
+        from .. import print_feature_status
         print_feature_status()
         
         # 通知器状态
+        from ..core.notifier import Notifier
         notifier = Notifier()
         status_info = notifier.get_status()
         
@@ -500,7 +498,9 @@ def status(intelligence, export):
 
 def _show_monitoring_status(mode: str, export_file: Optional[str] = None):
     """显示监控系统状态"""
-    if not MONITORING_CLI_AVAILABLE:
+    try:
+        from ..monitoring.dashboard import MonitoringDashboard, DashboardMode
+    except ImportError:
         click.echo(f"\n📊 监控系统: ❌ 监控功能不可用")
         return
         
@@ -565,7 +565,9 @@ def monitor(mode, start, stop, report, export, watch, interval):
         claude-notifier monitor --report monitor_report.txt
         claude-notifier monitor --export monitoring_data.json
     """
-    if not MONITORING_CLI_AVAILABLE:
+    try:
+        from ..monitoring.dashboard import MonitoringDashboard, DashboardMode
+    except ImportError:
         click.echo("❌ 监控功能不可用，请检查监控模块安装")
         sys.exit(1)
         
@@ -740,6 +742,7 @@ def config(ctx):
 def _show_config_status():
     """显示配置状态"""
     try:
+        from ..core.notifier import Notifier
         notifier = Notifier()
         status_info = notifier.get_status()
         config_info = status_info['config']

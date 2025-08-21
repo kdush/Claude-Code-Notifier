@@ -1,0 +1,311 @@
+{
+  "dashboard_info": {
+    "export_time": 1755792938.670771,
+    "version": "1.2.0",
+    "mode": "dashboard_export"
+  },
+  "system_status": {
+    "overall_status": "good",
+    "health_status": "healthy",
+    "performance_status": "excellent",
+    "last_update": 1755792938.670757
+  },
+  "current_metrics": {
+    "session_duration": 0,
+    "events_count": 0,
+    "notifications_sent": 0,
+    "errors_count": 0,
+    "healthy_components": 3,
+    "total_components": 3
+  },
+  "alerts": [],
+  "components": {
+    "health": {
+      "overall_status": "healthy",
+      "message": "所有组件正常运行",
+      "components": {
+        "system_basic": {
+          "component": "system_basic",
+          "status": "healthy",
+          "message": "系统基础功能正常",
+          "response_time": 3.0994415283203125e-06,
+          "details": {
+            "python_version": "3.11.12 (main, May 26 2025, 15:25:46) [Clang 17.0.0 (clang-1700.0.13.3)]",
+            "platform": "darwin",
+            "process_id": 66592
+          },
+          "timestamp": 1755792938.670468,
+          "formatted_time": "2025-08-22 00:15:38"
+        },
+        "filesystem": {
+          "component": "filesystem",
+          "status": "healthy",
+          "message": "文件系统正常",
+          "response_time": 7.104873657226562e-05,
+          "details": {
+            "config_dir_exists": true,
+            "config_dir_writable": true,
+            "free_space_gb": 40.6
+          },
+          "timestamp": 1755792938.6705432,
+          "formatted_time": "2025-08-22 00:15:38"
+        },
+        "memory": {
+          "component": "memory",
+          "status": "healthy",
+          "message": "内存使用正常: 31.7MB",
+          "response_time": 0.00010228157043457031,
+          "details": {
+            "process_memory_mb": 31.66,
+            "system_memory_percent": 74.8,
+            "system_available_gb": 6.06
+          },
+          "timestamp": 1755792938.6706471,
+          "formatted_time": "2025-08-22 00:15:38"
+        }
+      },
+      "summary": {
+        "total_components": 3,
+        "healthy_components": 3,
+        "warning_components": 0,
+        "critical_components": 0,
+        "disabled_components": 0
+      },
+      "critical_issues": [],
+      "warning_issues": [],
+      "stats": {
+        "total_checks": 3,
+        "failed_checks": 0,
+        "average_response_time": 5.8809916178385414e-05,
+        "last_check_time": 1755792938.670648
+      },
+      "last_check_time": 1755792938.6706471
+    },
+    "performance": {
+      "overall_performance": "excellent",
+      "total_metrics": 0,
+      "level_distribution": {},
+      "metrics": {},
+      "stats": {
+        "total_samples": 0,
+        "alerts_triggered": 0,
+        "performance_degradation_count": 0,
+        "last_monitor_time": null,
+        "monitoring_overhead": 0.0
+      },
+      "monitoring_active": false,
+      "last_update": null
+    },
+    "statistics": {
+      "current_session": {
+        "duration": 0,
+        "events_count": 0,
+        "notifications_sent": 0,
+        "errors_count": 0,
+        "start_time": 1755792938.6704361
+      },
+      "intelligence_status": {
+        "operation_gate": {
+          "total_allowed": 0,
+          "total_blocked": 0,
+          "total_deferred": 0,
+          "by_strategy": {}
+        },
+        "notification_throttle": {
+          "total_allowed": 0,
+          "total_blocked": 0,
+          "total_delayed": 0,
+          "duplicates_filtered": 0
+        },
+        "message_grouper": {
+          "groups_created": 0,
+          "messages_grouped": 0,
+          "groups_sent": 0
+        },
+        "cooldown_manager": {
+          "cooldowns_applied": 0,
+          "cooldowns_bypassed": 0,
+          "active_cooldowns": 0
+        }
+      },
+      "performance": {
+        "avg_response_time": 0,
+        "max_response_time": 0,
+        "min_response_time": Infinity
+      }
+    }
+  },
+  "history": {
+    "statistics": {
+      "version": "1.2.0",
+      "export_time": 1755792938.670772,
+      "summary": {
+        "period_days": 7,
+        "total_events": 0,
+        "recent_events": 0,
+        "total_notifications": 0,
+        "success_rate": "0.0%",
+        "total_sessions": 0,
+        "total_commands": 0,
+        "sensitive_operations": 0,
+        "errors_occurred": 0,
+        "average_session_duration": "0秒",
+        "most_active_hour": "N/A:00",
+        "most_used_channel": "N/A",
+        "rate_limit_warnings": 0,
+        "rate_limits_hit": 0,
+        "intelligence": {
+          "operation_gate": {
+            "total_allowed": 0,
+            "total_blocked": 0,
+            "total_deferred": 0,
+            "by_strategy": {}
+          },
+          "notification_throttle": {
+            "total_allowed": 0,
+            "total_blocked": 0,
+            "total_delayed": 0,
+            "duplicates_filtered": 0
+          },
+          "message_grouper": {
+            "groups_created": 0,
+            "messages_grouped": 0,
+            "groups_sent": 0
+          },
+          "cooldown_manager": {
+            "cooldowns_applied": 0,
+            "cooldowns_bypassed": 0,
+            "active_cooldowns": 0
+          }
+        },
+        "performance": {
+          "avg_response_time": "0.00ms",
+          "max_response_time": "0.00ms"
+        }
+      },
+      "realtime": {
+        "current_session": {
+          "duration": 0,
+          "events_count": 0,
+          "notifications_sent": 0,
+          "errors_count": 0,
+          "start_time": 1755792938.6704361
+        },
+        "intelligence_status": {
+          "operation_gate": {
+            "total_allowed": 0,
+            "total_blocked": 0,
+            "total_deferred": 0,
+            "by_strategy": {}
+          },
+          "notification_throttle": {
+            "total_allowed": 0,
+            "total_blocked": 0,
+            "total_delayed": 0,
+            "duplicates_filtered": 0
+          },
+          "message_grouper": {
+            "groups_created": 0,
+            "messages_grouped": 0,
+            "groups_sent": 0
+          },
+          "cooldown_manager": {
+            "cooldowns_applied": 0,
+            "cooldowns_bypassed": 0,
+            "active_cooldowns": 0
+          }
+        },
+        "performance": {
+          "avg_response_time": 0,
+          "max_response_time": 0,
+          "min_response_time": Infinity
+        }
+      },
+      "raw_stats": {
+        "version": "1.2.0",
+        "created_at": 1755792938.670429,
+        "events": {
+          "total_triggered": 0,
+          "by_type": {},
+          "by_channel": {},
+          "by_date": {},
+          "by_hour": {},
+          "by_priority": {}
+        },
+        "notifications": {
+          "total_sent": 0,
+          "total_failed": 0,
+          "success_rate": 0.0,
+          "by_channel": {
+            "sent": {},
+            "failed": {},
+            "response_times": {}
+          },
+          "by_priority": {
+            "sent": {},
+            "failed": {}
+          }
+        },
+        "intelligence": {
+          "operation_gate": {
+            "total_allowed": 0,
+            "total_blocked": 0,
+            "total_deferred": 0,
+            "by_strategy": {}
+          },
+          "notification_throttle": {
+            "total_allowed": 0,
+            "total_blocked": 0,
+            "total_delayed": 0,
+            "duplicates_filtered": 0
+          },
+          "message_grouper": {
+            "groups_created": 0,
+            "messages_grouped": 0,
+            "groups_sent": 0
+          },
+          "cooldown_manager": {
+            "cooldowns_applied": 0,
+            "cooldowns_bypassed": 0,
+            "active_cooldowns": 0
+          }
+        },
+        "usage": {
+          "sessions": 0,
+          "commands_executed": 0,
+          "sensitive_operations": 0,
+          "errors_occurred": 0,
+          "average_session_duration": 0,
+          "total_active_time": 0,
+          "concurrent_operations": 0
+        },
+        "rate_limits": {
+          "warnings_sent": 0,
+          "limits_hit": 0,
+          "by_level": {},
+          "by_component": {}
+        },
+        "performance": {
+          "average_response_time": 0,
+          "max_response_time": 0,
+          "min_response_time": Infinity,
+          "response_time_samples": 0,
+          "memory_usage": {},
+          "cpu_usage": {}
+        },
+        "health": {
+          "last_health_check": null,
+          "component_status": {},
+          "error_frequency": {},
+          "uptime_percentage": 100.0
+        },
+        "last_updated": null
+      }
+    },
+    "performance": {
+      "cpu_usage": [],
+      "memory_usage": [],
+      "response_time": []
+    }
+  }
+}

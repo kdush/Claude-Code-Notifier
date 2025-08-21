@@ -35,3 +35,4 @@ htmlcov/
 .venv/
 venv/
 env/
+.venv-ccn-test/

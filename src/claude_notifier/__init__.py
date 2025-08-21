@@ -21,6 +21,7 @@ Claude Notifier - Claude Code智能通知系统
     notifier.send("智能通知消息")
 """
 
+import os
 from .__version__ import __version__, __version_info__
 
 # 核心模块 - 始终可用
@@ -56,8 +57,11 @@ def _import_optional_modules():
         
     return optional_modules
 
-# 动态添加可选模块到命名空间
-_optional = _import_optional_modules()
+# 动态添加可选模块到命名空间（可通过环境变量跳过以加速导入/避免CI阻塞）
+if os.getenv('CLAUDE_NOTIFIER_SKIP_OPTIONAL_IMPORTS') == '1':
+    _optional = {}
+else:
+    _optional = _import_optional_modules()
 locals().update(_optional)
 
 # 公开API

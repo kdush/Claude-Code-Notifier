@@ -195,26 +195,81 @@ ccusage track "$@"
 
 # 检查限流
 python3 -c "
-from src.utils.ccusage_integration import CCUsageIntegration
-from src.managers.event_manager import EventManager
-from src.config_manager import ConfigManager
+from claude_notifier.core.notifier import Notifier
+import subprocess, json, sys
 
-integration = CCUsageIntegration()
-rate_info = integration.check_rate_limits()
+def get_usage_stats():
+    try:
+        r = subprocess.run(['ccusage', '--json'], capture_output=True, text=True)
+        if r.returncode == 0:
+            return json.loads(r.stdout)
+    except Exception:
+        pass
+    return None
 
+def check_rate_limits(stats):
+    if not stats:
+        return None
+    info = {'status': 'normal', 'warnings': []}
+    limits = stats.get('rate_limits', {})
+    for limit_type, data in limits.items():
+        cur = data.get('current', 0)
+        lim = data.get('limit', 1)
+        try:
+            usage = (cur / lim) * 100 if lim else 0
+        except Exception:
+            usage = 0
+        if usage >= 90:
+            info['status'] = 'critical'
+            info['warnings'].append(f'{limit_type}: {usage:.1f}%')
+        elif usage >= 75:
+            if info['status'] == 'normal':
+                info['status'] = 'warning'
+            info['warnings'].append(f'{limit_type}: {usage:.1f}%')
+    return info
+
+def format_usage_notification(stats, rate_info):
+    if not stats:
+        return '无法获取使用统计'
+    lines = []
+    lines.append('📊 Claude 使用统计')
+    lines.append('-' * 30)
+    tokens = stats.get('tokens') or {}
+    if tokens:
+        lines.append('🎯 Token使用:')
+        t_today = tokens.get('today', 0)
+        t_week = tokens.get('week', 0)
+        t_month = tokens.get('month', 0)
+        lines.append(f'  • 今日: {t_today:,}')
+        lines.append(f'  • 本周: {t_week:,}')
+        lines.append(f'  • 本月: {t_month:,}')
+    cost = stats.get('cost') or {}
+    if cost:
+        lines.append('\n💰 成本:')
+        c_today = cost.get('today', 0)
+        c_month = cost.get('month', 0)
+        lines.append(f'  • 今日: ${c_today:.2f}')
+        lines.append(f'  • 本月: ${c_month:.2f}')
+    if rate_info and rate_info.get('warnings'):
+        lines.append('\n⚠️ 限流警告:')
+        for w in rate_info['warnings']:
+            lines.append(f'  • {w}')
+    return '\\n'.join(lines)
+
+stats = get_usage_stats()
+rate_info = check_rate_limits(stats)
 if rate_info and rate_info['status'] in ['warning', 'critical']:
-    # 触发限流警告事件
-    config = ConfigManager().get_config()
-    manager = EventManager(config)
-    
-    context = {
-        'event_type': 'rate_limit',
-        'rate_status': rate_info['status'],
-        'warnings': rate_info['warnings'],
-        'usage_report': integration.format_usage_notification()
+    notifier = Notifier()
+    status = rate_info.get('status')
+    message = {
+        'title': '⚠️ Claude 限流警告',
+        'content': f'状态: {status}',
+        'usage_report': format_usage_notification(stats, rate_info),
     }
-    
-    manager.process_context(context)
+    try:
+        notifier.send(message, event_type='rate_limit')
+    except Exception as e:
+        print(f'发送通知失败: {e}', file=sys.stderr)
 "
 """
     
