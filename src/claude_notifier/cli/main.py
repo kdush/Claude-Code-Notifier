@@ -380,34 +380,20 @@ def test(channels):
 
 
 @cli.command()
-@click.option('--mode', type=click.Choice(['overview', 'detailed', 'alerts', 'historical']),
-              default='overview', help='状态显示模式')
 @click.option('--intelligence', is_flag=True, help='显示智能功能状态')
-@click.option('--monitoring', is_flag=True, help='显示监控系统状态')
-@click.option('--export', help='导出状态数据到文件')
-@click.option('--watch', is_flag=True, help='实时监控模式 (每5秒刷新)')
-def status(mode, intelligence, monitoring, export, watch):
-    """显示系统状态信息
+@click.option('--export', help='导出基础状态数据到文件')
+def status(intelligence, export):
+    """快速系统健康检查
     
-    模式选择:
-        overview    - 概览模式 (默认)
-        detailed    - 详细模式
-        alerts      - 报警模式
-        historical  - 历史模式
+    显示核心组件状态：版本、配置、渠道、钩子等基础信息。
+    需要详细监控和性能分析请使用 monitor 命令。
         
     Examples:
         claude-notifier status
-        claude-notifier status --mode detailed
-        claude-notifier status --monitoring
-        claude-notifier status --mode alerts
+        claude-notifier status --intelligence  
         claude-notifier status --export status.json
-        claude-notifier status --watch
     """
     try:
-        if watch:
-            _watch_status(mode, intelligence, monitoring)
-            return
-            
         # 基础状态
         print_feature_status()
         
@@ -449,13 +435,67 @@ def status(mode, intelligence, monitoring, export, watch):
             except ImportError:
                 click.echo(f"\n🧠 智能功能: ❌ 未安装 (pip install claude-notifier[intelligence])")
                 
-        # 监控系统状态
-        if monitoring or MONITORING_CLI_AVAILABLE:
-            _show_monitoring_status(mode, export)
+        # 钩子状态
+        click.echo(f"\n🔗 Claude Code集成:")
+        try:
+            from ..hooks.installer import ClaudeHookInstaller
+            installer = ClaudeHookInstaller()
+            hook_status = installer.get_installation_status()
+            
+            if hook_status['claude_detected']:
+                click.echo(f"  Claude Code: ✅ 已检测到")
+                if hook_status['hooks_installed']:
+                    click.echo(f"  钩子状态: ✅ 已安装并配置")
+                    if hook_status['hooks_valid']:
+                        click.echo(f"  钩子验证: ✅ 配置有效")
+                    else:
+                        click.echo(f"  钩子验证: ⚠️ 配置需要检查")
+                else:
+                    click.echo(f"  钩子状态: ❌ 未安装 (运行 'claude-notifier setup' 配置)")
+            else:
+                click.echo(f"  Claude Code: ❌ 未检测到")
+                
+        except ImportError:
+            click.echo(f"  钩子功能: ❌ 不可用")
+        except Exception as e:
+            click.echo(f"  钩子状态: ❌ 检查失败 ({e})")
+            
+        # 导出功能（仅基础状态）
+        if export:
+            export_data = {
+                'version': status_info['version'],
+                'config': status_info['config'],
+                'channels': status_info['channels']
+            }
+            
+            if intelligence:
+                try:
+                    from .. import IntelligentNotifier
+                    intelligent_notifier = IntelligentNotifier()
+                    export_data['intelligence'] = intelligent_notifier.get_intelligence_status()
+                except ImportError:
+                    export_data['intelligence'] = {'available': False}
+                    
+            try:
+                from ..hooks.installer import ClaudeHookInstaller
+                installer = ClaudeHookInstaller()
+                export_data['hooks'] = installer.get_installation_status()
+            except ImportError:
+                export_data['hooks'] = {'available': False}
+                
+            import json
+            with open(export, 'w', encoding='utf-8') as f:
+                json.dump(export_data, f, indent=2, ensure_ascii=False)
+                
+            click.echo(f"\n💾 基础状态已导出到: {export}")
+            click.echo(f"💡 如需完整监控数据请使用: claude-notifier monitor --export")
                 
     except Exception as e:
         click.echo(f"❌ 状态获取失败: {e}")
         sys.exit(1)
+        
+    # 提示使用monitor命令获取详细监控信息
+    click.echo(f"\n💡 提示: 使用 'claude-notifier monitor' 查看详细监控和性能数据")
 
 
 def _show_monitoring_status(mode: str, export_file: Optional[str] = None):
@@ -495,52 +535,7 @@ def _show_monitoring_status(mode: str, export_file: Optional[str] = None):
         click.echo(f"\n❌ 监控状态获取失败: {e}")
 
 
-def _watch_status(mode: str, intelligence: bool, monitoring: bool):
-    """实时监控模式"""
-    import time
-    import os
-    
-    try:
-        while True:
-            # 清屏
-            os.system('clear' if os.name == 'posix' else 'cls')
-            
-            click.echo("🔄 实时监控模式 (按 Ctrl+C 退出)\n")
-            click.echo(f"📅 刷新时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-            click.echo("=" * 60)
-            
-            # 显示状态 (不递归调用watch)
-            try:
-                # 基础状态
-                print_feature_status()
-                
-                # 监控状态
-                if monitoring or MONITORING_CLI_AVAILABLE:
-                    _show_monitoring_status(mode)
-                
-                # 智能功能状态
-                if intelligence:
-                    try:
-                        from .. import IntelligentNotifier
-                        intelligent_notifier = IntelligentNotifier()
-                        intel_status = intelligent_notifier.get_intelligence_status()
-                        
-                        click.echo(f"\n🧠 智能功能:")
-                        click.echo(f"  智能功能: {'✅ 已启用' if intel_status['enabled'] else '❌ 已禁用'}")
-                        
-                    except ImportError:
-                        click.echo(f"\n🧠 智能功能: ❌ 未安装")
-                        
-            except Exception as e:
-                click.echo(f"❌ 状态获取失败: {e}")
-                
-            click.echo("\n" + "=" * 60)
-            click.echo("⏱️  下次刷新: 5秒后 (按 Ctrl+C 退出)")
-            
-            time.sleep(5)
-            
-    except KeyboardInterrupt:
-        click.echo("\n👋 退出实时监控模式")
+# _watch_status函数已移除 - 实时监控功能现在只在monitor命令中提供
 
 
 @cli.command()
