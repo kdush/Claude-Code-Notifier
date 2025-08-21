@@ -97,6 +97,7 @@ claude_notifier = [
     "templates/*.html",
     "config/*.yaml",
     "hooks/*.sh",
+    "hooks/*.py",
     "static/*.css",
     "static/*.js",
 ]
