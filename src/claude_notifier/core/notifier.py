@@ -46,6 +46,18 @@ class Notifier:
             console_handler.setFormatter(formatter)
             logger.addHandler(console_handler)
             
+            # 文件日志处理器
+            log_config = self.config.get('advanced', {}).get('logging', {})
+            if log_config.get('enabled', True):
+                log_file = log_config.get('file', '~/.claude-notifier/logs/notifier.log')
+                log_file = os.path.expanduser(log_file)
+                os.makedirs(os.path.dirname(log_file), exist_ok=True)
+                
+                file_handler = logging.FileHandler(log_file)
+                file_handler.setLevel(logging.INFO)
+                file_handler.setFormatter(formatter)
+                logger.addHandler(file_handler)
+            
             # 设置日志级别
             log_level = self.config.get('advanced', {}).get('logging', {}).get('level', 'info')
             logger.setLevel(getattr(logging, log_level.upper()))
