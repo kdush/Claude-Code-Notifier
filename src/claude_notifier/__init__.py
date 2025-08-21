@@ -15,7 +15,7 @@ Claude Notifier - Claude Code智能通知系统
 高级使用:
     from claude_notifier import IntelligentNotifier
     
-    # 需要先安装: pip install claude-notifier[intelligence]
+    # 需要先安装: pip install claude-code-notifier[intelligence]
     notifier = IntelligentNotifier()
     notifier.configure_throttling(max_per_minute=10)
     notifier.send("智能通知消息")
@@ -104,9 +104,9 @@ def print_feature_status():
     print(f"Claude Notifier v{status['version']}")
     print("功能模块状态:")
     print(f"  ✅ 核心功能: {'已安装' if status['core'] else '未安装'}")
-    print(f"  {'✅' if status['intelligence'] else '❌'} 智能功能: {'已安装' if status['intelligence'] else '未安装 (pip install claude-notifier[intelligence])'}")
-    print(f"  {'✅' if status['monitoring'] else '❌'} 监控功能: {'已安装' if status['monitoring'] else '未安装 (pip install claude-notifier[monitoring])'}")
-    print(f"  {'✅' if status['integration'] else '❌'} 集成功能: {'已安装' if status['integration'] else '未安装 (pip install claude-notifier[integration])'}")
+    print(f"  {'✅' if status['intelligence'] else '❌'} 智能功能: {'已安装' if status['intelligence'] else '未安装 (pip install claude-code-notifier[intelligence])'}")
+    print(f"  {'✅' if status['monitoring'] else '❌'} 监控功能: {'已安装' if status['monitoring'] else '未安装 (pip install claude-code-notifier[monitoring])'}")
+    print(f"  {'✅' if status['integration'] else '❌'} 集成功能: {'已安装' if status['integration'] else '未安装 (pip install claude-code-notifier[integration])'}")
 
 # 兼容性别名 (保持向后兼容)
 ClaudeCodeNotifier = Notifier  # 兼容旧版本
