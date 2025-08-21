@@ -5,11 +5,12 @@
 Version information for Claude Code Notifier
 """
 
-__version__ = "0.0.2"
-__version_info__ = (0, 0, 2)
+__version__ = "0.0.3b1"
+__version_info__ = (0, 0, 3)
 
 # 版本历史
 VERSION_HISTORY = {
+    "0.0.3b1": "预发行：标准化 PEP 440 版本格式、CLI 预发行提示、README Beta 徽章",
     "0.0.2": "修复版本：解决配置备份/恢复、模板引擎API、相对导入等集成问题",
     "0.0.1": "首个版本，包含多渠道通知、智能限流、监控统计等完整功能"
 }
@@ -17,6 +18,19 @@ VERSION_HISTORY = {
 def print_version_info():
     """打印版本信息"""
     print(f"Claude Code Notifier v{__version__}")
+    # 预发行检测（按照 PEP 440 a/b/rc）
+    pre_label = None
+    if "rc" in __version__:
+        pre_label = "RC"
+    elif "a" in __version__:
+        pre_label = "Alpha"
+    elif "b" in __version__:
+        pre_label = "Beta"
+
+    if pre_label:
+        print(f"版本类型: {pre_label}")
+        print("这是预发行版本，可能包含变更")
+
     print(f"版本描述: {VERSION_HISTORY.get(__version__, '未知版本')}")
     print("项目地址: https://github.com/kdush/Claude-Code-Notifier")
     print("许可证: Apache-2.0")

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+> 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
+
+## [0.0.3b1] - 2025-08-21 (Pre-release: Beta)
+
+### Added
+- 采用符合 PEP 440 的预发行版本规范（a/b/rc），本次为 `b`，示例：`0.0.3b1`
+- CLI `--version` 显示预发行提示，包括“版本类型: Beta”与“这是预发行版本，可能包含变更”
+
+### Documentation
+- README 新增 Beta 徽章，突出当前预发行状态
+
+### CI/CD
+- 预发行版本自动发布至 TestPyPI；正式版本发布至 PyPI
+
 ## [0.0.2] - 2025-08-20
 
 ### Fixed
@@ -83,42 +99,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## 版本规划
-
-### [1.3.0] - 计划中
-- 📊 Web监控面板
-- 🔌 插件系统
-- 🌐 国际化支持
-- 🔒 增强安全功能
-
-### [1.4.0] - 未来版本
-- 🤖 AI驱动的通知优化
-- 📱 移动端支持
-- ☁️ 云同步功能
-- 🎨 主题系统
-
-## 迁移指南
-
-### 1.1.x → 1.2.x
-1. 备份现有配置: `cp config.yaml config.yaml.backup`
-2. 运行升级: `pip install --upgrade claude-notifier`
-3. 检查新配置: `claude-notifier status`
-4. 根据需要启用智能功能
-
-### 1.0.x → 1.1.x
-1. 更新配置文件格式
-2. 重新配置通知渠道
-3. 更新Claude Code钩子
-
-## 支持的Python版本
-
-- Python 3.7+ (推荐 3.9+)
-- 已测试版本: 3.7, 3.8, 3.9, 3.10, 3.11, 3.12
-
-## 依赖更新记录
-
-已合并至上方 0.0.1 版本的 Dependencies 小节。
-
-## 安全更新
-
-已合并至上方 0.0.1 版本的 Security 小节。
+> 未来版本规划已迁移至开发路线图文档：`docs/development-roadmap.md`。
