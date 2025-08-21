@@ -42,6 +42,9 @@ jobs:
       if: runner.os == 'Windows'
       run: choco install make -y
         
+    - name: Check docs language links
+      run: python scripts/check_docs_language_links.py
+
     - name: Run quality and tests (Makefile)
       run: |
         make ci-test
@@ -117,7 +120,7 @@ jobs:
       contents: read
       id-token: write
     concurrency:
-      group: pypi-publish
+      group: ${{ github.repository }}-pypi-publish
       cancel-in-progress: false
     
     steps:
@@ -156,7 +159,7 @@ jobs:
       contents: read
       id-token: write
     concurrency:
-      group: pypi-publish
+      group: ${{ github.repository }}-pypi-publish
       cancel-in-progress: false
     
     steps:
