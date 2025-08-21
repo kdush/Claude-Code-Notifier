@@ -40,6 +40,48 @@ channels:
     enabled: false
     send_key: ""
     api_url: "https://sctapi.ftqq.com"
+    
+  # Webhook 通知（通用 HTTP 回调）
+  webhook:
+    enabled: false
+    url: "https://api.example.com/webhook"
+    method: "POST"                    # GET, POST, PUT, PATCH, DELETE
+    content_type: "application/json"  # 支持多种 MIME 类型
+    timeout: 30                       # 请求超时（秒）
+    retry_count: 3                    # 重试次数
+    retry_delay: 2                    # 重试延迟（秒）
+    
+    # 认证配置
+    auth:
+      type: "none"                    # none, bearer, basic, api_key, custom
+      # Bearer Token 示例
+      # type: "bearer"
+      # token: "your_bearer_token"
+      # Basic Auth 示例  
+      # type: "basic"
+      # username: "user"
+      # password: "pass"
+      # API Key 示例
+      # type: "api_key"
+      # key_name: "X-API-Key"
+      # key_value: "your_api_key"
+      
+    # 自定义 Headers
+    headers:
+      User-Agent: "Claude-Code-Notifier/1.0"
+      # X-Custom-Header: "custom_value"
+      
+    # 消息格式配置
+    message_format:
+      template: "default"             # default, slack, discord, custom
+      include_metadata: true
+      timestamp_format: "iso"         # iso, unix, rfc3339
+      
+    # 安全配置
+    security:
+      verify_ssl: true
+      allow_redirects: false
+      max_content_length: 1048576     # 1MB 限制
 
 # 内置事件配置
 events:
