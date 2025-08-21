@@ -42,10 +42,23 @@
 
 ## 🆕 最新改进 (v0.0.3b1 - Beta)
 
+### 🚀 PyPI版本Claude Code钩子自动配置（重大更新）
+
+**🎉 突破性功能：PyPI用户现在享受与Git用户相同的无缝体验！**
+
+- ✅ **⚡ 一键智能配置** - `claude-notifier setup --auto` 自动检测和配置所有功能
+- ✅ **🔧 完整钩子管理** - 新增 `hooks` 命令组，提供安装/卸载/状态/验证功能
+- ✅ **💡 智能环境检测** - 自动发现Claude Code安装，支持多种安装位置
+- ✅ **📊 增强状态显示** - `--status` 现在包含完整的钩子系统状态
+- ✅ **🛡️ 错误恢复机制** - 即使依赖缺失也能基本工作，提供优雅降级
+- ✅ **🔄 双模式兼容** - 钩子系统支持PyPI和Git两种模式，智能切换
+
+### 🔧 版本管理改进
+
 - ✅ **PEP 440 版本规范** - 采用预发行规范 `a/b/rc`（本次为 `b`），版本号示例：`0.0.3b1`
-- ✅ **CLI 版本提示增强** - `--version` 显示“版本类型: Beta”和“这是预发行版本，可能包含变更”
+- ✅ **CLI 版本提示增强** - `--version` 显示"版本类型: Beta"和"这是预发行版本，可能包含变更"
 - ✅ **README 徽章** - 新增 Beta 徽章，突出当前预发行状态
-- ✅ **CI/CD 工作流** - 预发行版本自动发布到 TestPyPI，正式版发布到 PyPI
+- ✅ **CI/CD 工作流** - 使用 GitHub Actions 构建并发布稳定版到 PyPI；预发行以 `a/b/rc` 标签（如 `v0.0.3b1`）提供于仓库 Tag/Release（可选手动发布到 PyPI）
 
 ## 📱 支持的通知渠道
 
@@ -61,13 +74,53 @@
 
 ## 🚀 快速开始
 
-### 方式一：快速配置（推荐）
+### 方式一：PyPI 安装（推荐，适合普通用户）
+
+```bash
+# 安装最新稳定版
+pip install claude-code-notifier
+
+# 或安装指定版本
+pip install claude-code-notifier==0.0.3b1
+
+# 验证安装
+claude-notifier --version
+
+# 🚀 一键智能配置（新功能！）
+claude-notifier setup --auto
+```
+
+**🎉 新功能：PyPI版本现已支持Claude Code钩子自动配置！**
+
+安装后系统会自动：
+- 📦 创建配置目录 `~/.claude-notifier/`
+- ⚙️ 生成默认配置文件
+- 🔧 设置 CLI 命令
+- 🔍 **智能检测Claude Code并提示集成**
+- ⚡ **一键配置Claude Code钩子**
+
+**适合人群**：普通用户、快速体验、生产环境使用
+
+### 方式二：Git 源码安装（适合开发者）
+
+#### 2.1 智能安装（推荐）
 
 ```bash
 git clone https://github.com/kdush/Claude-Code-Notifier.git
 cd Claude-Code-Notifier
-chmod +x install.sh scripts/quick_setup.py
 ./install.sh
+```
+
+**✨ 新版智能安装系统特性**：
+- 🎯 **智能模式选择** - 自动检测环境并推荐最佳安装方式
+- 📦 **三种安装模式** - PyPI/Git/混合，满足不同需求
+- 🔄 **自动更新机制** - 定时检查，一键更新
+- 🔗 **统一命令接口** - `cn` 命令自动路由到正确执行方式
+- 📊 **版本管理** - 统一的版本信息和升级路径
+
+**快速配置**：
+```bash
+# 安装后运行配置向导
 python3 scripts/quick_setup.py
 ```
 
@@ -78,7 +131,7 @@ python3 scripts/quick_setup.py
 - ⚙️ 设置高级选项（频率限制、静默时间等）
 - 🧪 测试通知配置
 
-### 方式二：手动配置
+#### 2.2 手动配置
 
 ```bash
 git clone https://github.com/kdush/Claude-Code-Notifier.git
@@ -93,7 +146,80 @@ cp config/enhanced_config.yaml.template config/config.yaml
 vim config/config.yaml
 ```
 
-### 3. 测试
+**适合人群**：开发者、贡献者、需要自定义功能、测试最新特性
+
+### 安装方式对比
+
+| 特性 | PyPI 安装 | Git 源码安装 |
+|------|-----------|-------------|
+| 🎯 目标用户 | 普通用户 | 开发者 |
+| ⚡ 安装速度 | 快速 | 较慢 |
+| 🔄 更新方式 | `pip install --upgrade` | `git pull` + 重新安装 |
+| 🧪 测试版本 | 稳定版本 | 最新开发版 |
+| 🛠️ 自定义能力 | 基础配置 | 完全自定义 |
+| 📦 依赖管理 | 自动处理 | 手动管理 |
+| 🔗 Claude Code 集成 | ✅ **自动配置钩子** | ✅ 自动设置 Hook |
+| 📁 目录结构 | 标准 Python 包 | 完整项目结构 |
+| 🚀 一键配置 | ✅ `setup` 命令 | ✅ 安装脚本 |
+
+### 配置和测试
+
+#### PyPI 用户配置
+
+```bash
+# 🚀 一键智能配置（推荐）
+claude-notifier setup --auto
+
+# 🔧 分步配置
+claude-notifier setup                    # 交互式配置
+claude-notifier hooks install            # 配置Claude Code钩子
+claude-notifier test                     # 测试通知
+claude-notifier --status                 # 查看完整状态
+
+# 📊 钩子管理
+claude-notifier hooks status             # 查看钩子状态
+claude-notifier hooks verify             # 验证钩子配置
+claude-notifier hooks uninstall          # 卸载钩子（如需要）
+```
+
+#### 统一命令接口
+
+**🔗 无论使用哪种安装方式，都可以使用统一的 `cn` 命令**：
+
+```bash
+# 智能命令路由 - 自动选择正确的执行方式
+cn init      # 初始化配置
+cn test      # 测试通知
+cn status    # 查看状态
+cn --help    # 查看帮助
+```
+
+#### 更新管理
+
+**🔄 智能更新系统**：
+
+```bash
+# 检查更新
+python3 scripts/smart_update.py --check
+
+# 执行更新
+python3 scripts/smart_update.py --update
+
+# 启用自动更新
+python3 scripts/smart_update.py --enable-auto
+
+# 查看更新状态
+python3 scripts/smart_update.py --status
+```
+
+**自动更新特性**：
+- ✅ 自动检测安装类型（PyPI/Git）
+- ✅ 智能版本比较和更新
+- ✅ 定时检查（每天一次）
+- ✅ 配置备份和迁移
+- ✅ 更新日志记录
+
+#### Git 源码用户测试
 
 ```bash
 ./scripts/test.sh
@@ -221,15 +347,24 @@ claude-notifier test
 claude-notifier status --intelligence
 
 # 配置管理
-claude-notifier config show
-claude-notifier config backup
 
-# 实时监控
-claude-notifier monitor --watch
+## 📦 版本规范与预发行流程
 
-# 系统诊断
-claude-notifier debug diagnose --full
-```
+- **版本规范（PEP 440）**
+  - 预发行：`aN`（Alpha）、`bN`（Beta）、`rcN`（候选），如：`0.0.3a1`、`0.0.3b1`、`0.0.3rc1`
+  - 稳定版：去掉预发行后缀，如：`0.0.3`
+  - 版本源文件：`src/claude_notifier/__version__.py`
+
+- **预发行策略**
+  - 使用 Git 标签发布预发行（如 `v0.0.3b1`），创建仓库 Release 并附带变更说明
+  - CLI `--version` 显示“版本类型: Alpha/Beta/RC”和预发行提示
+  - 如需分发，可手动将预发行上传至 PyPI（可选）
+
+- **稳定版发布（默认）**
+  - `vX.Y.Z` 标签触发 GitHub Actions 构建（sdist + wheel）并发布到 PyPI
+  - 同步更新 `CHANGELOG.md` 与文档
+
+详见：[开发文档（版本规范与预发行流程章节）](docs/development.md)
 
 ## 📚 文档
 

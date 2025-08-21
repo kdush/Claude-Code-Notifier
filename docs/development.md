@@ -182,7 +182,7 @@ pytest --cov=src --cov-report=html tests/
 ```python
 import unittest
 from unittest.mock import Mock, patch
-from channels.dingtalk import DingtalkChannel
+from src.claude_notifier.core.channels.dingtalk import DingtalkChannel
 
 class TestDingtalkChannel(unittest.TestCase):
     def setUp(self):
@@ -217,12 +217,17 @@ class TestDingtalkChannel(unittest.TestCase):
 ### 1. 创建渠道类
 
 ```python
-# src/channels/my_channel.py
+# src/claude_notifier/core/channels/my_channel.py
 from typing import Dict, Any
 from .base import BaseChannel
 
 class MyChannel(BaseChannel):
     """自定义通知渠道"""
+    
+    # 必需的类属性
+    DISPLAY_NAME = "My Channel"
+    DESCRIPTION = "自定义通知渠道示例"
+    REQUIRED_CONFIG = ["api_key", "endpoint"]
     
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
@@ -235,16 +240,16 @@ class MyChannel(BaseChannel):
     
     def send_notification(
         self, 
-        data: Dict[str, Any], 
-        template: str
+        template_data: Dict[str, Any], 
+        event_type: str = 'generic'
     ) -> bool:
         """发送通知实现"""
-        if not self.enabled or not self.validate_config():
+        if not self.config.get('enabled', False) or not self.validate_config():
             return False
         
         try:
             # 格式化消息
-            message = self._format_message(data, template)
+            message = self._format_message(template_data, event_type)
             
             # 发送请求
             response = self._send_request(message)
@@ -253,10 +258,10 @@ class MyChannel(BaseChannel):
             return self._handle_response(response)
             
         except Exception as e:
-            self._log_error(f"发送失败: {e}")
+            self.logger.error(f"发送失败: {e}")
             return False
     
-    def _format_message(self, data: Dict[str, Any], template: str) -> str:
+    def _format_message(self, template_data: Dict[str, Any], event_type: str) -> str:
         """格式化消息内容"""
         # 实现消息格式化逻辑
         pass
@@ -274,15 +279,27 @@ class MyChannel(BaseChannel):
 
 ### 2. 注册通知渠道
 
+在 `src/claude_notifier/core/channels/__init__.py` 中添加try-catch导入:
+
 ```python
-# src/channels/__init__.py
+# 导入自定义渠道
+try:
+    from .my_channel import MyChannel
+    _available_channels['my_channel'] = MyChannel
+except ImportError as e:
+    logger.debug(f"自定义渠道导入失败: {e}")
+```
+
+或者使用动态注册API:
+
+```python
+from src.claude_notifier.core.channels import register_channel
 from .my_channel import MyChannel
 
-AVAILABLE_CHANNELS = {
-    'dingtalk': DingtalkChannel,
-    'feishu': FeishuChannel,
-    'my_channel': MyChannel,  # 添加新渠道
-}
+# 动态注册渠道
+success = register_channel('my_channel', MyChannel)
+if success:
+    print("渠道注册成功")
 ```
 
 ### 3. 添加配置模板
@@ -302,7 +319,7 @@ channels:
 ```python
 # tests/test_my_channel.py
 import unittest
-from channels.my_channel import MyChannel
+from src.claude_notifier.core.channels.my_channel import MyChannel
 
 class TestMyChannel(unittest.TestCase):
     def test_channel_initialization(self):
@@ -720,37 +737,49 @@ git checkout -b feature/my-new-feature
 - 性能影响
 - 安全性考虑
 
-## 发布流程
+## 📦 版本规范与预发行流程
 
-### 版本号管理
+### 🔢 版本来源（Single Source of Truth）
+- 版本源文件：`src/claude_notifier/__version__.py`
+- 构建配置：
+  - `pyproject.toml` 使用动态版本，指向同一文件
+  - `setup.py` 亦从该文件读取版本
 
-使用语义化版本号（Semantic Versioning）：
-- `MAJOR.MINOR.PATCH`
-- `1.0.0` - 重大更新
-- `1.1.0` - 新功能
-- `1.1.1` - 问题修复
+### 🧭 PEP 440 简述
+- 语义：`X.Y.Z[<pre>][.postN][.devN]`
+- 预发行后缀：
+  - `aN`（Alpha）、`bN`（Beta）、`rcN`（Release Candidate）
+  - 示例：`0.0.3a1`、`0.0.3b1`、`0.0.3rc1`
+- 稳定版：去掉预发行后缀，如 `0.0.3`
+- 比较顺序（从低到高）：`0.0.3a1 < 0.0.3a2 < 0.0.3b1 < 0.0.3rc1 < 0.0.3`
 
-### 发布步骤
+### 🚧 预发行策略（默认不自动发布到 TestPyPI）
+- 通过 Git 标签发布预发行：`vX.Y.Z[a|b|rc]N`，例如 `v0.0.3b1`
+- 在仓库创建对应 Release，并附上变更说明（参考 `CHANGELOG.md`）
+- CLI `--version` 会显示“版本类型: Alpha/Beta/RC”与预发行提示
+- 如需对外分发，可手动上传预发行到 PyPI（可选）
 
-```bash
-# 1. 更新版本号
-echo "1.2.0" > src/__version__.py
+### ✅ 稳定版发布（默认流程）
+- 使用标签 `vX.Y.Z` 触发 GitHub Actions：
+  - 构建 `sdist` 与 `wheel`
+  - 发布到 PyPI（需在仓库 Secrets 配置 PyPI 凭据）
+- 同步更新：`CHANGELOG.md` 与相关文档
 
-# 2. 更新 CHANGELOG
-vim CHANGELOG.md
+### 📝 操作清单（速查）
+- 预发行：
+  1. 在 `src/claude_notifier/__version__.py` 设定预发行号（如 `0.0.3b1`）
+  2. 打 `v0.0.3b1` 标签并创建 Release
+  3. 验证 CLI `--version` 输出预发行提示
+- 稳定版：
+  1. 将版本设为 `X.Y.Z`（去掉预发行后缀）
+  2. 打 `vX.Y.Z` 标签触发 GitHub Actions 并发布到 PyPI
+  3. 更新 `CHANGELOG.md` 与文档
 
-# 3. 提交版本更新
-git add .
-git commit -m "chore: bump version to 1.2.0"
-git tag v1.2.0
-
-# 4. 推送到远程
-git push origin main --tags
-
-# 5. 构建和发布
-python setup.py sdist bdist_wheel
-twine upload dist/*
-```
+### ❓ 常见问题
+- 如何安装预发行？
+  - `pip install --pre claude-code-notifier`（pip 默认不安装预发行，需要 `--pre`）
+- 为什么我的版本输出包含“Beta/RC”？
+  - 当前处于预发行阶段，CLI 会明确提示以避免误用
 
 ## 问题反馈
 

@@ -41,10 +41,23 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 
 ## 🆕 What's New (v0.0.3b1 - Beta)
 
-- PEP 440 compliant versioning adopted for pre-releases (`a`/`b`/`rc`), e.g., `0.0.3b1`
-- CLI `--version` now shows “Version Type: Beta” and a pre-release warning line
-- README adds a Beta badge to highlight current pre-release status
-- CI/CD: automatically publish pre-releases to TestPyPI; stable releases to PyPI
+### 🚀 PyPI Version Claude Code Hook Auto-Configuration (Major Update)
+
+**🎉 Breakthrough Feature: PyPI users now enjoy the same seamless experience as Git users!**
+
+- ✅ **⚡ One-Click Smart Setup** - `claude-notifier setup --auto` auto-detects and configures all features
+- ✅ **🔧 Complete Hook Management** - New `hooks` command group provides install/uninstall/status/verify
+- ✅ **💡 Smart Environment Detection** - Auto-discover Claude Code installation, supports multiple locations
+- ✅ **📊 Enhanced Status Display** - `--status` now includes complete hook system status
+- ✅ **🛡️ Error Recovery** - Works even with missing dependencies, provides graceful degradation
+- ✅ **🔄 Dual-Mode Compatibility** - Hook system supports both PyPI and Git modes with smart switching
+
+### 🔧 Version Management Improvements
+
+- ✅ **PEP 440 Versioning** - Pre-release specification (`a`/`b`/`rc`), e.g., `0.0.3b1`
+- ✅ **Enhanced CLI Version Info** - `--version` shows "Version Type: Beta" and pre-release warning
+- ✅ **README Beta Badge** - Highlights current pre-release status
+- ✅ **CI/CD Workflow** - GitHub Actions build and publish stable releases to PyPI; pre-releases via repo tags/releases
 
 ## 📱 Supported Channels
 
@@ -60,13 +73,53 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 
 ## 🚀 Quick Start
 
-### Method 1: Quick Setup (Recommended)
+### Method 1: PyPI Installation (Recommended for General Users)
+
+```bash
+# Install latest stable version
+pip install claude-code-notifier
+
+# Or install specific version
+pip install claude-code-notifier==0.0.3b1
+
+# Verify installation
+claude-notifier --version
+
+# 🚀 One-Click Smart Setup (New Feature!)
+claude-notifier setup --auto
+```
+
+**🎉 New Feature: PyPI version now supports Claude Code hook auto-configuration!**
+
+After installation, the system will automatically:
+- 📦 Create configuration directory `~/.claude-notifier/`
+- ⚙️ Generate default configuration files
+- 🔧 Set up CLI commands
+- 🔍 **Smart Claude Code detection with integration prompts**
+- ⚡ **One-click Claude Code hook configuration**
+
+**Suitable for**: General users, quick setup, production use
+
+### Method 2: Git Source Installation (For Developers)
+
+#### 2.1 Smart Installation (Recommended)
 
 ```bash
 git clone https://github.com/kdush/Claude-Code-Notifier.git
 cd Claude-Code-Notifier
-chmod +x install.sh scripts/quick_setup.py
 ./install.sh
+```
+
+**✨ New Smart Installation System Features**:
+- 🎯 **Intelligent Mode Selection** - Auto-detect environment and recommend best installation method
+- 📦 **Three Installation Modes** - PyPI/Git/Hybrid to meet different needs
+- 🔄 **Auto-Update Mechanism** - Scheduled checks with one-click updates
+- 🔗 **Unified Command Interface** - `cn` command auto-routes to correct execution method
+- 📊 **Version Management** - Unified version info and upgrade paths
+
+**Quick Setup**:
+```bash
+# Run configuration wizard after installation
 python3 scripts/quick_setup.py
 ```
 
@@ -77,7 +130,7 @@ The quick setup script will guide you to:
 - Set advanced options (rate limits, quiet hours, etc.)
 - Test your notification setup
 
-### Method 2: Manual Setup
+#### 2.2 Manual Setup
 
 ```bash
 git clone https://github.com/kdush/Claude-Code-Notifier.git
@@ -92,7 +145,74 @@ cp config/enhanced_config.yaml.template config/config.yaml
 vim config/config.yaml
 ```
 
-### 3. Test
+**Suitable for**: Developers, contributors, custom features needed, testing latest features
+
+### Installation Method Comparison
+
+| Feature | PyPI Installation | Git Source Installation |
+|---------|-------------------|------------------------|
+| 🎯 Target Users | General users | Developers |
+| ⚡ Installation Speed | Fast | Slower |
+| 🔄 Update Method | `pip install --upgrade` | `git pull` + reinstall |
+| 🧪 Version | Stable releases | Latest development |
+| 🛠️ Customization | Basic configuration | Full customization |
+| 📦 Dependency Management | Automatic | Manual |
+| 🔗 Claude Code Integration | Manual setup | Auto Hook setup |
+| 📁 Directory Structure | Standard Python package | Full project structure |
+
+### Configuration and Testing
+
+#### PyPI Users Configuration
+
+```bash
+# Initialize configuration
+claude-notifier init
+
+# Test notifications
+claude-notifier test
+
+# Check status
+claude-notifier status
+```
+
+#### Unified Command Interface
+
+**🔗 Regardless of installation method, use the unified `cn` command**:
+
+```bash
+# Smart command routing - auto-selects correct execution method
+cn init      # Initialize configuration
+cn test      # Test notifications
+cn status    # Check status
+cn --help    # Show help
+```
+
+#### Update Management
+
+**🔄 Smart Update System**:
+
+```bash
+# Check for updates
+python3 scripts/smart_update.py --check
+
+# Perform update
+python3 scripts/smart_update.py --update
+
+# Enable auto-update
+python3 scripts/smart_update.py --enable-auto
+
+# Show update status
+python3 scripts/smart_update.py --status
+```
+
+**Auto-Update Features**:
+- ✅ Auto-detect installation type (PyPI/Git)
+- ✅ Smart version comparison and updates
+- ✅ Scheduled checks (daily)
+- ✅ Configuration backup and migration
+- ✅ Update logging
+
+#### Git Source Users Testing
 
 ```bash
 ./scripts/test.sh
@@ -227,6 +347,24 @@ claude-notifier monitor --watch
 # System diagnostics
 claude-notifier debug diagnose --full
 ```
+
+## 📦 Versioning and Pre-release Process
+
+- **Versioning (PEP 440)**
+  - Pre-releases: `aN` (Alpha), `bN` (Beta), `rcN` (Release Candidate), e.g., `0.0.3a1`, `0.0.3b1`, `0.0.3rc1`
+  - Stable: remove the suffix, e.g., `0.0.3`
+  - Version source file: `src/claude_notifier/__version__.py`
+
+- **Pre-release policy**
+  - Publish pre-releases via Git tags (e.g., `v0.0.3b1`) and create a repo Release with change notes
+  - CLI `--version` displays “Version Type: Alpha/Beta/RC” and a pre-release notice
+  - If distribution is needed, you may manually publish pre-releases to PyPI (optional)
+
+- **Stable release (default)**
+  - Tag `vX.Y.Z` triggers GitHub Actions to build (sdist + wheel) and publish to PyPI
+  - Update `CHANGELOG.md` and docs accordingly
+
+See details: `docs/development_en.md`
 
 ## 📚 Documentation
 

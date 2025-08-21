@@ -11,7 +11,31 @@
 
 ## ⚡ 一分钟快速安装
 
-### 方式一：自动安装（推荐新手）
+### 方式一：PyPI 安装（推荐普通用户）🚀
+
+```bash
+# 1. 安装最新版本
+pip install claude-code-notifier
+
+# 2. 验证安装
+claude-notifier --version
+
+# 3. 🚀 一键智能配置（新功能！）
+claude-notifier setup --auto
+
+# 4. 测试配置
+claude-notifier test
+```
+
+**🎉 新功能亮点**：
+- ✅ **自动检测Claude Code** - 智能发现各种安装位置
+- ✅ **一键配置钩子** - 自动设置Claude Code集成
+- ✅ **完整CLI支持** - hooks install/status/verify 命令
+- ✅ **零手动配置** - 智能化设置流程
+
+### 方式二：Git 安装（推荐开发者）
+
+#### 2.1 自动安装（推荐）
 
 ```bash
 # 1. 克隆项目
@@ -26,7 +50,7 @@ chmod +x install.sh scripts/quick_setup.py
 python3 scripts/quick_setup.py
 ```
 
-### 方式二：手动安装（推荐开发者）
+#### 2.2 手动安装
 
 ```bash
 # 1. 克隆和进入项目
@@ -47,11 +71,61 @@ vim ~/.claude-notifier/config.yaml
 ./scripts/test.sh
 ```
 
+### 📊 安装方式对比
+
+| 特性 | PyPI安装 | Git安装 |
+|------|---------|--------|
+| ⚡ 安装速度 | 30秒 | 2-3分钟 |
+| 🎯 适合用户 | 普通用户 | 开发者 |
+| 🔧 配置复杂度 | 一键配置 | 手动配置 |
+| 🚀 Claude Code集成 | ✅ 自动 | ✅ 自动 |
+| 📦 更新方式 | `pip install --upgrade` | `git pull` |
+
+## 🛠️ PyPI用户专用配置指南
+
+### 💡 智能配置流程
+
+```bash
+# 🚀 一键配置（推荐）
+claude-notifier setup --auto
+
+# 🔧 交互式配置
+claude-notifier setup
+
+# 📊 检查配置状态
+claude-notifier --status
+```
+
+### 🔗 Claude Code钩子管理
+
+```bash
+# 安装Claude Code钩子
+claude-notifier hooks install
+
+# 查看钩子状态
+claude-notifier hooks status
+
+# 验证钩子配置
+claude-notifier hooks verify
+
+# 卸载钩子（如需要）
+claude-notifier hooks uninstall
+```
+
+**钩子功能说明**：
+- 🎯 **会话通知** - Claude Code启动时发送通知
+- 📋 **任务跟踪** - 自动追踪任务执行状态
+- ⚠️ **错误监控** - 异常情况实时通知
+- 🔐 **权限检查** - 敏感操作确认通知
+
 ## 📱 快速配置通知渠道
 
 ### 钉钉机器人 (推荐)
 ```bash
-# 交互式配置
+# PyPI用户 - 使用配置向导
+claude-notifier setup
+
+# Git用户 - 交互式配置
 python3 scripts/quick_setup.py
 
 # 手动配置步骤：
@@ -191,16 +265,22 @@ grep "intelligence" ~/.claude-notifier/logs/notifier.log
 
 ### Claude Code 钩子问题
 ```bash
-# 1. 确认钩子安装状态
-ls -la ~/.claude/hooks/
+# 1. 检查钩子系统状态
+claude-notifier hooks status
 
-# 2. 检查 Claude Code 配置
-cat ~/.claude/settings.json | jq '.hooks'
+# 2. 验证钩子配置完整性
+claude-notifier hooks verify
 
-# 3. 重新安装钩子
-./hooks/install_hooks.sh
+# 3. 查看 Claude Code 配置文件
+cat ~/.config/claude/hooks.json
 
-# 4. 重启 Claude Code
+# 4. 重新安装钩子
+claude-notifier hooks install --force
+
+# 5. 查看钩子执行日志
+tail -f ~/.claude-notifier/logs/hook_state.json
+
+# 6. 重启 Claude Code
 pkill claude && claude
 ```
 

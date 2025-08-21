@@ -12,6 +12,25 @@ This roadmap outlines the plan to complete the Claude Code Notifier intelligent 
 - Ensure production stability: robust error handling, monitoring, and recovery
 - Enhance scalability: modular architecture for future growth
 
+## ✅ Completed Features (v0.0.3b1)
+
+### 🚀 PyPI Version Claude Code Hook Auto-Configuration System
+**Completion Date**: August 21, 2025  
+**Status**: ✅ Completed
+
+**Implementation**:
+- ✅ **Complete Hook System** - `ClaudeHookInstaller` class provides full lifecycle management
+- ✅ **Smart CLI Management** - `claude-notifier setup --auto` and `hooks` command group
+- ✅ **Dual-Mode Compatibility** - Smart switching between PyPI and Git installation modes
+- ✅ **Auto Environment Detection** - Support for multiple Claude Code installation location detection
+- ✅ **Unified User Experience** - Eliminated functional differences between PyPI and Git versions
+
+**Technical Achievements**:
+- 706 lines of hook system core code (`hooks/installer.py`, `hooks/claude_hook.py`)
+- 458 lines of CLI enhancement code (complete `hooks` command group and `setup` command)
+- Complete configuration validation, state management, and error recovery mechanisms
+- Installation script ecosystem optimization and redundancy cleanup
+
 ---
 
 ## 🏗️ Architecture Completion Phase
@@ -137,7 +156,7 @@ Development Tasks:
 Enhanced Config Structure:
 ```yaml
 # config/enhanced_config.yaml
-aintelligent_limiting:
+intelligent_limiting:
   enabled: true
   
   operation_gate:
@@ -385,6 +404,47 @@ Documentation:
 
 ---
 
-Roadmap Version: v1.0  
-Last Updated: 2024  
+## 📱 Channel Expansion Plan
+
+**Currently Implemented**:
+- ✅ **DingTalk Bot** - ActionCard + Markdown support
+- ✅ **Webhook** - Universal HTTP callback with multi-auth formats
+
+**Channels to be Implemented**:
+- 🚧 **Feishu/Lark Bot** - Enterprise user demand
+- 🚧 **WeCom (WeChat Work) Bot** - Chinese enterprise platform
+- 🚧 **Telegram Bot** - International developer preference
+- 🚧 **SMTP Email** - Universal email notifications
+- 🚧 **ServerChan** - WeChat personal push
+
+**Future Plans**:
+- 📋 Slack, Microsoft Teams, Discord
+- 📋 WhatsApp Business API, LINE Notify
+- 🔮 Voice notifications (Alexa/Assistant), SMS, native push
+
+---
+
+## 🌐 Mobile Remote Control Vision
+
+**Goal**: Monitor and control Claude Code anytime through mobile devices
+
+**Basic Features** (Next 3 months):
+- 📱 Real-time status monitoring and progress display
+- 🔔 Push notification reception (permission confirmation, completion, alerts)
+- 📊 Token usage statistics and cost tracking
+
+**Remote Control** (Next 6 months):
+- ✋ Approve/reject sensitive operations from phone
+- 🎛️ Pause, continue, terminate task execution
+- ⚙️ Remotely modify configurations and rules
+- 📝 Send simple Claude Code commands
+
+**Technical Solution**: Mobile APP ↔ REST API ↔ Claude Code local service, using WebSocket real-time communication and push services (FCM/APNs).
+
+**Security Assurance**: End-to-end encryption, biometric authentication, device binding, audit logs.
+
+---
+
+Roadmap Version: v2.0  
+Last Updated: 2025-08-21  
 Review Cycle: Biweekly

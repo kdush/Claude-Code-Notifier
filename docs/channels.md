@@ -7,11 +7,13 @@
 | 渠道 | 状态 | 特性 | 配置难度 |
 |------|------|------|----------|
 | 🔔 钉钉机器人 | ✅ 完善 | ActionCard + Markdown + 签名验证 | ⭐⭐ |
-| 🚀 飞书机器人 | ✅ 完善 | 富文本 + 交互卡片 | ⭐⭐ |
-| 💼 企业微信机器人 | ✅ 完善 | Markdown + 图文消息 | ⭐⭐ |
-| 🤖 Telegram | ✅ 完善 | Bot 消息推送 | ⭐⭐⭐ |
-| 📮 邮箱 SMTP | ✅ 完善 | HTML 邮件 | ⭐⭐⭐⭐ |
-| 📧 Server酱 | ✅ 完善 | 微信推送 | ⭐ |
+| 🔗 Webhook | ✅ 完善 | HTTP 回调 + 多格式 + 多认证 | ⭐⭐⭐ |
+| 🚀 飞书机器人 | 🚧 开发中 | 富文本 + 交互卡片 | ⭐⭐ |
+| 💼 企业微信机器人 | 🚧 开发中 | Markdown + 图文消息 | ⭐⭐ |
+| 🤖 Telegram | 🚧 开发中 | Bot 消息推送 | ⭐⭐⭐ |
+| 📮 邮箱 SMTP | 🚧 开发中 | HTML 邮件 | ⭐⭐⭐⭐ |
+| 📧 Server酱 | 🚧 开发中 | 微信推送 | ⭐ |
+
 
 ## 🔔 钉钉机器人
 
@@ -303,6 +305,157 @@ channels:
     "desp": "⚠️ 检测到敏感操作\n\n**项目:** test-project\n**操作:** sudo systemctl restart nginx\n\n💡 请在终端中确认操作"
 }
 ```
+
+---
+
+## 🔗 Webhook 通知
+
+### 配置步骤
+
+1. **准备接收端点**
+   - 确保您的服务能接收 HTTP POST 请求
+   - 验证端点可访问性和响应格式
+
+2. **配置文件设置**
+```yaml
+channels:
+  webhook:
+    enabled: true
+    url: "https://api.example.com/webhook"
+    method: "POST"                    # GET, POST, PUT, PATCH, DELETE
+    content_type: "application/json"  # 内容类型
+    timeout: 30                       # 请求超时（秒）
+    retry_count: 3                    # 重试次数
+    retry_delay: 2                    # 重试延迟（秒）
+    
+    # 认证配置
+    auth:
+      type: "bearer"                  # none, bearer, basic, api_key, custom
+      token: "your_bearer_token"
+      
+    # 自定义 Headers
+    headers:
+      User-Agent: "Claude-Code-Notifier/1.0"
+      X-Source: "claude-notifier"
+      
+    # 消息格式配置
+    message_format:
+      template: "default"             # default, slack, discord, custom
+      include_metadata: true
+      timestamp_format: "iso"         # iso, unix, rfc3339
+      
+    # 安全配置
+    security:
+      verify_ssl: true
+      allow_redirects: false
+      max_content_length: 1048576     # 1MB 限制
+```
+
+### 认证方式
+
+**1. Bearer Token 认证**
+```yaml
+auth:
+  type: "bearer"
+  token: "your_access_token"
+```
+
+**2. Basic 认证**
+```yaml
+auth:
+  type: "basic"
+  username: "api_user"
+  password: "api_password"
+```
+
+**3. API Key 认证**
+```yaml
+auth:
+  type: "api_key"
+  key_name: "X-API-Key"          # Header 名称
+  key_value: "your_api_key"      # API Key 值
+```
+
+**4. 自定义认证**
+```yaml
+auth:
+  type: "custom"
+  headers:
+    Authorization: "Custom your_token"
+    X-Custom-Auth: "custom_value"
+```
+
+### 消息格式
+
+**默认格式**
+```json
+{
+  "event_type": "completion",
+  "timestamp": "2025-08-21T10:15:30Z",
+  "title": "任务完成",
+  "message": "编译任务已成功完成",
+  "priority": "normal",
+  "metadata": {
+    "project": "claude-code-notifier",
+    "operation": "build",
+    "source": "claude-notifier"
+  }
+}
+```
+
+**Slack 兼容格式**
+```json
+{
+  "text": "✅ 任务完成",
+  "attachments": [{
+    "color": "good",
+    "title": "编译任务已成功完成",
+    "fields": [
+      {"title": "项目", "value": "claude-code-notifier", "short": true},
+      {"title": "操作", "value": "build", "short": true}
+    ],
+    "ts": 1692615330
+  }]
+}
+```
+
+**Discord 兼容格式**
+```json
+{
+  "embeds": [{
+    "title": "任务完成",
+    "description": "编译任务已成功完成",
+    "color": 3066993,
+    "timestamp": "2025-08-21T10:15:30.000Z",
+    "fields": [
+      {"name": "项目", "value": "claude-code-notifier", "inline": true},
+      {"name": "操作", "value": "build", "inline": true}
+    ]
+  }]
+}
+```
+
+### 故障排除
+
+1. **连接超时**
+   - 检查目标 URL 可访问性
+   - 调整 timeout 配置（默认30秒）
+   - 验证网络连接和防火墙设置
+
+2. **认证失败 (401/403)**
+   - 确认认证类型配置正确
+   - 验证 token/密钥有效性
+   - 检查 API 权限设置
+
+3. **消息格式错误 (400)**
+   - 确认 content_type 设置正确
+   - 验证接收端期望的消息格式
+   - 检查自定义 Headers 配置
+
+4. **重试失败**
+   - 检查重试配置（retry_count、retry_delay）
+   - 查看日志了解失败原因
+   - 验证目标服务稳定性
 
 ---
 

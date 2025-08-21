@@ -26,6 +26,9 @@ jobs:
       is-prerelease: ${{ steps.version.outputs.is-prerelease }}
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.ref }}
     
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -90,6 +93,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.ref }}
     
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -198,7 +204,7 @@ jobs:
   publish-testpypi:
     needs: [validate-release, build, test-install]
     runs-on: ubuntu-latest
-    if: github.event.inputs.environment == 'testpypi' || needs.validate-release.outputs.is-prerelease == 'true'
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'testpypi'
     environment: testpypi
     permissions:
       contents: read
@@ -275,9 +281,12 @@ jobs:
   post-release:
     needs: [validate-release, publish-pypi]
     runs-on: ubuntu-latest
-    if: always() && (needs.publish-pypi.result == 'success' || needs.validate-release.outputs.is-prerelease == 'true')
+    if: always() && needs.publish-pypi.result == 'success'
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.ref }}
     
     - name: Create release summary
       run: |
@@ -298,11 +307,7 @@ jobs:
         echo "## 🔗 Links" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        if [ "${IS_PRERELEASE}" == "true" ]; then
-          echo "- [Test PyPI Package](https://test.pypi.org/project/claude-code-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- [PyPI Package](https://pypi.org/project/claude-code-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
-        fi
+        echo "- [PyPI Package](https://pypi.org/project/claude-code-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
         
         echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/v${VERSION})" >> $GITHUB_STEP_SUMMARY
         echo "- [Documentation](https://github.com/${{ github.repository }}#readme)" >> $GITHUB_STEP_SUMMARY

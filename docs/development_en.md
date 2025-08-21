@@ -217,12 +217,17 @@ class TestDingtalkChannel(unittest.TestCase):
 ### 1. Create the channel class
 
 ```python
-# src/channels/my_channel.py
+# src/claude_notifier/core/channels/my_channel.py
 from typing import Dict, Any
 from .base import BaseChannel
 
 class MyChannel(BaseChannel):
     """Custom notification channel"""
+    
+    # Required class attributes
+    DISPLAY_NAME = "My Channel"
+    DESCRIPTION = "Custom notification channel example"
+    REQUIRED_CONFIG = ["api_key", "endpoint"]
     
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
@@ -235,16 +240,16 @@ class MyChannel(BaseChannel):
     
     def send_notification(
         self, 
-        data: Dict[str, Any], 
-        template: str
+        template_data: Dict[str, Any], 
+        event_type: str = 'generic'
     ) -> bool:
         """Send notification implementation"""
-        if not self.enabled or not self.validate_config():
+        if not self.config.get('enabled', False) or not self.validate_config():
             return False
         
         try:
             # Format message
-            message = self._format_message(data, template)
+            message = self._format_message(template_data, event_type)
             
             # Send request
             response = self._send_request(message)
@@ -253,10 +258,10 @@ class MyChannel(BaseChannel):
             return self._handle_response(response)
             
         except Exception as e:
-            self._log_error(f"Send failed: {e}")
+            self.logger.error(f"Send failed: {e}")
             return False
     
-    def _format_message(self, data: Dict[str, Any], template: str) -> str:
+    def _format_message(self, template_data: Dict[str, Any], event_type: str) -> str:
         """Format message content"""
         # Implement your formatting logic
         pass
@@ -274,15 +279,27 @@ class MyChannel(BaseChannel):
 
 ### 2. Register the channel
 
+Add try-catch import in `src/claude_notifier/core/channels/__init__.py`:
+
 ```python
-# src/channels/__init__.py
+# Import custom channel
+try:
+    from .my_channel import MyChannel
+    _available_channels['my_channel'] = MyChannel
+except ImportError as e:
+    logger.debug(f"Custom channel import failed: {e}")
+```
+
+Or use dynamic registration API:
+
+```python
+from src.claude_notifier.core.channels import register_channel
 from .my_channel import MyChannel
 
-AVAILABLE_CHANNELS = {
-    'dingtalk': DingtalkChannel,
-    'feishu': FeishuChannel,
-    'my_channel': MyChannel,  # add new channel
-}
+# Register channel dynamically
+success = register_channel('my_channel', MyChannel)
+if success:
+    print("Channel registered successfully")
 ```
 
 ### 3. Add config template
@@ -302,7 +319,7 @@ channels:
 ```python
 # tests/test_my_channel.py
 import unittest
-from channels.my_channel import MyChannel
+from src.claude_notifier.core.channels.my_channel import MyChannel
 
 class TestMyChannel(unittest.TestCase):
     def test_channel_initialization(self):
@@ -719,37 +736,49 @@ All PRs are reviewed for:
 - Performance impact
 - Security considerations
 
-## Release Process
+## 📦 Versioning and Pre-release Process
 
-### Versioning
+### 🔢 Single Source of Truth
+- Version source file: `src/claude_notifier/__version__.py`
+- Build config:
+  - `pyproject.toml` uses a dynamic version pointing to the same file
+  - `setup.py` also reads the version from the same file
 
-Use Semantic Versioning:
-- `MAJOR.MINOR.PATCH`
-- `1.0.0` — breaking changes
-- `1.1.0` — new features
-- `1.1.1` — bug fixes
+### 🧭 PEP 440 Overview
+- Format: `X.Y.Z[<pre>][.postN][.devN]`
+- Pre-release suffixes:
+  - `aN` (Alpha), `bN` (Beta), `rcN` (Release Candidate)
+  - Examples: `0.0.3a1`, `0.0.3b1`, `0.0.3rc1`
+- Stable release: remove the suffix, e.g., `0.0.3`
+- Ordering (low → high): `0.0.3a1 < 0.0.3a2 < 0.0.3b1 < 0.0.3rc1 < 0.0.3`
 
-### Steps
+### 🚧 Pre-release Policy (no TestPyPI by default)
+- Publish pre-releases via Git tags: `vX.Y.Z[a|b|rc]N`, e.g., `v0.0.3b1`
+- Create a corresponding repo Release with change notes (see `CHANGELOG.md`)
+- CLI `--version` displays the “Version Type: Alpha/Beta/RC” and a pre-release notice
+- If distribution is needed, you may manually publish pre-releases to PyPI (optional)
 
-```bash
-# 1. Bump version
-echo "1.2.0" > src/__version__.py
+### ✅ Stable Release (default)
+- Tag `vX.Y.Z` triggers GitHub Actions:
+  - Build `sdist` and `wheel`
+  - Publish to PyPI (requires PyPI credentials in repo Secrets)
+- Update `CHANGELOG.md` and documentation accordingly
 
-# 2. Update CHANGELOG
-vim CHANGELOG.md
+### 📝 Checklist
+- Pre-release:
+  1. Set a pre-release version in `src/claude_notifier/__version__.py` (e.g., `0.0.3b1`)
+  2. Tag `v0.0.3b1` and create a Release
+  3. Verify CLI `--version` shows the pre-release notice
+- Stable release:
+  1. Set version to `X.Y.Z` (remove pre-release suffix)
+  2. Tag `vX.Y.Z` to trigger GitHub Actions and publish to PyPI
+  3. Update `CHANGELOG.md` and docs
 
-# 3. Commit
-git add .
-git commit -m "chore: bump version to 1.2.0"
-git tag v1.2.0
-
-# 4. Push
-git push origin main --tags
-
-# 5. Build and publish
-python setup.py sdist bdist_wheel
-twine upload dist/*
-```
+### ❓ FAQ
+- How to install a pre-release?
+  - `pip install --pre claude-code-notifier` (pip excludes pre-releases by default)
+- Why does the version output show “Beta/RC”?
+  - You're on a pre-release build; CLI clearly indicates this to avoid misuse
 
 ## Issue Feedback
 

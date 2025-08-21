@@ -13,9 +13,14 @@ on:
         - minor
         - major
       pre_release:
-        description: 'Pre-release identifier (optional: alpha, beta, rc)'
+        description: 'Pre-release identifier (optional: a, b, rc)'
         required: false
         type: string
+      promote:
+        description: 'Promote current pre-release to stable (ignore bump_type if true)'
+        required: false
+        default: false
+        type: boolean
       create_release:
         description: 'Create GitHub release after version bump'
         required: true
@@ -61,53 +66,62 @@ jobs:
       id: bump
       run: |
         python << 'EOF'
-        import sys
         import os
-        from packaging import version
+        from packaging.version import Version
         
         current_version = "${{ steps.current.outputs.current-version }}"
-        bump_type = "${{ github.event.inputs.bump_type }}"
-        pre_release = "${{ github.event.inputs.pre_release }}"
+        bump_type = "${{ github.event.inputs.bump_type }}"  # patch/minor/major
+        pre_release = "${{ github.event.inputs.pre_release }}"  # a/b/rc (optional)
+        promote = "${{ github.event.inputs.promote }}"  # 'true' or 'false'
         
         print(f"Current version: {current_version}")
         print(f"Bump type: {bump_type}")
-        print(f"Pre-release: {pre_release}")
+        print(f"Pre-release input: {pre_release}")
+        print(f"Promote: {promote}")
         
-        # Parse current version
-        v = version.parse(current_version)
+        v = Version(current_version)
+        is_promote = str(promote).lower() == 'true'
         
-        # Calculate new version
-        if bump_type == "major":
-            new_major = v.major + 1
-            new_minor = 0
-            new_micro = 0
-        elif bump_type == "minor":
-            new_major = v.major
-            new_minor = v.minor + 1
-            new_micro = 0
-        else:  # patch
-            new_major = v.major
-            new_minor = v.minor
-            new_micro = v.micro + 1
+        def bump_base(ver: Version, kind: str):
+            if kind == 'major':
+                return ver.major + 1, 0, 0
+            if kind == 'minor':
+                return ver.major, ver.minor + 1, 0
+            # default patch
+            return ver.major, ver.minor, ver.micro + 1
         
-        # Create new version string
-        new_version = f"{new_major}.{new_minor}.{new_micro}"
-        
-        # Add pre-release if specified
-        if pre_release:
-            if pre_release in ["alpha", "beta", "rc"]:
-                # Find existing pre-release number or start at 1
-                if hasattr(v, 'pre') and v.pre and v.pre[0] == pre_release:
-                    pre_number = v.pre[1] + 1
-                else:
-                    pre_number = 1
-                new_version += f"{pre_release}{pre_number}"
+        # 1) Promote: strip pre-release to base version without increment
+        if is_promote:
+            if v.pre is None:
+                print("ℹ️ Current version is already stable; promote does nothing")
+                new_version = f"{v.major}.{v.minor}.{v.micro}"
             else:
-                print(f"⚠️ Unknown pre-release type: {pre_release}")
+                new_version = v.base_version
+        else:
+            # 2) Normal bump
+            new_major, new_minor, new_micro = bump_base(v, bump_type)
+            new_version = f"{new_major}.{new_minor}.{new_micro}"
+            
+            # 3) Optional pre-release append using PEP 440 ids a/b/rc
+            if pre_release:
+                mapping = {
+                    'alpha': 'a', 'a': 'a',
+                    'beta': 'b', 'b': 'b',
+                    'rc': 'rc'
+                }
+                pre_id = mapping.get(pre_release.lower())
+                if not pre_id:
+                    print(f"⚠️ Unknown pre-release type: {pre_release}")
+                else:
+                    # If same pre channel continues, increment number; else start at 1
+                    if v.pre and v.pre[0] == pre_id:
+                        pre_number = (v.pre[1] or 0) + 1
+                    else:
+                        pre_number = 1
+                    new_version = f"{new_version}{pre_id}{pre_number}"
         
         print(f"New version: {new_version}")
         
-        # Write to GitHub outputs
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             f.write(f"new-version={new_version}\n")
             f.write(f"old-version={current_version}\n")
@@ -249,13 +263,13 @@ jobs:
         ## 📦 Installation
         
         ```bash
-        pip install claude-notifier==${NEW_VERSION}
+        pip install claude-code-notifier==${NEW_VERSION}
         ```
         
         ## 🔄 Upgrade
         
         ```bash
-        pip install --upgrade claude-notifier
+        pip install --upgrade claude-code-notifier
         ```
         
         ## 📖 Documentation
@@ -277,7 +291,7 @@ jobs:
         release_name: Claude Notifier v${{ needs.bump-version.outputs.new-version }}
         body: ${{ steps.release-notes.outputs.RELEASE_NOTES }}
         draft: false
-        prerelease: ${{ contains(needs.bump-version.outputs.new-version, 'alpha') || contains(needs.bump-version.outputs.new-version, 'beta') || contains(needs.bump-version.outputs.new-version, 'rc') }}
+        prerelease: ${{ contains(needs.bump-version.outputs.new-version, 'a') || contains(needs.bump-version.outputs.new-version, 'b') || contains(needs.bump-version.outputs.new-version, 'rc') }}
         
     - name: Summary
       run: |
@@ -291,7 +305,8 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "The release workflow will automatically trigger and publish to PyPI." >> $GITHUB_STEP_SUMMARY
+        echo "Stable GitHub Releases will automatically publish to PyPI." >> $GITHUB_STEP_SUMMARY
+        echo "Pre-releases will NOT be auto-published. If needed, manually trigger the Release workflow with environment=testpypi to publish to TestPyPI." >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## 🔗 Links" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY

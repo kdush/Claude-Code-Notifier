@@ -11,7 +11,31 @@
 
 ## ⚡ One‑Minute Installation
 
-### Method A: Automated Install (Recommended for newcomers)
+### Method 1: PyPI Installation (Recommended for General Users) 🚀
+
+```bash
+# 1. Install latest version
+pip install claude-code-notifier
+
+# 2. Verify installation
+claude-notifier --version
+
+# 3. 🚀 One-Click Smart Setup (New Feature!)
+claude-notifier setup --auto
+
+# 4. Test configuration
+claude-notifier test
+```
+
+**🎉 New Feature Highlights**:
+- ✅ **Auto Claude Code Detection** - Smart discovery of various installation locations
+- ✅ **One-Click Hook Setup** - Automatic Claude Code integration
+- ✅ **Complete CLI Support** - hooks install/status/verify commands
+- ✅ **Zero Manual Config** - Intelligent setup process
+
+### Method 2: Git Installation (For Developers)
+
+#### 2.1 Automated Install (Recommended)
 
 ```bash
 # 1. Clone the project
@@ -26,7 +50,7 @@ chmod +x install.sh scripts/quick_setup.py
 python3 scripts/quick_setup.py
 ```
 
-### Method B: Manual Install (Recommended for developers)
+#### 2.2 Manual Install
 
 ```bash
 # 1. Clone and enter the project
@@ -47,11 +71,61 @@ vim ~/.claude-notifier/config.yaml
 ./scripts/test.sh
 ```
 
+### 📊 Installation Method Comparison
+
+| Feature | PyPI Install | Git Install |
+|---------|-------------|-------------|
+| ⚡ Install Speed | 30 seconds | 2-3 minutes |
+| 🎯 Target Users | General users | Developers |
+| 🔧 Config Complexity | One-click | Manual setup |
+| 🚀 Claude Code Integration | ✅ Automatic | ✅ Automatic |
+| 📦 Update Method | `pip install --upgrade` | `git pull` |
+
+## 🛠️ PyPI User Configuration Guide
+
+### 💡 Smart Configuration Process
+
+```bash
+# 🚀 One-Click Setup (Recommended)
+claude-notifier setup --auto
+
+# 🔧 Interactive Configuration
+claude-notifier setup
+
+# 📊 Check Configuration Status
+claude-notifier --status
+```
+
+### 🔗 Claude Code Hook Management
+
+```bash
+# Install Claude Code hooks
+claude-notifier hooks install
+
+# View hook status
+claude-notifier hooks status
+
+# Verify hook configuration
+claude-notifier hooks verify
+
+# Uninstall hooks (if needed)
+claude-notifier hooks uninstall
+```
+
+**Hook Features Explanation**:
+- 🎯 **Session Notifications** - Notifications when Claude Code starts
+- 📋 **Task Tracking** - Automatic task execution status tracking
+- ⚠️ **Error Monitoring** - Real-time notifications for exceptions
+- 🔐 **Permission Checks** - Confirmation notifications for sensitive operations
+
 ## 📱 Quick Channel Configuration
 
 ### DingTalk Bot (Recommended)
 ```bash
-# Interactive setup
+# PyPI users - Use configuration wizard
+claude-notifier setup
+
+# Git users - Interactive setup
 python3 scripts/quick_setup.py
 
 # Manual steps:
@@ -197,7 +271,7 @@ ls -la ~/.claude/hooks/
 cat ~/.claude/settings.json | jq '.hooks'
 
 # 3. Reinstall hooks
-./hooks/install_hooks.sh
+claude-notifier hooks install --force
 
 # 4. Restart Claude Code
 pkill claude && claude

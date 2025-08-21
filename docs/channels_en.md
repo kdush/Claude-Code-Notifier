@@ -7,11 +7,12 @@
 | Channel | Status | Features | Difficulty |
 |--------|--------|----------|------------|
 | 🔔 DingTalk Bot | ✅ Mature | ActionCard + Markdown + HMAC Sign | ⭐⭐ |
-| 🚀 Feishu (Lark) Bot | ✅ Mature | Rich text + Interactive cards | ⭐⭐ |
-| 💼 WeCom (WeChat Work) Bot | ✅ Mature | Markdown + News | ⭐⭐ |
-| 🤖 Telegram | ✅ Mature | Bot messaging | ⭐⭐⭐ |
-| 📮 SMTP Email | ✅ Mature | HTML emails | ⭐⭐⭐⭐ |
-| 📧 ServerChan | ✅ Mature | WeChat push | ⭐ |
+| 🔗 Webhook | ✅ Mature | HTTP callback + Multi-format + Multi-auth | ⭐⭐⭐ |
+| 🚀 Feishu (Lark) Bot | 🚧 In Development | Rich text + Interactive cards | ⭐⭐ |
+| 💼 WeCom (WeChat Work) Bot | 🚧 In Development | Markdown + News | ⭐⭐ |
+| 🤖 Telegram | 🚧 In Development | Bot messaging | ⭐⭐⭐ |
+| 📮 SMTP Email | 🚧 In Development | HTML emails | ⭐⭐⭐⭐ |
+| 📧 ServerChan | 🚧 In Development | WeChat push | ⭐ |
 
 ## 🔔 DingTalk Bot
 

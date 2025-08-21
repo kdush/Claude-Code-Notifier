@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+> 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
+
+## [0.0.3b1] - 2025-08-21 (Pre-release: Beta)
+
 ### Added - Claude Code钩子自动配置 🚀
 - **🔧 PyPI版本钩子支持** - PyPI用户现在可以自动配置Claude Code钩子，实现与Git版本相同的集成体验
 - **⚡ 智能安装器** - 新增`ClaudeHookInstaller`类，提供完整的钩子生命周期管理（安装/卸载/验证/状态检查）
@@ -28,20 +32,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **🔄 双模式兼容** - 钩子脚本支持PyPI和Git两种安装模式，智能切换
 - **⚙️ 配置管理** - 完整的`hooks.json`配置生成和验证系统
 - **✨ 状态跟踪** - 新增钩子会话状态文件和进度管理
+- **🧹 安装系统清理** - 删除冗余安装脚本，统一Git和PyPI安装体验
 
-> 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
-
-## [0.0.3b1] - 2025-08-21 (Pre-release: Beta)
-
-### Added
+### Version Management
 - 采用符合 PEP 440 的预发行版本规范（a/b/rc），本次为 `b`，示例：`0.0.3b1`
-- CLI `--version` 显示预发行提示，包括“版本类型: Beta”与“这是预发行版本，可能包含变更”
+- CLI `--version` 显示预发行提示，包括"版本类型: Beta"与"这是预发行版本，可能包含变更"
 
 ### Documentation
 - README 新增 Beta 徽章，突出当前预发行状态
+- 全面同步中英文文档以反映PyPI钩子自动配置功能
+- 更新快速开始指南，重构安装流程说明
 
 ### CI/CD
 - 预发行版本自动发布至 TestPyPI；正式版本发布至 PyPI
+- 增强CI/CD工作流以支持钩子系统测试和验证
 
 ## [0.0.2] - 2025-08-20
 
