@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **✨ 状态跟踪** - 新增钩子会话状态文件和进度管理
 - **🧹 安装系统清理** - 删除冗余安装脚本，统一Git和PyPI安装体验
 
+### Packaging - 发布元数据与安装说明 📦
+- 对齐 Python Classifiers：移除 3.7，新增 3.12（与 `python_requires >= 3.8` 保持一致）
+- 安装命令文案统一为 `claude-code-notifier[...]`，避免包名混淆
+
 ### Version Management
 - 采用符合 PEP 440 的预发行版本规范（a/b/rc），本次为 `b`，示例：`0.0.3b1`
 - CLI `--version` 显示预发行提示，包括"版本类型: Beta"与"这是预发行版本，可能包含变更"
