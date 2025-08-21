@@ -26,8 +26,9 @@ class ConfigManager:
             config_path = os.path.expanduser('~/.claude-notifier/config.yaml')
             
         self.config_path = config_path
-        self.config = self._load_config()
+        # 先初始化 logger，避免 _load_config 调用时访问未定义的 self.logger
         self.logger = logging.getLogger(__name__)
+        self.config = self._load_config()
         
     def _load_config(self) -> Dict[str, Any]:
         """加载配置文件"""
