@@ -59,12 +59,225 @@ def cli(ctx, version, status):
             print(f"  启用渠道: {status_info['channels']['total_enabled']}")
             if status_info['channels']['enabled']:
                 print(f"  渠道列表: {', '.join(status_info['channels']['enabled'])}")
+                
+            # 集成钩子状态检查
+            _check_and_suggest_hooks()
+                
         except Exception as e:
             print(f"❌ 状态获取失败: {e}")
         return
         
     if ctx.invoked_subcommand is None:
+        # 智能首次运行检查
+        _first_run_setup_check()
         click.echo(ctx.get_help())
+
+
+def _first_run_setup_check():
+    """首次运行智能设置检查"""
+    import os
+    from pathlib import Path
+    
+    setup_marker = Path.home() / '.claude-notifier' / '.setup_complete'
+    
+    # 如果已经设置过，跳过
+    if setup_marker.exists():
+        return
+        
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        installer = ClaudeHookInstaller()
+        
+        # 检测Claude Code
+        claude_detected, claude_location = installer.detect_claude_code()
+        
+        if claude_detected:
+            status = installer.get_installation_status()
+            if not status['hooks_installed']:
+                print(f"\n🔍 检测到Claude Code: {claude_location}")
+                print("💡 提示: 使用 'claude-notifier hooks install' 启用Claude Code智能集成")
+                print("   完整功能: 会话通知 | 任务跟踪 | 错误监控 | 限流提醒")
+                
+        # 创建设置标记
+        os.makedirs(setup_marker.parent, exist_ok=True)
+        setup_marker.touch()
+        
+    except Exception:
+        # 静默处理检查错误，不影响正常使用
+        pass
+
+
+def _check_and_suggest_hooks():
+    """检查并建议钩子配置"""
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        installer = ClaudeHookInstaller()
+        
+        status = installer.get_installation_status()
+        print(f"\n🔗 Claude Code集成:")
+        
+        if status['claude_detected']:
+            print(f"  Claude Code: ✅ {status['claude_location']}")
+            
+            if status['hooks_installed'] and status['hooks_valid']:
+                enabled_count = len(status['enabled_hooks'])
+                print(f"  钩子配置: ✅ 已启用 ({enabled_count} 个钩子)")
+                if status['enabled_hooks']:
+                    print(f"  启用钩子: {', '.join(status['enabled_hooks'])}")
+            else:
+                print("  钩子配置: ❌ 未配置")
+                print("  💡 建议: claude-notifier hooks install")
+        else:
+            print("  Claude Code: ❌ 未检测到")
+            
+    except Exception as e:
+        print(f"  钩子检查: ⚠️  检查失败 ({e})")
+
+
+@cli.command()
+@click.option('--auto', is_flag=True, help='自动配置（跳过确认）')
+@click.option('--claude-code-only', is_flag=True, help='仅配置Claude Code钩子')
+def setup(auto, claude_code_only):
+    """一键智能配置 Claude Notifier
+    
+    自动检测环境并配置所有功能：
+    - 基础配置文件初始化
+    - Claude Code钩子集成（如果检测到）
+    - 权限和路径配置
+    
+    Examples:
+        claude-notifier setup              # 交互式配置
+        claude-notifier setup --auto       # 自动配置
+        claude-notifier setup --claude-code-only  # 仅配置钩子
+    """
+    import os
+    from pathlib import Path
+    
+    click.echo("🚀 Claude Notifier 智能配置向导")
+    click.echo("=" * 50)
+    
+    setup_results = []
+    
+    # 1. 基础配置检查（除非只配置Claude Code）
+    if not claude_code_only:
+        try:
+            notifier = Notifier()
+            status_info = notifier.get_status()
+            
+            if status_info['config']['valid']:
+                click.echo("✅ 基础配置已存在且有效")
+                setup_results.append(("基础配置", True, "配置文件已存在"))
+            else:
+                if auto or click.confirm("是否创建默认配置文件?"):
+                    # 这里可以添加配置文件创建逻辑
+                    click.echo("ℹ️  基础配置初始化需要手动设置通知渠道")
+                    click.echo("   参考: https://github.com/kdush/Claude-Code-Notifier#configuration")
+                    setup_results.append(("基础配置", False, "需要手动配置"))
+                else:
+                    setup_results.append(("基础配置", False, "用户跳过"))
+                    
+        except Exception as e:
+            click.echo(f"⚠️  基础配置检查失败: {e}")
+            setup_results.append(("基础配置", False, f"检查失败: {e}"))
+    
+    # 2. Claude Code钩子配置
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        installer = ClaudeHookInstaller()
+        
+        # 检测Claude Code
+        claude_detected, claude_location = installer.detect_claude_code()
+        
+        if claude_detected:
+            click.echo(f"🔍 检测到Claude Code: {claude_location}")
+            
+            status = installer.get_installation_status()
+            
+            if status['hooks_installed'] and status['hooks_valid']:
+                click.echo("✅ Claude Code钩子已配置")
+                setup_results.append(("Claude Code钩子", True, "已安装且有效"))
+            else:
+                should_install = auto or click.confirm("是否安装Claude Code钩子集成?")
+                
+                if should_install:
+                    click.echo("🔧 正在安装Claude Code钩子...")
+                    success, message = installer.install_hooks(force=auto)
+                    
+                    if success:
+                        click.echo(f"✅ {message}")
+                        setup_results.append(("Claude Code钩子", True, "安装成功"))
+                        
+                        # 验证安装
+                        if installer.verify_installation():
+                            click.echo("✅ 钩子配置验证通过")
+                        else:
+                            click.echo("⚠️  钩子配置验证失败，但基本功能可用")
+                    else:
+                        click.echo(f"❌ {message}")
+                        setup_results.append(("Claude Code钩子", False, message))
+                else:
+                    setup_results.append(("Claude Code钩子", False, "用户跳过"))
+        else:
+            click.echo("ℹ️  未检测到Claude Code安装")
+            click.echo("   如需集成，请先安装Claude Code: https://docs.anthropic.com/claude/docs/claude-code")
+            setup_results.append(("Claude Code检测", False, "未检测到安装"))
+            
+    except Exception as e:
+        click.echo(f"❌ Claude Code钩子配置失败: {e}")
+        setup_results.append(("Claude Code钩子", False, f"配置失败: {e}"))
+    
+    # 3. 权限检查
+    try:
+        config_dir = Path.home() / '.claude-notifier'
+        if config_dir.exists():
+            permissions = oct(config_dir.stat().st_mode)[-3:]
+            if permissions >= '755':
+                setup_results.append(("目录权限", True, f"权限正常 ({permissions})"))
+            else:
+                click.echo(f"⚠️  配置目录权限过低: {permissions}")
+                if auto or click.confirm("是否修复目录权限?"):
+                    config_dir.chmod(0o755)
+                    setup_results.append(("目录权限", True, "已修复"))
+                else:
+                    setup_results.append(("目录权限", False, "权限过低，用户跳过修复"))
+        else:
+            setup_results.append(("目录权限", True, "配置目录将在首次使用时创建"))
+            
+    except Exception as e:
+        setup_results.append(("目录权限", False, f"检查失败: {e}"))
+    
+    # 4. 创建设置完成标记
+    try:
+        setup_marker = Path.home() / '.claude-notifier' / '.setup_complete'
+        os.makedirs(setup_marker.parent, exist_ok=True)
+        setup_marker.touch()
+    except Exception:
+        pass  # 静默处理标记文件错误
+    
+    # 5. 配置结果总结
+    click.echo("\n" + "=" * 50)
+    click.echo("📋 配置结果总结:")
+    
+    success_count = 0
+    for item, success, details in setup_results:
+        status_icon = "✅" if success else "❌" 
+        click.echo(f"  {status_icon} {item}: {details}")
+        if success:
+            success_count += 1
+    
+    total_count = len(setup_results)
+    click.echo(f"\n🎯 完成情况: {success_count}/{total_count} 项配置成功")
+    
+    if success_count == total_count:
+        click.echo("🎉 恭喜！Claude Notifier 已完全配置完成")
+        click.echo("💡 下一步: 配置通知渠道以开始使用")
+        click.echo("   运行: claude-notifier --help")
+    elif success_count > 0:
+        click.echo("⚠️  部分配置完成，系统可以基本使用")
+        click.echo("💡 建议: 检查失败项目并手动配置")
+    else:
+        click.echo("❌ 配置未完成，请检查错误并重试")
+        sys.exit(1)
 
 
 @cli.command()
@@ -1064,6 +1277,251 @@ def _get_sample_channels():
             'to_addrs': ['recipient@example.com']
         }
     }
+
+
+@cli.group(invoke_without_command=True)
+@click.pass_context
+def hooks(ctx):
+    """Claude Code钩子管理
+    
+    管理Claude Code集成钩子，实现智能通知功能：
+    
+    Commands:
+        install   - 安装钩子配置
+        uninstall - 卸载钩子配置  
+        status    - 查看钩子状态
+        verify    - 验证钩子配置
+        
+    Examples:
+        claude-notifier hooks                  # 查看钩子状态
+        claude-notifier hooks install         # 安装钩子
+        claude-notifier hooks status          # 检查钩子状态
+        claude-notifier hooks verify          # 验证钩子配置
+    """
+    if ctx.invoked_subcommand is None:
+        _show_hooks_status()
+
+
+def _show_hooks_status():
+    """显示钩子状态概览"""
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        
+        installer = ClaudeHookInstaller()
+        installer.print_status()
+        
+    except ImportError:
+        click.echo("❌ 钩子功能不可用")
+        click.echo("💡 请确保在PyPI安装中包含钩子模块")
+    except Exception as e:
+        click.echo(f"❌ 钩子状态获取失败: {e}")
+
+
+@hooks.command()
+@click.option('--force', is_flag=True, help='强制安装（覆盖现有配置）')
+@click.option('--detect-only', is_flag=True, help='只检测Claude Code，不安装')
+def install(force, detect_only):
+    """安装Claude Code钩子配置
+    
+    自动检测Claude Code安装并配置钩子，实现：
+    - 会话开始时的通知
+    - 命令执行时的权限检查
+    - 任务完成时的庆祝通知
+    - 错误发生时的报警通知
+    """
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        
+        installer = ClaudeHookInstaller()
+        
+        if detect_only:
+            # 只检测不安装
+            claude_detected, claude_location = installer.detect_claude_code()
+            if claude_detected:
+                click.echo(f"✅ 检测到Claude Code: {claude_location}")
+                click.echo("💡 运行 'claude-notifier hooks install' 开始安装")
+            else:
+                click.echo("❌ 未检测到Claude Code安装")
+                click.echo("💡 请先安装Claude Code: npm install -g @anthropic-ai/claude-code")
+            return
+        
+        # 执行安装
+        success, message = installer.install_hooks(force=force)
+        click.echo(message)
+        
+        if success:
+            click.echo("\n🎉 Claude Code钩子安装完成！")
+            click.echo("\n📋 后续步骤:")
+            click.echo("  1. 重新启动Claude Code")
+            click.echo("  2. 运行 'claude-notifier test' 测试通知")
+            click.echo("  3. 开始使用增强的Claude Code体验")
+        else:
+            click.echo("\n💡 安装故障排除:")
+            click.echo("  1. 确保Claude Code已正确安装")
+            click.echo("  2. 检查~/.config/claude目录权限")
+            click.echo("  3. 使用 --force 强制覆盖现有配置")
+            sys.exit(1)
+            
+    except ImportError:
+        click.echo("❌ 钩子安装器不可用")
+        click.echo("💡 这可能是PyPI包问题，请联系开发者")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ 钩子安装失败: {e}")
+        sys.exit(1)
+
+
+@hooks.command()
+@click.option('--backup/--no-backup', default=True, help='是否备份现有配置')
+def uninstall(backup):
+    """卸载Claude Code钩子配置
+    
+    移除已安装的钩子配置，恢复原始Claude Code行为。
+    卸载后Claude Code将不再发送通知。
+    """
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        
+        installer = ClaudeHookInstaller()
+        
+        # 确认卸载
+        if not click.confirm("确定要卸载Claude Code钩子吗？这将停止所有Claude Code通知功能"):
+            click.echo("❌ 用户取消卸载")
+            return
+        
+        success, message = installer.uninstall_hooks()
+        click.echo(message)
+        
+        if success:
+            click.echo("\n✅ Claude Code钩子已成功卸载")
+            click.echo("💡 重新启动Claude Code以使更改生效")
+        else:
+            sys.exit(1)
+            
+    except ImportError:
+        click.echo("❌ 钩子安装器不可用")
+        sys.exit(1)  
+    except Exception as e:
+        click.echo(f"❌ 钩子卸载失败: {e}")
+        sys.exit(1)
+
+
+@hooks.command()
+def status():
+    """查看钩子详细状态
+    
+    显示完整的钩子系统状态，包括：
+    - Claude Code检测结果
+    - 钩子脚本状态
+    - 配置文件状态
+    - 启用的钩子列表
+    """
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        
+        installer = ClaudeHookInstaller()
+        installer.print_status()
+        
+        # 额外的诊断信息
+        status = installer.get_installation_status()
+        
+        if status['claude_detected'] and status['hooks_installed'] and status['hooks_valid']:
+            click.echo(f"\n💡 提示:")
+            click.echo(f"  - 钩子已就绪，Claude Code启动时将自动加载")
+            click.echo(f"  - 运行 'claude-notifier test' 测试通知功能")
+            click.echo(f"  - 查看 ~/.claude-notifier/logs/ 了解详细日志")
+        else:
+            click.echo(f"\n⚠️ 问题修复建议:")
+            if not status['claude_detected']:
+                click.echo(f"  - 安装Claude Code: npm install -g @anthropic-ai/claude-code")
+            if not status['hooks_installed']:
+                click.echo(f"  - 安装钩子: claude-notifier hooks install")
+            if not status['hooks_valid']:
+                click.echo(f"  - 重新安装: claude-notifier hooks install --force")
+                
+    except ImportError:
+        click.echo("❌ 钩子功能不可用")
+    except Exception as e:
+        click.echo(f"❌ 状态获取失败: {e}")
+
+
+@hooks.command()
+@click.option('--fix', is_flag=True, help='自动修复发现的问题')
+def verify(fix):
+    """验证钩子配置完整性
+    
+    全面验证钩子系统：
+    - 检查钩子脚本文件
+    - 验证配置文件格式
+    - 测试钩子执行权限
+    - 检查路径和依赖
+    """
+    try:
+        from ..hooks.installer import ClaudeHookInstaller
+        
+        installer = ClaudeHookInstaller()
+        
+        click.echo("🔍 开始钩子配置验证...")
+        
+        # 基础验证
+        if installer.verify_installation():
+            click.echo("✅ 钩子配置验证通过")
+            
+            # 执行钩子测试
+            click.echo("\n🧪 测试钩子执行...")
+            
+            # 简单的钩子调用测试
+            import subprocess
+            
+            hook_script = installer.hook_script_path
+            if hook_script.exists():
+                try:
+                    # 测试钩子脚本语法
+                    result = subprocess.run(
+                        [sys.executable, '-m', 'py_compile', str(hook_script)],
+                        capture_output=True, text=True
+                    )
+                    
+                    if result.returncode == 0:
+                        click.echo("✅ 钩子脚本语法正确")
+                    else:
+                        click.echo(f"❌ 钩子脚本语法错误: {result.stderr}")
+                        
+                except Exception as e:
+                    click.echo(f"⚠️ 钩子脚本测试失败: {e}")
+            
+            # 配置文件权限检查
+            if installer.hooks_file.exists():
+                import os
+                stat_info = installer.hooks_file.stat()
+                if stat_info.st_mode & 0o044:  # 检查读权限
+                    click.echo("✅ 钩子配置文件权限正确")
+                else:
+                    click.echo("⚠️ 钩子配置文件权限异常")
+                    
+            click.echo("\n🎉 钩子系统验证完成")
+            
+        else:
+            click.echo("❌ 钩子配置验证失败")
+            
+            if fix:
+                click.echo("\n🔧 尝试自动修复...")
+                success, message = installer.install_hooks(force=True)
+                if success:
+                    click.echo("✅ 自动修复成功")
+                else:
+                    click.echo(f"❌ 自动修复失败: {message}")
+                    sys.exit(1)
+            else:
+                click.echo("💡 使用 --fix 选项尝试自动修复")
+                sys.exit(1)
+                
+    except ImportError:
+        click.echo("❌ 钩子验证功能不可用")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ 钩子验证失败: {e}")
+        sys.exit(1)
 
 
 @cli.group(invoke_without_command=True)
