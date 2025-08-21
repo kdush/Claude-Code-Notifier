@@ -14,6 +14,7 @@
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-85%2B-brightgreen.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-244K%20ops%2Fs-orange.svg)](tests/test_performance_benchmarks.py)
+[![Release](https://img.shields.io/badge/release-Beta-orange.svg)](#)
 
 ## ✨ 特性
 
@@ -39,23 +40,24 @@
 - **统计监控** - 事件统计和通知效果分析
 - **配置备份** - 支持配置备份和恢复功能
 
-## 🆕 最新改进 (v0.0.2)
+## 🆕 最新改进 (v0.0.3b1 - Beta)
 
-- ✅ **配置系统增强** - 修复配置备份/恢复功能，确保配置安全
-- ✅ **模板系统统一** - 统一模板引擎API，消除重复实现 
-- ✅ **导入问题修复** - 解决模块导入问题，提高兼容性
-- ✅ **文档完善** - 更新所有文档以反映当前功能状态
+- ✅ **PEP 440 版本规范** - 采用预发行规范 `a/b/rc`（本次为 `b`），版本号示例：`0.0.3b1`
+- ✅ **CLI 版本提示增强** - `--version` 显示“版本类型: Beta”和“这是预发行版本，可能包含变更”
+- ✅ **README 徽章** - 新增 Beta 徽章，突出当前预发行状态
+- ✅ **CI/CD 工作流** - 预发行版本自动发布到 TestPyPI，正式版发布到 PyPI
 
 ## 📱 支持的通知渠道
 
 | 渠道 | 状态 | 特性 |
 |------|------|------|
 | 🔔 钉钉机器人 | ✅ | ActionCard + Markdown |
-| 🚀 飞书机器人 | ✅ | 富文本 + 交互卡片 |
-| 💼 企业微信机器人 | ✅ | Markdown + 图文消息 |
-| 🤖 Telegram | ✅ | Bot 消息推送 |
-| 📮 邮箱 | ✅ | SMTP 邮件推送 |
-| 📧 Server酱 | ✅ | 微信推送 |
+| 🔗 Webhook | ✅ | HTTP 回调 + 多格式 + 多认证 |
+| 🚀 飞书机器人 | 🚧 开发中 | 富文本 + 交互卡片 |
+| 💼 企业微信机器人 | 🚧 开发中 | Markdown + 图文消息 |
+| 🤖 Telegram | 🚧 开发中 | Bot 消息推送 |
+| 📮 邮箱 | 🚧 开发中 | SMTP 邮件推送 |
+| 📧 Server酱 | 🚧 开发中 | 微信推送 |
 
 ## 🚀 快速开始
 
@@ -194,10 +196,13 @@ detection:
 
 ### 添加新的通知渠道
 
-1. 在 `src/channels/` 创建新的渠道文件
-2. 实现 `BaseChannel` 接口
-3. 在配置文件中添加渠道配置
-4. 更新文档和测试
+1. 在 `src/claude_notifier/core/channels/` 创建新的渠道文件
+2. 实现 `BaseChannel` 接口和必需的类属性
+3. 在 `src/claude_notifier/core/channels/__init__.py` 中注册渠道
+4. 在配置文件中添加渠道配置模板
+5. 更新文档和测试
+
+详细开发指南请参考 `docs/development.md`
 
 ### 自定义检测规则
 

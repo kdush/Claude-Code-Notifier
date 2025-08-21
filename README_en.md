@@ -13,6 +13,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-85%2B-brightgreen.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-244K%20ops%2Fs-orange.svg)](tests/test_performance_benchmarks.py)
+[![Release](https://img.shields.io/badge/release-Beta-orange.svg)](#)
 
 ## ✨ Features
 
@@ -38,23 +39,24 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 - Metrics and effectiveness analysis
 - Config backup and restore
 
-## 🆕 What's New (v0.0.2)
+## 🆕 What's New (v0.0.3b1 - Beta)
 
-- Enhanced config system: fixed backup/restore reliability
-- Unified template engine API to remove duplication
-- Import resolution fixes for better compatibility
-- Documentation updates across the board
+- PEP 440 compliant versioning adopted for pre-releases (`a`/`b`/`rc`), e.g., `0.0.3b1`
+- CLI `--version` now shows “Version Type: Beta” and a pre-release warning line
+- README adds a Beta badge to highlight current pre-release status
+- CI/CD: automatically publish pre-releases to TestPyPI; stable releases to PyPI
 
 ## 📱 Supported Channels
 
 | Channel | Status | Features |
 |--------|--------|----------|
 | 🔔 DingTalk Bot | ✅ | ActionCard + Markdown |
-| 🚀 Feishu (Lark) Bot | ✅ | Rich text + Interactive cards |
-| 💼 WeCom (WeChat Work) Bot | ✅ | Markdown + News |
-| 🤖 Telegram | ✅ | Bot message push |
-| 📮 Email | ✅ | SMTP delivery |
-| 📧 ServerChan | ✅ | WeChat push |
+| 🔗 Webhook | ✅ | HTTP callback + Multi-format + Multi-auth |
+| 🚀 Feishu (Lark) Bot | 🚧 In Development | Rich text + Interactive cards |
+| 💼 WeCom (WeChat Work) Bot | 🚧 In Development | Markdown + News |
+| 🤖 Telegram | 🚧 In Development | Bot message push |
+| 📮 Email | 🚧 In Development | SMTP delivery |
+| 📧 ServerChan | 🚧 In Development | WeChat push |
 
 ## 🚀 Quick Start
 
@@ -192,10 +194,13 @@ detection:
 ## 🛠️ Development Guide
 
 ### Add a New Channel
-1. Create a new file under `src/channels/`
-2. Implement the `BaseChannel` interface
-3. Add channel config to your config file
-4. Update documentation and tests
+1. Create a new file under `src/claude_notifier/core/channels/`
+2. Implement the `BaseChannel` interface and required class attributes
+3. Register the channel in `src/claude_notifier/core/channels/__init__.py`
+4. Add channel configuration template to config file
+5. Update documentation and tests
+
+See `docs/development.md` for detailed development guide
 
 ### Custom Detection Rules
 Edit the `detection` section in `~/.claude-notifier/config.yaml`.
