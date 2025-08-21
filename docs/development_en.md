@@ -1,55 +1,55 @@
-[English Version](development_en.md)
+[中文文档](development.md)
 
-# 🛠️ 开发文档
+# 🛠️ Development Guide
 
-## 项目架构
+## Project Architecture
 
-### 核心组件
+### Core Components
 
 ```
 src/
-├── channels/           # 通知渠道实现
-│   ├── base.py        # 基础通道接口
-│   ├── dingtalk.py    # 钉钉机器人
-│   ├── feishu.py      # 飞书机器人
-│   ├── telegram.py    # Telegram Bot
-│   ├── email.py       # SMTP 邮件
+├── channels/           # Notification channel implementations
+│   ├── base.py         # Base channel interface
+│   ├── dingtalk.py     # Dingtalk robot
+│   ├── feishu.py       # Feishu robot
+│   ├── telegram.py     # Telegram Bot
+│   ├── email.py        # SMTP email
 │   └── ...
-├── events/            # 事件检测和处理
-│   ├── base.py        # 基础事件接口
-│   ├── builtin.py     # 内置事件类型
-│   └── custom.py      # 自定义事件
-├── templates/         # 消息模板引擎
-│   └── template_engine.py  # 统一模板引擎
-├── claude_notifier/   # 新架构核心模块
-│   ├── core/         # 核心功能
-│   ├── intelligence/ # 智能限制组件
-│   ├── monitoring/   # 监控系统
-│   └── utils/        # 工具函数
-└── utils/            # 工具函数（兼容性）
-    ├── helpers.py    # 辅助函数
-    ├── statistics.py # 统计收集
+├── events/             # Event detection and handling
+│   ├── base.py         # Base event interface
+│   ├── builtin.py      # Built-in event types
+│   └── custom.py       # Custom events
+├── templates/          # Message template engine
+│   └── template_engine.py  # Unified template engine
+├── claude_notifier/    # New architecture core modules
+│   ├── core/           # Core features
+│   ├── intelligence/   # Intelligent limiting components
+│   ├── monitoring/     # Monitoring system
+│   └── utils/          # Utilities
+└── utils/              # Utilities (compat)
+    ├── helpers.py      # Helper functions
+    ├── statistics.py   # Stats collection
     └── ...
 ```
 
-### 设计模式
+### Design Patterns
 
-1. **策略模式** - 通知渠道
-2. **观察者模式** - 事件监听
-3. **模板方法模式** - 消息格式化
-4. **工厂模式** - 组件创建
-5. **装饰器模式** - 功能增强
+1. Strategy — channels
+2. Observer — event listening
+3. Template Method — message formatting
+4. Factory — component creation
+5. Decorator — feature enhancement
 
-## 开发环境搭建
+## Development Environment Setup
 
-### 1. 克隆项目
+### 1. Clone the project
 
 ```bash
 git clone https://github.com/your-repo/claude-code-notifier.git
 cd claude-code-notifier
 ```
 
-### 2. 创建虚拟环境
+### 2. Create virtual environment
 
 ```bash
 python -m venv venv
@@ -57,61 +57,61 @@ source venv/bin/activate  # Linux/macOS
 # venv\Scripts\activate  # Windows
 ```
 
-### 3. 安装依赖
+### 3. Install dependencies
 
 ```bash
-# 开发依赖
+# Development dependencies
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 
-# 可编辑安装
+# Editable install
 pip install -e .
 ```
 
-### 4. 配置开发环境
+### 4. Configure development environment
 
 ```bash
-# 复制配置模板
+# Copy config template
 cp config/enhanced_config.yaml.template config/config.yaml
 
-# 设置环境变量
+# Environment variables
 export CLAUDE_NOTIFIER_DEBUG=1
 export CLAUDE_NOTIFIER_LOG_LEVEL=DEBUG
 ```
 
-## 代码规范
+## Code Conventions
 
-### Python 代码风格
+### Python Code Style
 
 ```python
-# 使用 Black 格式化
+# Use Black for formatting
 black src/ tests/
 
-# 使用 isort 排序导入
+# Use isort for import sorting
 isort src/ tests/
 
-# 使用 flake8 检查代码质量
+# Use flake8 for linting
 flake8 src/ tests/
 
-# 使用 mypy 进行类型检查
+# Use mypy for type checking
 mypy src/
 ```
 
-### 文档字符串
+### Docstrings
 
 ```python
 def send_notification(self, data: Dict[str, Any], template: str) -> bool:
-    """发送通知消息
+    """Send a notification message
     
     Args:
-        data: 通知数据字典
-        template: 消息模板名称
+        data: Notification data dictionary
+        template: Message template name
         
     Returns:
-        bool: 发送成功返回 True，失败返回 False
+        bool: True if sent successfully, False otherwise
         
     Raises:
-        NotificationError: 通知发送失败时抛出
+        NotificationError: Raised when sending fails
         
     Example:
         >>> channel = DingtalkChannel(config)
@@ -124,7 +124,7 @@ def send_notification(self, data: Dict[str, Any], template: str) -> bool:
     """
 ```
 
-### 类型注解
+### Type Annotations
 
 ```python
 from typing import Dict, List, Optional, Union, Any
@@ -141,43 +141,43 @@ class BaseChannel(ABC):
         data: Dict[str, Any], 
         template: str
     ) -> bool:
-        """发送通知的抽象方法"""
+        """Abstract method to send notification"""
         pass
 ```
 
-## 测试框架
+## Testing Framework
 
-### 测试架构
+### Layout
 
 ```
 tests/
-├── conftest.py                    # pytest 配置
-├── test_basic_units.py           # 基础单元测试
-├── test_integration_flows.py     # 集成测试
-├── test_performance_benchmarks.py # 性能测试
-├── test_system_validation.py     # 系统验证测试
-├── test_intelligence.py          # 智能组件测试
-├── test_monitoring.py            # 监控系统测试
-└── run_all_tests.py              # 测试运行器
+├── conftest.py                    # pytest config
+├── test_basic_units.py            # basic unit tests
+├── test_integration_flows.py      # integration tests
+├── test_performance_benchmarks.py # performance tests
+├── test_system_validation.py      # system validation tests
+├── test_intelligence.py           # intelligent components
+├── test_monitoring.py             # monitoring system tests
+└── run_all_tests.py               # test runner
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
-# 运行所有测试
+# Run all tests
 python -m pytest tests/ -v
 
-# 运行特定测试
+# Run a specific test
 python -m pytest tests/test_basic_units.py -v
 
-# 运行性能测试
+# Performance tests
 python tests/test_performance_benchmarks.py
 
-# 生成覆盖率报告
+# Coverage report
 pytest --cov=src --cov-report=html tests/
 ```
 
-### 测试示例
+### Test Example
 
 ```python
 import unittest
@@ -195,26 +195,26 @@ class TestDingtalkChannel(unittest.TestCase):
     
     @patch('requests.post')
     def test_send_notification_success(self, mock_post):
-        # 模拟成功响应
+        # Simulate a successful response
         mock_response = Mock()
         mock_response.json.return_value = {'errcode': 0}
         mock_response.status_code = 200
         mock_post.return_value = mock_response
         
-        # 执行测试
+        # Execute
         result = self.channel.send_notification(
             {'project': 'test'}, 
             'template'
         )
         
-        # 验证结果
+        # Verify
         self.assertTrue(result)
         mock_post.assert_called_once()
 ```
 
-## 新增通知渠道
+## Adding a New Notification Channel
 
-### 1. 创建渠道类
+### 1. Create the channel class
 
 ```python
 # src/channels/my_channel.py
@@ -222,7 +222,7 @@ from typing import Dict, Any
 from .base import BaseChannel
 
 class MyChannel(BaseChannel):
-    """自定义通知渠道"""
+    """Custom notification channel"""
     
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
@@ -230,7 +230,7 @@ class MyChannel(BaseChannel):
         self.endpoint = config.get('endpoint')
     
     def validate_config(self) -> bool:
-        """验证配置有效性"""
+        """Validate configuration"""
         return bool(self.api_key and self.endpoint)
     
     def send_notification(
@@ -238,41 +238,41 @@ class MyChannel(BaseChannel):
         data: Dict[str, Any], 
         template: str
     ) -> bool:
-        """发送通知实现"""
+        """Send notification implementation"""
         if not self.enabled or not self.validate_config():
             return False
         
         try:
-            # 格式化消息
+            # Format message
             message = self._format_message(data, template)
             
-            # 发送请求
+            # Send request
             response = self._send_request(message)
             
-            # 处理响应
+            # Handle response
             return self._handle_response(response)
             
         except Exception as e:
-            self._log_error(f"发送失败: {e}")
+            self._log_error(f"Send failed: {e}")
             return False
     
     def _format_message(self, data: Dict[str, Any], template: str) -> str:
-        """格式化消息内容"""
-        # 实现消息格式化逻辑
+        """Format message content"""
+        # Implement your formatting logic
         pass
     
     def _send_request(self, message: str) -> Any:
-        """发送 HTTP 请求"""
-        # 实现请求发送逻辑
+        """Send HTTP request"""
+        # Implement HTTP call
         pass
     
     def _handle_response(self, response: Any) -> bool:
-        """处理响应结果"""
-        # 实现响应处理逻辑
+        """Handle response"""
+        # Implement response handling
         pass
 ```
 
-### 2. 注册通知渠道
+### 2. Register the channel
 
 ```python
 # src/channels/__init__.py
@@ -281,11 +281,11 @@ from .my_channel import MyChannel
 AVAILABLE_CHANNELS = {
     'dingtalk': DingtalkChannel,
     'feishu': FeishuChannel,
-    'my_channel': MyChannel,  # 添加新渠道
+    'my_channel': MyChannel,  # add new channel
 }
 ```
 
-### 3. 添加配置模板
+### 3. Add config template
 
 ```yaml
 # config/enhanced_config.yaml.template
@@ -294,10 +294,10 @@ channels:
     enabled: false
     api_key: "YOUR_API_KEY"
     endpoint: "https://api.mychannel.com/notify"
-    # 其他配置参数
+    # other params
 ```
 
-### 4. 编写测试
+### 4. Write tests
 
 ```python
 # tests/test_my_channel.py
@@ -311,17 +311,17 @@ class TestMyChannel(unittest.TestCase):
         self.assertTrue(channel.enabled)
     
     def test_config_validation(self):
-        # 测试配置验证逻辑
+        # Test config validation logic
         pass
     
     def test_send_notification(self):
-        # 测试通知发送逻辑
+        # Test send logic
         pass
 ```
 
-## 新增事件类型
+## Adding a New Event Type
 
-### 1. 创建事件类
+### 1. Create the event class
 
 ```python
 # src/events/my_event.py
@@ -329,37 +329,36 @@ from typing import Dict, Any
 from .base import BaseEvent, EventType, EventPriority
 
 class MyCustomEvent(BaseEvent):
-    """自定义事件类型"""
+    """Custom event type"""
     
     def __init__(self):
         super().__init__()
         self.event_id = "my_custom_event"
-        self.name = "我的自定义事件"
+        self.name = "My Custom Event"
         self.event_type = EventType.CUSTOM
         self.priority = EventPriority.NORMAL
     
     def should_trigger(self, context: Dict[str, Any]) -> bool:
-        """判断是否应该触发事件"""
-        # 实现触发条件逻辑
+        """Determine whether to trigger"""
+        # Implement your trigger logic
         if context.get('trigger_condition'):
             return True
         return False
     
     def extract_data(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """从上下文提取通知数据"""
+        """Extract notification data from context"""
         return {
             'event_name': self.name,
             'timestamp': context.get('timestamp'),
             'custom_data': context.get('custom_data', {}),
-            # 其他需要的数据
         }
     
     def get_template_name(self) -> str:
-        """获取消息模板名称"""
+        """Get message template name"""
         return "my_custom_template"
 ```
 
-### 2. 注册事件类型
+### 2. Register the event
 
 ```python
 # src/events/__init__.py
@@ -368,11 +367,11 @@ from .my_event import MyCustomEvent
 AVAILABLE_EVENTS = {
     'sensitive_operation': SensitiveOperationEvent,
     'task_completion': TaskCompletionEvent,
-    'my_custom_event': MyCustomEvent,  # 添加新事件
+    'my_custom_event': MyCustomEvent,  # add new event
 }
 ```
 
-### 3. 添加消息模板
+### 3. Add a message template
 
 ```yaml
 # templates/custom_templates.yaml
@@ -385,8 +384,8 @@ templates:
         text: |
           ### {{ event_name }}
           
-          **时间:** {{ timestamp }}
-          **数据:** {{ custom_data }}
+          **Time:** {{ timestamp }}
+          **Data:** {{ custom_data }}
     
     feishu:
       msg_type: "text"
@@ -394,9 +393,9 @@ templates:
         text: "{{ event_name }}: {{ custom_data }}"
 ```
 
-## 智能组件开发
+## Intelligent Components
 
-### 操作门控 (Operation Gate)
+### Operation Gate
 
 ```python
 # src/claude_notifier/utils/operation_gate.py
@@ -416,7 +415,7 @@ class OperationRequest:
         self.timestamp = time.time()
 
 class OperationGate:
-    """操作门控，智能控制敏感操作"""
+    """Operation gate to control sensitive operations"""
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
@@ -427,28 +426,28 @@ class OperationGate:
         self, 
         request: OperationRequest
     ) -> Tuple[OperationResult, str]:
-        """评估操作是否应该被允许"""
+        """Evaluate whether an operation should be allowed"""
         
-        # 检查阻止模式
+        # Block patterns
         for pattern in self.blocked_patterns:
             if pattern in request.command:
                 return (
                     OperationResult.BLOCKED, 
-                    f"操作包含阻止模式: {pattern}"
+                    f"Operation contains blocked pattern: {pattern}"
                 )
         
-        # 检查保护路径
+        # Protected paths
         for path in self.protected_paths:
             if path in request.command:
                 return (
                     OperationResult.REQUIRES_CONFIRMATION,
-                    f"操作涉及保护路径: {path}"
+                    f"Operation touches protected path: {path}"
                 )
         
-        return (OperationResult.ALLOWED, "操作被允许")
+        return (OperationResult.ALLOWED, "Operation allowed")
 ```
 
-### 通知限流 (Notification Throttle)
+### Notification Throttle
 
 ```python
 # src/claude_notifier/utils/notification_throttle.py
@@ -457,7 +456,7 @@ from collections import defaultdict, deque
 from typing import Dict, Any
 
 class NotificationThrottle:
-    """通知限流，防止通知轰炸"""
+    """Notification throttling to prevent spam"""
     
     def __init__(self, config: Dict[str, Any]):
         self.max_per_minute = config.get('max_per_minute', 10)
@@ -473,41 +472,41 @@ class NotificationThrottle:
         channel: str, 
         message_hash: str = None
     ) -> bool:
-        """检查是否应该发送通知"""
+        """Check whether a notification should be sent"""
         current_time = time.time()
         
-        # 检查冷却期
+        # Cooldown
         if self._is_in_cooldown(channel, current_time):
             return False
         
-        # 检查频率限制
+        # Rate limit
         if not self._check_rate_limit(channel, current_time):
             self._set_cooldown(channel, current_time)
             return False
         
-        # 记录通知
+        # Record
         self._record_notification(channel, current_time)
         return True
     
     def _check_rate_limit(self, channel: str, current_time: float) -> bool:
-        """检查速率限制"""
-        # 清理过期记录
+        """Check rate limits"""
+        # Cleanup
         self._cleanup_old_records(channel, current_time)
         
-        # 检查每分钟限制
+        # Per-minute
         if len(self.minute_counter[channel]) >= self.max_per_minute:
             return False
         
-        # 检查每小时限制
+        # Per-hour
         if len(self.hour_counter[channel]) >= self.max_per_hour:
             return False
         
         return True
 ```
 
-## 监控系统开发
+## Monitoring System
 
-### 统计收集器
+### Statistics Collector
 
 ```python
 # src/claude_notifier/monitoring/statistics.py
@@ -518,7 +517,7 @@ from typing import Dict, Any, List
 from collections import defaultdict, Counter
 
 class StatisticsManager:
-    """统计数据收集和管理"""
+    """Collect and manage statistics"""
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
@@ -528,7 +527,7 @@ class StatisticsManager:
         self.load_statistics()
     
     def record_event(self, event_type: str, channel: str, success: bool, metadata: Dict[str, Any] = None):
-        """记录事件统计"""
+        """Record an event"""
         timestamp = time.time()
         record = {
             'timestamp': timestamp,
@@ -543,7 +542,7 @@ class StatisticsManager:
         self.save_statistics()
     
     def get_summary(self, days: int = 7) -> Dict[str, Any]:
-        """获取统计摘要"""
+        """Get summary statistics"""
         cutoff_time = time.time() - (days * 24 * 3600)
         recent_events = [
             event for event in self.stats['events']
@@ -559,9 +558,9 @@ class StatisticsManager:
         }
 ```
 
-## 性能优化
+## Performance Optimization
 
-### 异步处理
+### Async Processing
 
 ```python
 import asyncio
@@ -569,7 +568,7 @@ import aiohttp
 from typing import List, Dict, Any
 
 class AsyncNotificationSender:
-    """异步通知发送器"""
+    """Async notification sender"""
     
     def __init__(self, max_concurrent: int = 3):
         self.max_concurrent = max_concurrent
@@ -579,7 +578,7 @@ class AsyncNotificationSender:
         self, 
         notifications: List[Dict[str, Any]]
     ) -> List[bool]:
-        """批量异步发送通知"""
+        """Send notifications in batch asynchronously"""
         tasks = [
             self._send_single_notification(notification)
             for notification in notifications
@@ -589,7 +588,7 @@ class AsyncNotificationSender:
         return [isinstance(result, bool) and result for result in results]
     
     async def _send_single_notification(self, notification: Dict[str, Any]) -> bool:
-        """发送单个通知"""
+        """Send a single notification"""
         async with self.semaphore:
             try:
                 async with aiohttp.ClientSession() as session:
@@ -603,7 +602,7 @@ class AsyncNotificationSender:
                 return False
 ```
 
-### 缓存机制
+### Caching
 
 ```python
 from functools import lru_cache
@@ -612,7 +611,7 @@ import pickle
 from typing import Any
 
 class TemplateCache:
-    """模板缓存系统"""
+    """Template cache system"""
     
     def __init__(self, max_size: int = 128):
         self.cache = {}
@@ -620,7 +619,7 @@ class TemplateCache:
         self.access_count = {}
     
     def get(self, template_key: str, data: Dict[str, Any]) -> str:
-        """获取缓存的模板"""
+        """Get a cached template"""
         cache_key = self._generate_cache_key(template_key, data)
         
         if cache_key in self.cache:
@@ -630,7 +629,7 @@ class TemplateCache:
         return None
     
     def put(self, template_key: str, data: Dict[str, Any], rendered: str):
-        """存储渲染结果"""
+        """Store a rendered result"""
         cache_key = self._generate_cache_key(template_key, data)
         
         if len(self.cache) >= self.max_size:
@@ -640,133 +639,133 @@ class TemplateCache:
         self.access_count[cache_key] = 1
     
     def _generate_cache_key(self, template_key: str, data: Dict[str, Any]) -> str:
-        """生成缓存键"""
+        """Generate a cache key"""
         data_str = pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)
         hash_obj = hashlib.md5(f"{template_key}:{data_str}".encode())
         return hash_obj.hexdigest()
 ```
 
-## 调试和诊断
+## Debugging and Diagnostics
 
-### 调试工具
+### Tools
 
 ```bash
-# 启用调试模式
+# Enable debug mode
 export CLAUDE_NOTIFIER_DEBUG=1
 
-# 详细日志
+# Verbose logs
 export CLAUDE_NOTIFIER_LOG_LEVEL=DEBUG
 
-# 性能分析
+# Performance profiling
 python -m cProfile -o profile.stats scripts/test_performance.py
 
-# 内存分析
+# Memory profiling
 python -m memory_profiler scripts/test_memory.py
 ```
 
-### 诊断命令
+### Diagnostic Commands
 
 ```bash
-# 系统健康检查
+# System health check
 claude-notifier health
 
-# 配置验证
+# Config validation
 claude-notifier config validate
 
-# 渠道连接测试
+# Channel connectivity tests
 claude-notifier test --all-channels
 
-# 性能基准测试
+# Benchmark
 claude-notifier benchmark
 
-# 统计报告
+# Statistics report
 claude-notifier stats --days 7
 ```
 
-## 贡献指南
+## Contribution Summary
 
-### 1. Fork 和分支
+### 1. Fork and branch
 
 ```bash
-# Fork 项目到你的账户
-# 克隆 fork 的仓库
+# Fork to your account
+# Clone your fork
 git clone https://github.com/your-username/claude-code-notifier.git
 
-# 创建功能分支
+# Create a feature branch
 git checkout -b feature/my-new-feature
 ```
 
-### 2. 开发流程
+### 2. Development flow
 
-1. 编写代码和测试
-2. 运行完整测试套件
-3. 更新文档
-4. 提交 Pull Request
+1. Write code and tests
+2. Run the full test suite
+3. Update documentation
+4. Open a Pull Request
 
-### 3. Pull Request 标准
+### 3. Pull Request standards
 
-- 清晰的标题和描述
-- 包含测试用例
-- 通过所有 CI 检查
-- 更新相关文档
-- 遵循代码规范
+- Clear title and description
+- Includes tests
+- Passes all CI checks
+- Updates relevant docs
+- Follows code conventions
 
-### 4. 代码审查
+### 4. Code review
 
-所有 Pull Request 需要通过代码审查：
-- 功能正确性
-- 代码质量
-- 测试覆盖率
-- 性能影响
-- 安全性考虑
+All PRs are reviewed for:
+- Functional correctness
+- Code quality
+- Test coverage
+- Performance impact
+- Security considerations
 
-## 发布流程
+## Release Process
 
-### 版本号管理
+### Versioning
 
-使用语义化版本号（Semantic Versioning）：
+Use Semantic Versioning:
 - `MAJOR.MINOR.PATCH`
-- `1.0.0` - 重大更新
-- `1.1.0` - 新功能
-- `1.1.1` - 问题修复
+- `1.0.0` — breaking changes
+- `1.1.0` — new features
+- `1.1.1` — bug fixes
 
-### 发布步骤
+### Steps
 
 ```bash
-# 1. 更新版本号
+# 1. Bump version
 echo "1.2.0" > src/__version__.py
 
-# 2. 更新 CHANGELOG
+# 2. Update CHANGELOG
 vim CHANGELOG.md
 
-# 3. 提交版本更新
+# 3. Commit
 git add .
 git commit -m "chore: bump version to 1.2.0"
 git tag v1.2.0
 
-# 4. 推送到远程
+# 4. Push
 git push origin main --tags
 
-# 5. 构建和发布
+# 5. Build and publish
 python setup.py sdist bdist_wheel
 twine upload dist/*
 ```
 
-## 问题反馈
+## Issue Feedback
 
-如果您在开发过程中遇到问题：
+If you encounter problems during development:
 
-1. 检查 [常见问题](../README.md#故障排除)
-2. 搜索 [GitHub Issues](https://github.com/your-repo/claude-code-notifier/issues)
-3. 创建新的 Issue，包含：
-   - 详细的问题描述
-   - 重现步骤
-   - 环境信息
-   - 错误日志
+1. Check the Troubleshooting section in `README.md`
+2. Search GitHub Issues: https://github.com/your-repo/claude-code-notifier/issues
+3. Open a new issue with:
+   - Detailed description
+   - Reproduction steps
+   - Environment info
+   - Error logs
 
-## 技术支持
+## Technical Support
 
-- 📧 技术咨询: dev@your-company.com
-- 💬 开发者社区: [Discord/Slack 链接]
-- 📖 API 文档: [API 文档链接]
-- 🎥 开发视频教程: [视频教程链接]
+- 📧 Email: dev@your-company.com
+- 💬 Developer community: [Discord/Slack link]
+- 📖 API docs: [API docs link]
+- 🎥 Video tutorials: [Tutorials link]

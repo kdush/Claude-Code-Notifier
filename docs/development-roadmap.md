@@ -1,3 +1,5 @@
+[English Version](development-roadmap_en.md)
+
 # Claude Code Notifier 综合开发路线图
 
 ## 📋 项目概览
