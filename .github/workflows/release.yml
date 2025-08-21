@@ -70,7 +70,7 @@ jobs:
         
         # Check if __version__.py exists and matches
         if [ -f "src/claude_notifier/__version__.py" ]; then
-          PACKAGE_VERSION=$(python -c "import sys; sys.path.insert(0, 'src'); from claude_notifier.__version__ import __version__; print(__version__)")
+          PACKAGE_VERSION=$(python -c "import re; t=open('src/claude_notifier/__version__.py', encoding='utf-8').read(); m=re.search(r'^__version__\\s*=\\s*[\\\"\\']([^\\\"\\']+)[\\\"\\']', t, re.M); print(m.group(1))")
           echo "📦 Package version: ${PACKAGE_VERSION}"
           echo "🏷️ Release version: ${VERSION}"
           
@@ -110,7 +110,7 @@ jobs:
         sed -i "s/__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/claude_notifier/__version__.py
         
         # Verify the change
-        python -c "import sys; sys.path.insert(0, 'src'); from claude_notifier.__version__ import __version__; assert __version__ == '${VERSION}', 'Version update failed: %s != %s' % (__version__, '${VERSION}'); print('✅ Version updated to', __version__)"
+        python -c "import re; t=open('src/claude_notifier/__version__.py', encoding='utf-8').read(); m=re.search(r'^__version__\\s*=\\s*[\\\"\\']([^\\\"\\']+)[\\\"\\']', t, re.M); v=m.group(1); assert v == '${VERSION}', f'Version update failed: {v} != ${VERSION}'; print('✅ Version updated to', v)"
         
     - name: Build package
       run: |
