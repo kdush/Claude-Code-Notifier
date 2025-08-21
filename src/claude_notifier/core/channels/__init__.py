@@ -25,6 +25,13 @@ try:
 except ImportError as e:
     logger.debug(f"钉钉渠道导入失败: {e}")
 
+# 导入 Webhook 渠道
+try:
+    from .webhook import WebhookChannel
+    _available_channels['webhook'] = WebhookChannel
+except ImportError as e:
+    logger.debug(f"Webhook 渠道导入失败: {e}")
+
 # 后续可以逐步添加更多渠道
 # try:
 #     from .feishu import FeishuChannel
