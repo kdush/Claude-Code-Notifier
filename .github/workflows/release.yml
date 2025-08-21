@@ -147,7 +147,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
         retention-days: 30
 
@@ -167,7 +167,7 @@ jobs:
     - name: Download build artifacts
       uses: actions/download-artifact@v3
       with:
-        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
         
     - name: Test package installation
@@ -200,17 +200,22 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.environment == 'testpypi' || needs.validate-release.outputs.is-prerelease == 'true'
     environment: testpypi
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: ${{ github.repository }}-pypi-publish
+      cancel-in-progress: false
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v3
       with:
-        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
         
     - name: Publish to Test PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository-url: https://test.pypi.org/legacy/
         skip-existing: true
         
@@ -223,7 +228,7 @@ jobs:
         
         pip install -i https://test.pypi.org/simple/ \
           --extra-index-url https://pypi.org/simple/ \
-          claude-notifier==${{ needs.validate-release.outputs.version }}
+          claude-code-notifier==${{ needs.validate-release.outputs.version }}
           
         python <<'PY'
           import claude_notifier
@@ -235,17 +240,23 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && needs.validate-release.outputs.is-prerelease == 'false'
     environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: ${{ github.repository }}-pypi-publish
+      cancel-in-progress: false
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v3
       with:
-        name: dist-packages-${{ needs.validate-release.outputs.version }}
+        name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
         
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        skip-existing: true
         
     - name: Verify PyPI publication
       run: |
@@ -254,7 +265,7 @@ jobs:
         # Wait for package to be available
         sleep 60
         
-        pip install claude-notifier==${{ needs.validate-release.outputs.version }}
+        pip install claude-code-notifier==${{ needs.validate-release.outputs.version }}
         
         python <<'PY'
           import claude_notifier
@@ -281,16 +292,16 @@ jobs:
         echo "## 📦 Installation" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo '```bash' >> $GITHUB_STEP_SUMMARY
-        echo "pip install claude-notifier==${VERSION}" >> $GITHUB_STEP_SUMMARY
+        echo "pip install claude-code-notifier==${VERSION}" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## 🔗 Links" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
         if [ "${IS_PRERELEASE}" == "true" ]; then
-          echo "- [Test PyPI Package](https://test.pypi.org/project/claude-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Test PyPI Package](https://test.pypi.org/project/claude-code-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
         else
-          echo "- [PyPI Package](https://pypi.org/project/claude-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [PyPI Package](https://pypi.org/project/claude-code-notifier/${VERSION}/)" >> $GITHUB_STEP_SUMMARY
         fi
         
         echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/v${VERSION})" >> $GITHUB_STEP_SUMMARY

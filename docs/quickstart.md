@@ -1,3 +1,5 @@
+[English Version](quickstart_en.md)
+
 # 🚀 快速开始指南
 
 ## 🔧 系统要求

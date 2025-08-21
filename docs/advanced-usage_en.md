@@ -1,120 +1,120 @@
-[English Version](advanced-usage_en.md)
+[中文文档](advanced-usage.md)
 
-# 🚀 Claude Code Notifier 高级使用指南
+# 🚀 Claude Code Notifier Advanced Usage Guide
 
-本文档介绍 Claude Code Notifier 的高级功能，包括自定义事件、模板系统和多渠道配置。
+This document covers advanced features of Claude Code Notifier, including custom events, the template system, and multi-channel configuration.
 
-## 📊 使用统计与成本分析
+## 📊 Usage Statistics & Cost Analysis
 
-Claude Code Notifier 集成了 [ccusage](https://github.com/ryoppippi/ccusage) 工具来提供详细的 Claude Code token 使用和成本分析。ccusage 是由 [@ryoppippi](https://github.com/ryoppippi) 开发的优秀开源工具。
+Claude Code Notifier integrates with [ccusage](https://github.com/ryoppippi/ccusage) to provide detailed token usage and cost analysis for Claude Code. ccusage is an excellent open-source tool by [@ryoppippi](https://github.com/ryoppippi).
 
-### 快速开始
+### Quick Start
 
-#### 安装使用
+#### Install & Use
 ```bash
-# 通过 npx 直接使用（推荐）
+# Use via npx (recommended)
 npx ccusage
 
-# 或通过 bunx 使用
+# Or via bunx
 bunx ccusage
 
-# 全局安装（可选）
+# Global install (optional)
 npm install -g ccusage
 ```
 
-#### 基础命令
+#### Basic Commands
 ```bash
-# 查看基本使用统计
+# Show basic usage stats
 ccusage
 
-# 查看月度报告
+# Monthly report
 ccusage --monthly
 
-# 查看每日详细统计
+# Daily detailed stats
 ccusage --daily
 
-# 查看会话统计
+# Session statistics
 ccusage --session
 ```
 
-### 核心功能
+### Core Features
 
-#### Token 使用分析
-- **实时统计**: 分析本地 JSONL 文件的 token 消费
-- **模型区分**: 区分不同 Claude 模型的使用情况
-- **时间维度**: 支持日、月、会话级别的统计
+#### Token Usage Analysis
+- Real-time stats: analyze local JSONL token consumption
+- Model breakdown: separate usage per Claude model
+- Time dimensions: daily, monthly, and session granularity
 
-#### 成本追踪
-- **费用计算**: 基于不同模型的定价计算实际成本
-- **趋势分析**: 追踪使用趋势和成本变化
-- **预算管理**: 帮助控制 AI 使用成本
+#### Cost Tracking
+- Cost calculation: compute actual costs by model pricing
+- Trend analysis: track usage trends and cost changes
+- Budget management: keep AI usage costs under control
 
-#### 报告生成
+#### Report Generation
 ```bash
-# 生成 JSON 格式报告
+# Generate JSON report
 ccusage --output usage-report.json
 
-# 指定时间范围
+# Specify time range
 ccusage --from 2025-08-01 --to 2025-08-31
 
-# 紧凑显示模式
+# Compact display
 ccusage --compact
 ```
 
-### 高级配置
+### Advanced Configuration
 
-#### 时区设置
+#### Time Zone
 ```bash
-# 设置时区
+# Set time zone
 ccusage --timezone Asia/Shanghai
 
-# 使用本地时区
+# Use locale
 ccusage --locale zh-CN
 ```
 
-#### 实时监控
+#### Real-time Monitoring
 ```bash
-# 实时监控模式
+# Real-time watch mode
 ccusage --watch
 
-# 5小时计费窗口监控
+# 5-hour billing window monitoring
 ccusage --billing-window
 ```
 
-### 与通知系统集成
+### Integration with Notifier
 
-#### 自动化统计报告
-在 Claude Code Notifier 配置中添加定期统计通知：
+#### Automated Periodic Reports
+Add scheduled usage notifications in Claude Code Notifier config:
 
 ```yaml
 custom_events:
-  # 每日使用报告
+  # Daily usage report
   daily_usage_report:
     enabled: true
-    schedule: "0 8 * * *"  # 每天早上8点
+    schedule: "0 8 * * *"  # 8:00 AM daily
     channels: ["email"]
     template: "usage_report_daily"
     command: "npx ccusage --daily --json"
     
-  # 每周成本报告
+  # Weekly cost report
   weekly_cost_report:
     enabled: true
-    schedule: "0 9 * * 1"  # 每周一早上9点
+    schedule: "0 9 * * 1"  # 9:00 AM every Monday
     channels: ["dingtalk", "email"]
     template: "usage_report_weekly"
     command: "npx ccusage --weekly --output /tmp/weekly-usage.json"
     
-  # 月度详细报告
+  # Monthly detailed report
   monthly_detailed_report:
     enabled: true
-    schedule: "0 10 1 * *"  # 每月1号早上10点
+    schedule: "0 10 1 * *"  # 10:00 AM on the 1st of each month
     channels: ["email", "feishu"]
     template: "usage_report_monthly"
     command: "npx ccusage --monthly --detailed --json"
 ```
 
-#### 阈值告警
-配置使用量阈值告警：
+#### Threshold Alerts
+Configure usage threshold alerts:
 
 ```yaml
 intelligence:
@@ -126,101 +126,100 @@ intelligence:
     check_command: "npx ccusage --today --json"
 ```
 
-### 报告模板
+### Report Templates
 
-#### 基础使用报告模板
+#### Basic Usage Report Template
 ```yaml
 templates:
   usage_report_daily:
-    title: "📊 Claude Code 每日使用报告"
+    title: "📊 Claude Code Daily Usage Report"
     content: |
-      **使用统计**
-      - Token 消耗: {{total_tokens}}
-      - 成本: ${{total_cost}}
-      - 会话数: {{session_count}}
+      **Usage**
+      - Tokens: {{total_tokens}}
+      - Cost: ${{total_cost}}
+      - Sessions: {{session_count}}
       
-      **模型分布**
+      **Model Breakdown**
       - Sonnet: {{sonnet_tokens}} tokens (${{sonnet_cost}})
       - Opus: {{opus_tokens}} tokens (${{opus_cost}})
       
-      详细报告请查看附件。
+      See attachment for detailed report.
     fields:
-      - label: "日期"
+      - label: "Date"
         value: "{{date}}"
-      - label: "总计 Token"
+      - label: "Total Tokens"
         value: "{{total_tokens}}"
-      - label: "总成本"
+      - label: "Total Cost"
         value: "${{total_cost}}"
 ```
 
-### 故障排除
+### Troubleshooting
 
-#### 常见问题
+#### FAQ
 
-**Q: ccusage 找不到数据文件？**
+Q: ccusage cannot find data files?
 ```bash
-# 检查 Claude Code JSONL 文件位置
+# Check Claude Code JSONL location
 ls -la ~/.claude/usage/
 
-# 指定数据文件路径
+# Specify data directory
 ccusage --data-dir ~/.claude/usage/
 ```
 
-**Q: 统计数据不准确？**
+Q: Stats look inaccurate?
 ```bash
-# 重新扫描所有文件
+# Rescan all files
 ccusage --refresh
 
-# 验证数据完整性
+# Validate data integrity
 ccusage --validate
 ```
 
-**Q: 如何导出历史数据？**
+Q: How to export historical data?
 ```bash
-# 导出全部历史数据
+# Export all history
 ccusage --export-all --output claude-usage-history.json
 
-# 导出指定时间段
+# Export a time range
 ccusage --from 2025-01-01 --to 2025-08-31 --export --output usage-2025.json
 ```
 
-### 致谢
+### Acknowledgements
 
-感谢 [@ryoppippi](https://github.com/ryoppippi) 开发并维护了这个优秀的 Claude Code 使用分析工具！ccusage 为我们提供了：
+Thanks to [@ryoppippi](https://github.com/ryoppippi) for creating and maintaining the excellent ccusage tool, which gives us:
 
-- 🚀 **极快的分析速度** - 高效处理大量使用数据
-- 📊 **详细的统计报告** - 全面的使用和成本分析
-- 🎯 **精确的成本追踪** - 准确计算不同模型的费用
-- 📅 **灵活的时间维度** - 支持多种时间范围分析
-- 💻 **离线分析能力** - 基于本地数据，保护隐私
+- 🚀 Blazing analysis speed — handle large usage data efficiently
+- 📊 Detailed reports — comprehensive usage and cost analytics
+- 🎯 Precise cost tracking — accurate per-model pricing
+- 📅 Flexible time dimensions — multiple ranges supported
+- 💻 Offline analysis — local data to protect privacy
 
-这个工具大大增强了 Claude Code Notifier 的监控和分析能力！
+This tool greatly enhances the monitoring and analytics capability of Claude Code Notifier!
 
-### 参考资源
+### References
 
-- [ccusage 官方文档](https://ccusage.com)
-- [GitHub 仓库](https://github.com/ryoppippi/ccusage)
-- [使用示例](https://github.com/ryoppippi/ccusage#usage)
+- ccusage Docs: https://ccusage.com
+- GitHub Repo: https://github.com/ryoppippi/ccusage
+- Usage Examples: https://github.com/ryoppippi/ccusage#usage
 
-## 📋 目录
+## 📋 Table of Contents
 
-- [使用统计与成本分析](#使用统计与成本分析)
-- [自定义事件配置](#自定义事件配置)
-- [模板系统使用](#模板系统使用)
-- [多渠道配置](#多渠道配置)
-- [事件开关管理](#事件开关管理)
-- [配置管理工具](#配置管理工具)
-- [实际使用案例](#实际使用案例)
+- Usage Statistics & Cost Analysis
+- Custom Events Configuration
+- Template System Usage
+- Multi-channel Configuration
+- Event Toggle Management
+- Configuration Tooling
+- Real-world Use Cases
 
-## 🎯 自定义事件配置
+## 🎯 Custom Events Configuration
 
-### 基本自定义事件
-
-在配置文件中添加自定义事件：
+### Basic Custom Event
+Add a custom event in your configuration file:
 
 ```yaml
 custom_events:
-  # Git 提交检测
+  # Git commit detection
   git_commit_detected:
     enabled: true
     priority: normal
@@ -228,36 +227,36 @@ custom_events:
     template: "git_commit_custom"
     triggers:
       - type: "pattern"
-        pattern: "git\\s+commit"
+        pattern: "git\s+commit"
         field: "tool_input"
         flags: ["IGNORECASE"]
     data_extractors:
       commit_message:
         type: "regex"
-        pattern: "-m\\s+[\"']([^\"']+)[\"']"
+        pattern: "-m\s+[\"']([^\"']+)[\"']"
         field: "tool_input"
         group: 1
       project_name:
         type: "function"
         function: "get_project_name"
     message_template:
-      title: "📝 代码提交检测"
-      content: "在项目 ${project} 中检测到 Git 提交"
-      action: "请确认提交内容"
+      title: "📝 Code Commit Detected"
+      content: "Detected a Git commit in project ${project}"
+      action: "Please review commit content"
 ```
 
-### 触发器类型
+### Trigger Types
 
-#### 1. 模式匹配触发器
+#### 1. Pattern Trigger
 ```yaml
 triggers:
   - type: "pattern"
-    pattern: "docker\\s+(run|build|push)"
+    pattern: "docker\s+(run|build|push)"
     field: "tool_input"
     flags: ["IGNORECASE", "MULTILINE"]
 ```
 
-#### 2. 条件触发器
+#### 2. Condition Trigger
 ```yaml
 triggers:
   - type: "condition"
@@ -266,14 +265,14 @@ triggers:
     value: "run_command"
 ```
 
-#### 3. 函数触发器
+#### 3. Function Trigger
 ```yaml
 triggers:
   - type: "function"
-    function: "is_work_hours"  # 内置函数
+    function: "is_work_hours"  # built-in
 ```
 
-#### 4. 复合条件
+#### 4. Composite Conditions
 ```yaml
 triggers:
   - type: "condition"
@@ -281,34 +280,34 @@ triggers:
     operator: "contains"
     value: "production"
   - type: "pattern"
-    pattern: "rm\\s+-rf"
+    pattern: "rm\s+-rf"
     field: "tool_input"
 ```
 
-### 数据提取器
+### Data Extractors
 
-#### 字段提取器
+#### Field Extractor
 ```yaml
 data_extractors:
-  simple_field: "tool_name"  # 简单字段提取
+  simple_field: "tool_name"  # simple field extraction
   
   complex_field:
     type: "field"
     field: "error_message"
-    default: "无错误信息"
+    default: "No error message"
 ```
 
-#### 正则提取器
+#### Regex Extractor
 ```yaml
 data_extractors:
   file_name:
     type: "regex"
-    pattern: "\\b([\\w-]+\\.py)\\b"
+    pattern: "\b([\w-]+\.py)\b"
     field: "tool_input"
     group: 1
 ```
 
-#### 函数提取器
+#### Function Extractor
 ```yaml
 data_extractors:
   current_time:
@@ -316,77 +315,76 @@ data_extractors:
     function: "get_current_time"
 ```
 
-## 🎨 模板系统使用
+## 🎨 Template System Usage
 
-### 创建自定义模板
-
-在 `~/.claude-notifier/templates/` 目录下创建 YAML 文件：
+### Create a Custom Template
+Create YAML files under `~/.claude-notifier/templates/`:
 
 ```yaml
 # my_custom_template.yaml
 production_alert:
-  title: '🚨 生产环境操作警告'
-  content: '⚠️ 检测到生产环境操作：${operation}'
+  title: '🚨 Production Operation Warning'
+  content: '⚠️ Detected production operation: ${operation}'
   fields:
-    - label: '项目'
+    - label: 'Project'
       value: '${project}'
       short: true
-    - label: '操作类型'
+    - label: 'Operation Type'
       value: '${tool_name}'
       short: true
-    - label: '详细命令'
+    - label: 'Command'
       value: '${tool_input}'
       short: false
-    - label: '风险等级'
-      value: '🔴 高风险'
+    - label: 'Risk Level'
+      value: '🔴 High'
       short: true
   actions:
-    - text: '立即确认'
+    - text: 'Confirm Now'
       type: 'button'
       style: 'danger'
-    - text: '查看日志'
+    - text: 'View Logs'
       type: 'button'
       url: 'logs://'
   color: '#dc3545'
 ```
 
-### 模板变量
+### Template Variables
 
-可用的模板变量：
+Available variables:
 
-- `${project}` - 项目名称
-- `${timestamp}` - 时间戳
-- `${event_type}` - 事件类型
-- `${priority}` - 优先级
-- `${tool_name}` - 工具名称
-- `${tool_input}` - 工具输入
-- `${error_message}` - 错误信息
-- `${operation}` - 操作内容
+- ${project} — Project name
+- ${timestamp} — Timestamp
+- ${event_type} — Event type
+- ${priority} — Priority
+- ${tool_name} — Tool name
+- ${tool_input} — Tool input
+- ${error_message} — Error message
+- ${operation} — Operation content
 
-### 渠道特定模板
+### Channel-specific Templates
 
-为不同渠道创建专门的模板：
+Create templates per channel:
 
 ```yaml
-# 钉钉专用模板
+# DingTalk-specific template
 dingtalk_production_alert:
-  title: '🚨 生产环境操作'
+  title: '🚨 Production Operation'
   content: |
-    ### ⚠️ 高风险操作检测
+    ### ⚠️ High Risk Operation Detected
     
-    **项目**: ${project}
-    **操作**: ${operation}
-    **时间**: ${timestamp}
+    **Project**: ${project}
+    **Operation**: ${operation}
+    **Time**: ${timestamp}
     
-    请立即确认此操作！
-  # 钉钉支持 ActionCard
+    Please confirm immediately!
+  # DingTalk supports ActionCard
   actions:
-    - text: '确认执行'
+    - text: 'Confirm'
       type: 'button'
-    - text: '取消操作'
+    - text: 'Cancel'
       type: 'button'
 
-# Telegram 专用模板  
+# Telegram-specific template  
 telegram_production_alert:
   title: '🚨 Production Alert'
   content: |
@@ -397,53 +395,50 @@ telegram_production_alert:
     Time: ${timestamp}
     
     Please confirm immediately!
-  # Telegram 不支持复杂按钮
+  # Telegram has limited button support
 ```
 
-## 🔀 多渠道配置
+## 🔀 Multi-channel Configuration
 
-### 渠道优先级配置
-
+### Channel Priority
 ```yaml
-# 不同事件使用不同渠道组合
+# Different channels for different events
 events:
   sensitive_operation:
     enabled: true
-    channels: ["dingtalk", "telegram"]  # 敏感操作双渠道通知
+    channels: ["dingtalk", "telegram"]  # dual-channel for sensitive ops
     
   task_completion:
     enabled: true
-    channels: ["dingtalk"]  # 任务完成只用钉钉
+    channels: ["dingtalk"]  # only DingTalk for task completion
     
   rate_limit:
     enabled: true
-    channels: ["telegram"]  # 限流用 Telegram（更及时）
+    channels: ["telegram"]  # Telegram for throttling notifications
 
-# 默认渠道配置
+# Default channels
 notifications:
-  default_channels: ["dingtalk"]  # 未指定渠道的事件使用默认渠道
+  default_channels: ["dingtalk"]  # used when event has no explicit channels
 ```
 
-### 渠道故障转移
-
+### Failover
 ```yaml
 notifications:
   failover:
     enabled: true
     primary_channels: ["dingtalk"]
     fallback_channels: ["telegram", "email"]
-    retry_interval: 30  # 秒
+    retry_interval: 30  # seconds
 ```
 
-### 渠道特定设置
-
+### Channel-specific Settings
 ```yaml
 channels:
   dingtalk:
     enabled: true
     webhook: "https://oapi.dingtalk.com/robot/send?access_token=..."
     secret: "SEC..."
-    # 钉钉特定设置
+    # DingTalk specifics
     at_all: false
     at_mobiles: []
     
@@ -451,21 +446,20 @@ channels:
     enabled: true
     bot_token: "123456:ABC-DEF..."
     chat_id: "-123456789"
-    # Telegram 特定设置
+    # Telegram specifics
     parse_mode: "Markdown"
     disable_web_page_preview: true
 ```
 
-## ⚙️ 事件开关管理
+## ⚙️ Event Toggle Management
 
-### 批量事件管理
-
+### Bulk Manage Events
 ```python
 from src.config_manager import ConfigManager
 
 config_manager = ConfigManager()
 
-# 启用所有内置事件
+# Enable all builtin events
 builtin_events = [
     'sensitive_operation',
     'task_completion', 
@@ -476,48 +470,46 @@ builtin_events = [
 for event_id in builtin_events:
     config_manager.enable_event(event_id)
 
-# 禁用会话开始事件（避免频繁通知）
+# Disable session start event (to reduce noise)
 config_manager.disable_event('session_start')
 ```
 
-### 条件性事件启用
-
+### Conditional Enablement
 ```yaml
 events:
   sensitive_operation:
     enabled: true
     conditions:
-      # 只在工作时间通知
+      # Notify only during work hours
       time_window:
         start: "09:00"
         end: "18:00"
-      # 只通知高风险操作
+      # Notify only for high-risk operations
       risk_levels: ["high", "critical"]
-      # 项目过滤
+      # Project filter
       project_patterns: ["prod-*", "*-production"]
 ```
 
-## 🛠️ 配置管理工具
+## 🛠️ Configuration Tooling
 
-### 使用配置管理器
-
+### Using the Config Manager
 ```python
 from src.config_manager import ConfigManager
 
-# 初始化配置管理器
+# Initialize
 config_manager = ConfigManager()
 
-# 获取配置统计
+# Get config stats
 stats = config_manager.get_config_stats()
-print(f"启用的渠道数: {stats['enabled_channels']}")
-print(f"启用的事件数: {stats['enabled_events']}")
+print(f"Enabled channels: {stats['enabled_channels']}")
+print(f"Enabled events: {stats['enabled_events']}")
 
-# 设置默认渠道
+# Set default channels
 config_manager.set_default_channels(['dingtalk', 'telegram'])
 
-# 添加自定义事件
+# Add a custom event
 custom_event_config = {
-    'name': '数据库操作检测',
+    'name': 'Database Operation',
     'priority': 'high',
     'triggers': [{
         'type': 'pattern',
@@ -525,35 +517,33 @@ custom_event_config = {
         'field': 'tool_input'
     }],
     'message_template': {
-        'title': '🗄️ 数据库操作',
-        'content': '检测到数据库相关操作'
+        'title': '🗄️ Database Operation',
+        'content': 'Detected a database-related operation'
     }
 }
 
 config_manager.add_custom_event('db_operation', custom_event_config)
 
-# 备份配置
+# Backup configuration
 backup_file = config_manager.backup_config()
-print(f"配置已备份到: {backup_file}")
+print(f"Config backed up to: {backup_file}")
 ```
 
-### 配置验证
-
+### Configuration Validation
 ```python
-# 验证配置
+# Validate configuration
 errors = config_manager.validate_config()
 if errors:
-    print("配置错误:")
+    print("Configuration errors:")
     for error in errors:
         print(f"  - {error}")
 else:
-    print("配置验证通过")
+    print("Configuration is valid")
 ```
 
-## 📚 实际使用案例
+## 📚 Real-world Use Cases
 
-### 案例1：生产环境监控
-
+### Case 1: Production Monitoring
 ```yaml
 custom_events:
   production_deployment:
@@ -581,8 +571,7 @@ custom_events:
     template: "database_migration_alert"
 ```
 
-### 案例2：开发团队协作
-
+### Case 2: Dev Team Collaboration
 ```yaml
 custom_events:
   code_review_ready:
@@ -607,8 +596,7 @@ custom_events:
     template: "build_failure_alert"
 ```
 
-### 案例3：安全监控
-
+### Case 3: Security Monitoring
 ```yaml
 custom_events:
   security_scan:
@@ -632,32 +620,29 @@ custom_events:
     template: "privilege_escalation_alert"
 ```
 
-## 🔧 高级配置技巧
+## 🔧 Advanced Configuration Tips
 
-### 1. 事件分组和批处理
-
+### 1. Event Grouping & Batching
 ```yaml
 notifications:
   grouping:
     enabled: true
-    group_window: 300  # 5分钟内的相似事件分组
+    group_window: 300  # group similar events within 5 minutes
     max_group_size: 5
     similar_events: true
 ```
 
-### 2. 智能静默
-
+### 2. Smart Silence
 ```yaml
 notifications:
   smart_silence:
     enabled: true
-    duplicate_threshold: 3  # 相同事件3次后静默
-    silence_duration: 1800  # 静默30分钟
-    escalation_threshold: 10  # 10次后升级通知
+    duplicate_threshold: 3  # silence after 3 duplicates
+    silence_duration: 1800  # 30 minutes
+    escalation_threshold: 10  # escalate after 10 occurrences
 ```
 
-### 3. 动态渠道选择
-
+### 3. Dynamic Channel Selection
 ```yaml
 events:
   critical_error:
@@ -669,35 +654,33 @@ events:
       weekend: ["email"]
 ```
 
-### 4. 模板继承
-
+### 4. Template Inheritance
 ```yaml
-# 基础模板
+# Base template
 base_alert_template:
   fields:
-    - label: '项目'
+    - label: 'Project'
       value: '${project}'
       short: true
-    - label: '时间'
+    - label: 'Time'
       value: '${timestamp}'
       short: true
   color: '#ffc107'
 
-# 继承基础模板
+# Inherit from base
 custom_alert_template:
   extends: "base_alert_template"
-  title: '自定义警告'
+  title: 'Custom Alert'
   content: '${custom_message}'
   additional_fields:
-    - label: '自定义字段'
+    - label: 'Custom Field'
       value: '${custom_value}'
       short: false
 ```
 
-## 🚀 性能优化
+## 🚀 Performance Optimization
 
-### 1. 事件处理优化
-
+### 1. Event Processing
 ```yaml
 advanced:
   event_processing:
@@ -707,8 +690,7 @@ advanced:
     batch_size: 10
 ```
 
-### 2. 模板缓存
-
+### 2. Template Cache
 ```yaml
 templates:
   cache_enabled: true
@@ -716,8 +698,7 @@ templates:
   preload_templates: true
 ```
 
-### 3. 渠道连接池
-
+### 3. Channel Connection Pool
 ```yaml
 channels:
   connection_pool:
@@ -727,4 +708,4 @@ channels:
     read_timeout: 60
 ```
 
-通过这些高级配置，您可以构建一个功能强大、高度定制化的 Claude Code 通知系统，满足各种复杂的使用场景需求。
+With these advanced configurations, you can build a powerful, highly customizable Claude Code notification system to meet complex real-world needs.

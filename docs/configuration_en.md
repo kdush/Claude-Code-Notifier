@@ -1,22 +1,22 @@
-[English Version](configuration_en.md)
+[中文文档](configuration.md)
 
-# ⚙️ 配置指南
+# ⚙️ Configuration Guide
 
-## 配置文件结构
+## Configuration File Structure
 
-Claude Code Notifier 使用 YAML 配置文件，主配置文件位于：
-- `~/.claude-notifier/config.yaml` (全局配置)
-- `./config.yaml` (项目级配置，可覆盖全局配置)
+Claude Code Notifier uses YAML for configuration. The main configuration files are located at:
+- `~/.claude-notifier/config.yaml` (global config)
+- `./config.yaml` (project-level config, overrides global)
 
-## 完整配置示例
+## Full Configuration Example
 
 ```yaml
-# 通知渠道配置
+# Notification channels
 channels:
   dingtalk:
     enabled: true
     webhook: "https://oapi.dingtalk.com/robot/send?access_token=YOUR_TOKEN"
-    secret: "YOUR_SECRET"  # 可选：签名验证密钥
+    secret: "YOUR_SECRET"  # Optional: signature verification key
     
   feishu:
     enabled: true
@@ -44,31 +44,31 @@ channels:
     enabled: false
     send_key: "YOUR_SEND_KEY"
 
-# 事件配置
+# Events
 events:
-  # 权限确认事件
+  # Permission confirmation
   sensitive_operation:
     enabled: true
-    channels: ["dingtalk", "feishu"]  # 使用的通知渠道
-    template: "permission_request"    # 消息模板
-    priority: "high"                  # 优先级：high/normal/low
+    channels: ["dingtalk", "feishu"]  # Channels to use
+    template: "permission_request"      # Message template
+    priority: "high"                    # Priority: high/normal/low
     
-  # 任务完成事件
+  # Task completion
   task_completion:
     enabled: true
     channels: ["dingtalk"]
     template: "task_completion"
     priority: "normal"
-    delay: 3  # 延迟发送（秒）
+    delay: 3  # Delay in seconds
     
-  # 错误事件
+  # Error
   error:
     enabled: true
     channels: ["dingtalk", "telegram"]
     template: "error_notification"
     priority: "high"
     
-  # 会话开始/结束
+  # Session start/end
   session_start:
     enabled: false
     channels: ["email"]
@@ -81,93 +81,93 @@ events:
     template: "session_info"
     priority: "low"
 
-# 智能限制配置（可选）
+# Intelligence limits (optional)
 intelligence:
-  # 操作门控
+  # Operation gate (blocklist)
   operation_gate:
     enabled: true
-    # 阻止的操作模式
+    # Blocked patterns
     blocked_patterns:
       - "sudo rm -rf"
       - "DROP TABLE"
       - "DELETE FROM"
       - "> /dev/null"
-    # 高风险项目路径
+    # High-risk paths
     protected_paths:
       - "/etc"
       - "/usr/bin"
       - "/System"
     
-  # 通知限流
+  # Notification throttling
   notification_throttle:
     enabled: true
-    max_per_minute: 10        # 每分钟最大通知数
-    max_per_hour: 60          # 每小时最大通知数
-    cooldown_period: 300      # 冷却时间（秒）
+    max_per_minute: 10        # Max notifications per minute
+    max_per_hour: 60          # Max per hour
+    cooldown_period: 300      # Cooldown seconds
     
-  # 消息分组
+  # Message grouping
   message_grouper:
     enabled: true
-    group_window: 60          # 分组时间窗口（秒）
-    similarity_threshold: 0.8  # 相似度阈值
-    max_group_size: 5         # 最大分组大小
+    group_window: 60          # Window in seconds
+    similarity_threshold: 0.8 # Similarity threshold
+    max_group_size: 5         # Max group size
 
-# 监控配置
+# Monitoring
 monitoring:
-  # 统计收集
+  # Statistics collection
   statistics:
     enabled: true
-    retention_days: 30        # 统计数据保留天数
+    retention_days: 30        # Retention days
     
-  # 健康检查
+  # Health checks
   health_check:
     enabled: true
-    check_interval: 300       # 检查间隔（秒）
+    check_interval: 300       # Interval (s)
     
-  # 性能监控
+  # Performance monitoring
   performance:
     enabled: true
-    sample_rate: 0.1          # 采样率
+    sample_rate: 0.1          # Sampling rate
 
-# 检测规则
+# Detection rules
 detection:
-  # 敏感操作模式
+  # Sensitive operation patterns
   sensitive_patterns:
-    # 系统管理
+    # System administration
     - "sudo"
     - "su -"
     - "chmod [0-9]+"
     - "chown"
     
-    # 文件操作
+    # File operations
     - "rm -rf"
     - "rmdir"
     - "> /dev/null"
     
-    # 网络操作
+    # Network operations
     - "curl.*|.*sh"
     - "wget.*|.*sh"
     
-    # 版本控制
+    # Version control
     - "git push.*force"
     - "git reset.*hard"
     
-    # 包管理
+    # Package management
     - "npm publish"
     - "pip install.*--force"
     - "brew install"
     
-    # 容器/部署
+    # Containers/Deployment
     - "docker"
     - "kubectl"
     - "helm"
     
-    # 数据库
+    # Database
     - "DROP"
     - "DELETE.*FROM"
     - "TRUNCATE"
     
-  # 排除模式（不视为敏感操作）
+  # Safe patterns (not treated as sensitive)
   safe_patterns:
     - "ls"
     - "cat"
@@ -177,98 +177,98 @@ detection:
     - "mkdir"
     - "touch"
 
-# 模板配置
+# Templates
 templates:
-  # 自定义模板目录
+  # Custom template directory
   custom_templates_dir: "~/.claude-notifier/templates"
   
-  # 模板变量
+  # Template variables
   variables:
-    user_name: "开发者"
+    user_name: "Developer"
     project_emoji: "🚀"
     completion_emoji: "🎉"
 
-# 高级设置
+# Advanced settings
 advanced:
-  # 日志配置
+  # Logging
   logging:
-    level: "INFO"            # DEBUG/INFO/WARNING/ERROR
+    level: "INFO"             # DEBUG/INFO/WARNING/ERROR
     file: "~/.claude-notifier/logs/notifier.log"
     max_size: "10MB"
     backup_count: 3
     
-  # 网络配置
+  # Network
   network:
-    timeout: 30              # 请求超时（秒）
-    retry_attempts: 3        # 重试次数
-    retry_delay: 1           # 重试延迟（秒）
+    timeout: 30               # Request timeout (s)
+    retry_attempts: 3         # Retry times
+    retry_delay: 1            # Retry delay (s)
     
-  # 安全设置
+  # Security
   security:
-    validate_ssl: true       # SSL证书验证
-    max_message_size: 4096   # 最大消息大小（字节）
+    validate_ssl: true        # SSL certificate validation
+    max_message_size: 4096    # Max message size (bytes)
     
-  # 性能设置
+  # Performance
   performance:
-    async_send: true         # 异步发送
-    cache_templates: true    # 缓存模板
-    batch_notifications: false  # 批量发送
+    async_send: true          # Async sending
+    cache_templates: true     # Cache templates
+    batch_notifications: false  # Batch sending
 ```
 
-## 配置验证
+## Configuration Validation
 
-### 验证配置文件
+### Validate configuration files
 ```bash
-# 检查配置文件语法和有效性
+# Check syntax and validity
 claude-notifier config validate
 
-# 测试通知渠道连接
+# Test channel connectivity
 claude-notifier config test --channel dingtalk
 ```
 
-### 常见配置错误
+### Common Configuration Errors
 
-1. **YAML 语法错误**
+1. YAML syntax errors
    ```
-   错误：缩进不一致
-   解决：确保使用空格而非制表符，保持一致的缩进
-   ```
-
-2. **渠道配置错误**
-   ```
-   错误：webhook URL 无效
-   解决：检查 URL 格式和访问权限
+   Issue: inconsistent indentation
+   Fix: use spaces instead of tabs, keep indentation consistent
    ```
 
-3. **事件配置错误**
+2. Channel misconfiguration
    ```
-   错误：引用了不存在的渠道
-   解决：确保 channels 列表中的渠道都已启用
+   Issue: invalid webhook URL
+   Fix: check URL format and access permissions
    ```
 
-## 环境变量配置
+3. Event configuration errors
+   ```
+   Issue: referencing disabled or non-existent channel
+   Fix: ensure channels in list are enabled and correctly configured
+   ```
 
-可以通过环境变量覆盖部分配置：
+## Environment Variables
+
+You can override some configuration values via environment variables:
 
 ```bash
-# 钉钉配置
+# DingTalk
 export CLAUDE_NOTIFIER_DINGTALK_WEBHOOK="your_webhook"
 export CLAUDE_NOTIFIER_DINGTALK_SECRET="your_secret"
 
-# 飞书配置
+# Feishu
 export CLAUDE_NOTIFIER_FEISHU_WEBHOOK="your_webhook"
 
-# Telegram 配置
+# Telegram
 export CLAUDE_NOTIFIER_TELEGRAM_TOKEN="your_bot_token"
 export CLAUDE_NOTIFIER_TELEGRAM_CHAT_ID="your_chat_id"
 
-# 启用调试模式
+# Enable debug mode
 export CLAUDE_NOTIFIER_DEBUG=1
 ```
 
-## 多环境配置
+## Multi-environment Configuration
 
-### 开发环境
+### Development
 ```yaml
 # config/development.yaml
 channels:
@@ -283,10 +283,10 @@ events:
     
 detection:
   sensitive_patterns:
-    - "rm -rf"  # 仅监控高风险操作
+    - "rm -rf"  # Only monitor high-risk commands
 ```
 
-### 生产环境
+### Production
 ```yaml
 # config/production.yaml
 channels:
@@ -310,24 +310,24 @@ events:
     priority: "high"
 ```
 
-## 配置最佳实践
+## Best Practices
 
-1. **安全性**
-   - 使用环境变量存储敏感信息
-   - 定期更新 API 密钥和令牌
-   - 启用 SSL 验证
+1. Security
+   - Store sensitive values in environment variables
+   - Rotate API keys and tokens regularly
+   - Enable SSL verification
 
-2. **性能**
-   - 合理设置通知频率限制
-   - 启用消息分组减少噪音
-   - 使用异步发送提高响应速度
+2. Performance
+   - Configure reasonable notification throttling
+   - Enable message grouping to reduce noise
+   - Use async sending for better responsiveness
 
-3. **可维护性**
-   - 使用清晰的配置文件结构
-   - 添加注释说明特殊配置
-   - 分环境管理配置文件
+3. Maintainability
+   - Keep a clear configuration structure
+   - Document special configurations with comments
+   - Manage environment-specific files separately
 
-4. **监控**
-   - 启用统计收集
-   - 定期检查健康状态
-   - 监控通知发送成功率
+4. Monitoring
+   - Enable statistics collection
+   - Check health status regularly
+   - Monitor notification success rate

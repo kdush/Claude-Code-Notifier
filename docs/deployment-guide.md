@@ -1,3 +1,5 @@
+[English Version](deployment-guide_en.md)
+
 # Claude Code Notifier 部署指南
 
 ## 📋 项目概述

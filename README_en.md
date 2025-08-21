@@ -1,10 +1,10 @@
+[中文文档](README.md)
+
 # 🔔 Claude Code Notifier
 
 <p align="center">
   <img src="assets/logo.png" alt="Claude Code Notifier Logo" width="160">
 </p>
-
-Language: English | [中文](README.md)
 
 An intelligent Claude Code notification system providing real-time, multi-channel notifications and smart throttling/controls.
 
