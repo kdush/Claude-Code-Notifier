@@ -40,7 +40,7 @@
 - **统计监控** - 事件统计和通知效果分析
 - **配置备份** - 支持配置备份和恢复功能
 
-## 🆕 最新改进 (v0.0.3b1 - Beta)
+## 🆕 最新改进 (v0.0.3b2 - Beta)
 
 ### 🚀 PyPI版本Claude Code钩子自动配置（重大更新）
 
@@ -55,10 +55,10 @@
 
 ### 🔧 版本管理改进
 
-- ✅ **PEP 440 版本规范** - 采用预发行规范 `a/b/rc`（本次为 `b`），版本号示例：`0.0.3b1`
+- ✅ **PEP 440 版本规范** - 采用预发行规范 `a/b/rc`（本次为 `b`），版本号示例：`0.0.3b2`
 - ✅ **CLI 版本提示增强** - `--version` 显示"版本类型: Beta"和"这是预发行版本，可能包含变更"
 - ✅ **README 徽章** - 新增 Beta 徽章，突出当前预发行状态
-- ✅ **CI/CD 工作流** - 使用 GitHub Actions 构建并发布稳定版到 PyPI；预发行以 `a/b/rc` 标签（如 `v0.0.3b1`）提供于仓库 Tag/Release（可选手动发布到 PyPI）
+- ✅ **CI/CD 工作流** - 使用 GitHub Actions 构建并发布稳定版到 PyPI；预发行以 `a/b/rc` 标签（如 `v0.0.3b2`）提供于仓库 Tag/Release（可选手动发布到 PyPI）
 
 ## 📱 支持的通知渠道
 
@@ -81,7 +81,7 @@
 pip install claude-code-notifier
 
 # 或安装指定版本
-pip install claude-code-notifier==0.0.3b1
+pip install claude-code-notifier==0.0.3b2
 
 # 验证安装
 claude-notifier --version
@@ -351,12 +351,12 @@ claude-notifier status --intelligence
 ## 📦 版本规范与预发行流程
 
 - **版本规范（PEP 440）**
-  - 预发行：`aN`（Alpha）、`bN`（Beta）、`rcN`（候选），如：`0.0.3a1`、`0.0.3b1`、`0.0.3rc1`
+  - 预发行：`aN`（Alpha）、`bN`（Beta）、`rcN`（候选），如：`0.0.3a1`、`0.0.3b2`、`0.0.3rc1`
   - 稳定版：去掉预发行后缀，如：`0.0.3`
   - 版本源文件：`src/claude_notifier/__version__.py`
 
 - **预发行策略**
-  - 使用 Git 标签发布预发行（如 `v0.0.3b1`），创建仓库 Release 并附带变更说明
+  - 使用 Git 标签发布预发行（如 `v0.0.3b2`），创建仓库 Release 并附带变更说明
   - CLI `--version` 显示“版本类型: Alpha/Beta/RC”和预发行提示
   - 如需分发，可手动将预发行上传至 PyPI（可选）
 
@@ -398,6 +398,24 @@ ccusage --output usage-report.json
 - 📊 **离线分析** - 基于本地 JSONL 文件的数据处理
 
 感谢 [@ryoppippi](https://github.com/ryoppippi) 开发的这个优秀工具！
+
+## 💻 平台兼容性
+
+### 测试环境
+- ✅ **macOS 15** - 完全测试和支持
+- 🚧 **Windows/Linux** - 理论支持，但尚未充分测试
+
+### 跨平台兼容性
+本项目在设计时考虑了跨平台兼容性：
+- 🪟 **Windows支持** - 钩子安装器已针对Windows命令行和路径处理进行优化
+- 🐧 **Linux支持** - 使用标准Python和shell命令，应该可以正常工作
+- 🔧 **自动平台检测** - 代码中包含`os.name`和平台特定的处理逻辑
+
+### 欢迎贡献
+**🙏 诚邀其他平台用户测试和完善**：
+- 如果您在Windows或Linux上使用，欢迎反馈使用体验
+- 发现问题请提交Issue，我们会积极解决
+- 欢迎提交平台特定的改进和修复PR
 
 ## 🤝 贡献
 

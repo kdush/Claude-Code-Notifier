@@ -194,6 +194,8 @@ jobs:
       with:
         repository-url: https://test.pypi.org/legacy/
         skip-existing: true
+        verbose: true
+        packages-dir: dist/
         
     - name: Test installation from Test PyPI
       run: |
@@ -230,6 +232,8 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         skip-existing: true
+        verbose: true
+        packages-dir: dist/
         
     - name: Verify PyPI publication
       run: |

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
 
-## [0.0.3b1] - 2025-08-21 (Pre-release: Beta)
+## [0.0.3b2] - 2025-08-21 (Pre-release: Beta)
 
 ### Added - Claude Code钩子自动配置 🚀
 - **🔧 PyPI版本钩子支持** - PyPI用户现在可以自动配置Claude Code钩子，实现与Git版本相同的集成体验
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 安装命令文案统一为 `claude-code-notifier[...]`，避免包名混淆
 
 ### Version Management
-- 采用符合 PEP 440 的预发行版本规范（a/b/rc），本次为 `b`，示例：`0.0.3b1`
+- 采用符合 PEP 440 的预发行版本规范（a/b/rc），本次为 `b`，示例：`0.0.3b2`
 - CLI `--version` 显示预发行提示，包括"版本类型: Beta"与"这是预发行版本，可能包含变更"
 
 ### Documentation
@@ -47,9 +47,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 全面同步中英文文档以反映PyPI钩子自动配置功能
 - 更新快速开始指南，重构安装流程说明
 
-### CI/CD
+### CI/CD & Build Improvements
 - 预发行版本自动发布至 TestPyPI；正式版本发布至 PyPI
 - 增强CI/CD工作流以支持钩子系统测试和验证
+- **🔧 工作流Python执行优化** - 简化GitHub Actions中的多行Python脚本为单行命令，提升构建性能
+- **📦 包安装验证增强** - 使用Python脚本替代直接pip命令，增强错误检测和wheel文件验证
+- **🌐 跨平台CI测试稳定性** - 添加UTF-8编码环境变量，简化测试输出为ASCII避免Windows编码问题
+- **⚡ 发布流程优化** - 升级构件处理到actions/v4，修复版本校验逻辑，增强发布可靠性
+
+### Fixed - 跨平台兼容性 🛠️
+- **🪟 Windows兼容性增强** - 钩子安装器现在完全支持Windows平台：
+  - 使用`sys.executable`替代固定python3命令
+  - 实现Windows和POSIX平台的JSON参数引号处理差异化
+  - 自动检测并处理包含空格的文件路径引号包装
+- **⚙️ 配置初始化修复** - 修复ConfigManager构造函数中logger初始化顺序问题，避免运行时错误
+- **📋 CLI模块路径验证** - 新增`python -m claude_notifier.cli.main --version`提升Windows PATH兼容性
 
 ## [0.0.2] - 2025-08-20
 
