@@ -106,16 +106,30 @@ install_git_mode() {
     # 克隆或更新仓库
     if [ -d "$HOME/Claude-Code-Notifier" ]; then
         cd "$HOME/Claude-Code-Notifier"
-        git pull
+        echo -e "${YELLOW}🔄 更新现有仓库...${NC}"
+        git fetch --all
+        git checkout dev
+        git pull origin dev
     else
-        git clone $REPO_URL "$HOME/Claude-Code-Notifier"
+        echo -e "${YELLOW}📥 克隆开发仓库...${NC}"
+        git clone -b dev $REPO_URL "$HOME/Claude-Code-Notifier"
         cd "$HOME/Claude-Code-Notifier"
+    fi
+    
+    # 验证项目文件存在
+    if [ ! -f "pyproject.toml" ]; then
+        echo -e "${RED}❌ 错误: pyproject.toml 文件未找到${NC}"
+        echo -e "${YELLOW}📋 当前分支: $(git branch --show-current)${NC}"
+        echo -e "${YELLOW}📂 项目文件: $(ls -la | head -5)${NC}"
+        exit 1
     fi
     
     # 获取版本信息
     version=$(git describe --tags --always)
+    echo -e "${GREEN}📦 项目版本: $version${NC}"
     
     # 安装依赖
+    echo -e "${YELLOW}📦 安装Python依赖...${NC}"
     pip3 install -e .
     
     # 保存版本信息

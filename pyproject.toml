@@ -103,7 +103,7 @@ claude_notifier = [
 ]
 
 [tool.setuptools.dynamic]
-version = {file = "src/claude_notifier/__version__.py"}
+version = {attr = "claude_notifier.__version__.__version__"}
 
 # 开发工具配置
 [tool.black]
