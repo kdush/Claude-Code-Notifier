@@ -130,7 +130,7 @@ jobs:
         python -c "import claude_notifier; print('✅ Package import successful:', claude_notifier.__version__); from claude_notifier import Notifier, get_feature_status; print('✅ Core functionality verified'); status = get_feature_status(); print('📊 Feature status:', status)"
         
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
@@ -150,7 +150,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
@@ -178,7 +178,7 @@ jobs:
       cancel-in-progress: false
     steps:
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
@@ -215,7 +215,7 @@ jobs:
       cancel-in-progress: false
     steps:
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: pypi-dist-${{ needs.validate-release.outputs.version }}
         path: dist/
