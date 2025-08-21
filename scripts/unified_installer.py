@@ -356,7 +356,7 @@ fi
             data = json.loads(response.read())
             return data['info']['version']
         except:
-            return "0.0.3b2"  # 默认版本
+            return "0.0.3b4"  # 默认版本
 
 def main():
     """主入口"""

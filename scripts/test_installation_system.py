@@ -140,7 +140,7 @@ class InstallationSystemTests(unittest.TestCase):
         version_file = self.config_dir / 'version.json'
         version_data = {
             "type": "pypi",
-            "version": "0.0.3b2",
+            "version": "0.0.3b4",
             "installed_at": "2025-08-21T10:00:00Z"
         }
         

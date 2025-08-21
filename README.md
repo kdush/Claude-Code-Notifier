@@ -40,7 +40,7 @@
 - **统计监控** - 事件统计和通知效果分析
 - **配置备份** - 支持配置备份和恢复功能
 
-## 🆕 最新改进 (v0.0.3b2 - Beta)
+## 🆕 最新改进 (v0.0.3b4 - Beta)
 
 ### 🚀 PyPI版本Claude Code钩子自动配置（重大更新）
 
@@ -55,10 +55,10 @@
 
 ### 🔧 版本管理改进
 
-- ✅ **PEP 440 版本规范** - 采用预发行规范 `a/b/rc`（本次为 `b`），版本号示例：`0.0.3b2`
+- ✅ **PEP 440 版本规范** - 采用预发行规范 `a/b/rc`（本次为 `b`），版本号示例：`0.0.3b4`
 - ✅ **CLI 版本提示增强** - `--version` 显示"版本类型: Beta"和"这是预发行版本，可能包含变更"
 - ✅ **README 徽章** - 新增 Beta 徽章，突出当前预发行状态
-- ✅ **CI/CD 工作流** - 使用 GitHub Actions 构建并发布稳定版到 PyPI；预发行以 `a/b/rc` 标签（如 `v0.0.3b2`）提供于仓库 Tag/Release（可选手动发布到 PyPI）
+- ✅ **CI/CD 工作流** - 使用 GitHub Actions 构建并发布稳定版到 PyPI；预发行以 `a/b/rc` 标签（如 `v0.0.3b4`）提供于仓库 Tag/Release（可选手动发布到 PyPI）
 
 ## 📱 支持的通知渠道
 
@@ -81,7 +81,7 @@
 pip install claude-code-notifier
 
 # 或安装指定版本
-pip install claude-code-notifier==0.0.3b2
+pip install claude-code-notifier==0.0.3b4
 
 # 验证安装
 claude-notifier --version
@@ -266,6 +266,8 @@ python3 scripts/smart_update.py --status
 [📱 查看终端] 按钮
 ```
 
+![钉钉通知示例 - 任务完成](assets/dingtallk-demo.png)
+
 **任务完成 (Markdown 格式)**
 ```
 ✅ Claude Code 任务完成
@@ -351,12 +353,12 @@ claude-notifier status --intelligence
 ## 📦 版本规范与预发行流程
 
 - **版本规范（PEP 440）**
-  - 预发行：`aN`（Alpha）、`bN`（Beta）、`rcN`（候选），如：`0.0.3a1`、`0.0.3b2`、`0.0.3rc1`
+  - 预发行：`aN`（Alpha）、`bN`（Beta）、`rcN`（候选），如：`0.0.3a1`、`0.0.3b4`、`0.0.3rc1`
   - 稳定版：去掉预发行后缀，如：`0.0.3`
   - 版本源文件：`src/claude_notifier/__version__.py`
 
 - **预发行策略**
-  - 使用 Git 标签发布预发行（如 `v0.0.3b2`），创建仓库 Release 并附带变更说明
+  - 使用 Git 标签发布预发行（如 `v0.0.3b4`），创建仓库 Release 并附带变更说明
   - CLI `--version` 显示“版本类型: Alpha/Beta/RC”和预发行提示
   - 如需分发，可手动将预发行上传至 PyPI（可选）
 

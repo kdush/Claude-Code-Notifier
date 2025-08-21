@@ -12,7 +12,7 @@ This roadmap outlines the plan to complete the Claude Code Notifier intelligent 
 - Ensure production stability: robust error handling, monitoring, and recovery
 - Enhance scalability: modular architecture for future growth
 
-## ✅ Completed Features (v0.0.3b2)
+## ✅ Completed Features (v0.0.3b4)
 
 ### 🚀 PyPI Version Claude Code Hook Auto-Configuration System
 **Completion Date**: August 21, 2025  

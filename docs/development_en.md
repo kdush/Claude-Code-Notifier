@@ -748,12 +748,12 @@ All PRs are reviewed for:
 - Format: `X.Y.Z[<pre>][.postN][.devN]`
 - Pre-release suffixes:
   - `aN` (Alpha), `bN` (Beta), `rcN` (Release Candidate)
-  - Examples: `0.0.3a1`, `0.0.3b2`, `0.0.3rc1`
+  - Examples: `0.0.3a1`, `0.0.3b4`, `0.0.3rc1`
 - Stable release: remove the suffix, e.g., `0.0.3`
-- Ordering (low → high): `0.0.3a1 < 0.0.3a2 < 0.0.3b2 < 0.0.3rc1 < 0.0.3`
+- Ordering (low → high): `0.0.3a1 < 0.0.3a2 < 0.0.3b4 < 0.0.3rc1 < 0.0.3`
 
 ### 🚧 Pre-release Policy (no TestPyPI by default)
-- Publish pre-releases via Git tags: `vX.Y.Z[a|b|rc]N`, e.g., `v0.0.3b2`
+- Publish pre-releases via Git tags: `vX.Y.Z[a|b|rc]N`, e.g., `v0.0.3b4`
 - Create a corresponding repo Release with change notes (see `CHANGELOG.md`)
 - CLI `--version` displays the “Version Type: Alpha/Beta/RC” and a pre-release notice
 - If distribution is needed, you may manually publish pre-releases to PyPI (optional)
@@ -766,8 +766,8 @@ All PRs are reviewed for:
 
 ### 📝 Checklist
 - Pre-release:
-  1. Set a pre-release version in `src/claude_notifier/__version__.py` (e.g., `0.0.3b2`)
-  2. Tag `v0.0.3b2` and create a Release
+  1. Set a pre-release version in `src/claude_notifier/__version__.py` (e.g., `0.0.3b4`)
+  2. Tag `v0.0.3b4` and create a Release
   3. Verify CLI `--version` shows the pre-release notice
 - Stable release:
   1. Set version to `X.Y.Z` (remove pre-release suffix)

@@ -39,7 +39,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 - Metrics and effectiveness analysis
 - Config backup and restore
 
-## 🆕 What's New (v0.0.3b2 - Beta)
+## 🆕 What's New (v0.0.3b4 - Beta)
 
 ### 🚀 PyPI Version Claude Code Hook Auto-Configuration (Major Update)
 
@@ -54,7 +54,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 
 ### 🔧 Version Management Improvements
 
-- ✅ **PEP 440 Versioning** - Pre-release specification (`a`/`b`/`rc`), e.g., `0.0.3b2`
+- ✅ **PEP 440 Versioning** - Pre-release specification (`a`/`b`/`rc`), e.g., `0.0.3b4`
 - ✅ **Enhanced CLI Version Info** - `--version` shows "Version Type: Beta" and pre-release warning
 - ✅ **README Beta Badge** - Highlights current pre-release status
 - ✅ **CI/CD Workflow** - GitHub Actions build and publish stable releases to PyPI; pre-releases via repo tags/releases
@@ -80,7 +80,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 pip install claude-code-notifier
 
 # Or install specific version
-pip install claude-code-notifier==0.0.3b2
+pip install claude-code-notifier==0.0.3b4
 
 # Verify installation
 claude-notifier --version
@@ -351,12 +351,12 @@ claude-notifier debug diagnose --full
 ## 📦 Versioning and Pre-release Process
 
 - **Versioning (PEP 440)**
-  - Pre-releases: `aN` (Alpha), `bN` (Beta), `rcN` (Release Candidate), e.g., `0.0.3a1`, `0.0.3b2`, `0.0.3rc1`
+  - Pre-releases: `aN` (Alpha), `bN` (Beta), `rcN` (Release Candidate), e.g., `0.0.3a1`, `0.0.3b4`, `0.0.3rc1`
   - Stable: remove the suffix, e.g., `0.0.3`
   - Version source file: `src/claude_notifier/__version__.py`
 
 - **Pre-release policy**
-  - Publish pre-releases via Git tags (e.g., `v0.0.3b2`) and create a repo Release with change notes
+  - Publish pre-releases via Git tags (e.g., `v0.0.3b4`) and create a repo Release with change notes
   - CLI `--version` displays “Version Type: Alpha/Beta/RC” and a pre-release notice
   - If distribution is needed, you may manually publish pre-releases to PyPI (optional)
 

@@ -5,11 +5,12 @@
 Version information for Claude Code Notifier
 """
 
-__version__ = "0.0.3b2"
+__version__ = "0.0.3b4"
 __version_info__ = (0, 0, 3)
 
 # 版本历史
 VERSION_HISTORY = {
+    "0.0.3b4": "预发行：CLI命令优化、卸载功能修复、跨平台兼容性完善、CI/CD流程增强",
     "0.0.3b2": "预发行：PyPI版本Claude Code钩子自动配置系统、智能CLI管理、统一用户体验、跨平台兼容性增强",
     "0.0.3b1": "预发行：PyPI版本Claude Code钩子自动配置系统、智能CLI管理、统一用户体验",
     "0.0.2": "修复版本：解决配置备份/恢复、模板引擎API、相对导入等集成问题",
