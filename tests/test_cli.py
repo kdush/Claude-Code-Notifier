@@ -50,6 +50,14 @@ class TestCLIBasicCommands(unittest.TestCase):
         result = self.runner.invoke(cli, ['--version'])
         self.assertEqual(result.exit_code, 0)
         self.assertIn(__version__, result.output)
+        # 预发行版本提示校验（遵循 PEP 440: a/b/rc）
+        is_prerelease = any(tag in __version__ for tag in ['a', 'b', 'rc'])
+        if is_prerelease:
+            self.assertIn('版本类型:', result.output)
+            self.assertIn('预发行版本', result.output)
+        else:
+            self.assertNotIn('版本类型:', result.output)
+            self.assertNotIn('预发行版本', result.output)
         
     def test_cli_help(self):
         """测试帮助命令"""

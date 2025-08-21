@@ -329,18 +329,23 @@ def pytest_runtest_setup(item):
             pass
 
 
-# pytest报告钩子
-def pytest_html_report_title(report):
-    """自定义HTML报告标题"""
-    report.title = "Claude Code Notifier 测试报告"
+# pytest报告钩子（仅在安装了 pytest-html 时启用）
+try:
+    import pytest_html  # noqa: F401
 
+    def pytest_html_report_title(report):
+        """自定义HTML报告标题"""
+        report.title = "Claude Code Notifier 测试报告"
 
-def pytest_html_results_summary(prefix, summary, postfix):
-    """自定义HTML报告摘要"""
-    prefix.extend([
-        "<h2>Claude Code Notifier 测试套件</h2>",
-        "<p>轻量级架构，可选组件优雅降级</p>"
-    ])
+    def pytest_html_results_summary(prefix, summary, postfix):
+        """自定义HTML报告摘要"""
+        prefix.extend([
+            "<h2>Claude Code Notifier 测试套件</h2>",
+            "<p>轻量级架构，可选组件优雅降级</p>"
+        ])
+except Exception:
+    # 未安装 pytest-html 时跳过这些hook，避免未知钩子报错
+    pass
     
     
 # 命令行选项
@@ -361,7 +366,7 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_runtest_call(pyfuncitem):
-    """测试运行时调用"""
+def pytest_runtest_call(item):
+    """测试运行时调用（兼容pytest新版hookspec，参数命名为 item）"""
     # 可以添加测试运行时的逻辑
     pass

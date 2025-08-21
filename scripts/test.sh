@@ -75,8 +75,11 @@ if [ -n "$NOTIFICATION_TYPE" ]; then
             python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_permission_notification
-test_permission_notification()
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send_permission_notification('读取配置文件')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
             ;;
         "completion")
@@ -84,8 +87,11 @@ test_permission_notification()
             python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_completion_notification
-test_completion_notification()
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send_completion_notification('测试任务完成')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
             ;;
         "test")
@@ -93,8 +99,11 @@ test_completion_notification()
             python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_basic_notification
-test_basic_notification('$CHANNEL')
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send('📋 测试基础通知 - 这是一条测试消息')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
             ;;
         *)
@@ -112,8 +121,11 @@ elif [ -n "$CHANNEL" ]; then
     python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_basic_notification
-test_basic_notification('$CHANNEL')
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send('📋 测试基础通知 - 这是一条测试消息')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
     sleep 2
     
@@ -121,8 +133,11 @@ test_basic_notification('$CHANNEL')
     python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_permission_notification
-test_permission_notification()
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send_permission_notification('读取配置文件')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
     sleep 2
     
@@ -130,8 +145,11 @@ test_permission_notification()
     python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_completion_notification
-test_completion_notification()
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send_completion_notification('测试任务完成')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
     
 else
@@ -143,8 +161,11 @@ else
     python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_basic_notification
-test_basic_notification()
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send('📋 测试基础通知 - 这是一条测试消息')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
     sleep 3
     
@@ -152,8 +173,11 @@ test_basic_notification()
     python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_permission_notification
-test_permission_notification()
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send_permission_notification('读取配置文件')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
     sleep 3
     
@@ -161,8 +185,11 @@ test_permission_notification()
     python3 -c "
 import sys
 sys.path.append('$PROJECT_DIR')
-from examples.usage_examples import test_completion_notification
-test_completion_notification()
+from src.claude_notifier.core.notifier import Notifier
+notifier = Notifier()
+result = notifier.send_completion_notification('测试任务完成')
+if result: print('  发送结果: ✅ 成功')
+else: print('  发送结果: ❌ 失败')
 "
     
 fi
