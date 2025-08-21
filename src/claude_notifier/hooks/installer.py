@@ -68,30 +68,66 @@ class ClaudeHookInstaller:
     
     def create_hooks_config(self) -> Dict:
         """创建钩子配置"""
+        # 统一使用当前 Python 解释器，避免 Windows 上找不到 python3
+        py = sys.executable
+        # 如路径内包含空格或在 Windows 上，使用引号包裹
+        py_quoted = f'"{py}"' if (os.name == 'nt' or ' ' in py) else py
+        hook_path = str(self.hook_script_path)
+        hook_quoted = f'"{hook_path}"' if (os.name == 'nt' or ' ' in hook_path) else hook_path
+
+        # 针对不同平台处理 JSON 参数引号
+        if os.name == 'nt':
+            # Windows: 外层使用双引号，需对内部双引号进行反斜杠转义
+            json_cmd_plain = '{"command": "$COMMAND", "tool": "$TOOL"}'
+            json_status_plain = '{"status": "$STATUS"}'
+            json_error_plain = '{"error_type": "$ERROR_TYPE", "error_message": "$ERROR_MESSAGE"}'
+            json_message_plain = '{"message": "$MESSAGE"}'
+
+            def _escape_win(s: str) -> str:
+                # 将双引号转义为 \" 以确保在 cmd/powershell 中作为单个参数传递
+                return s.replace('"', '\\"')
+
+            cmd_session_start = f"{py_quoted} {hook_quoted} session_start"
+            cmd_command_execute = f"{py_quoted} {hook_quoted} command_execute \"{_escape_win(json_cmd_plain)}\""
+            cmd_task_complete = f"{py_quoted} {hook_quoted} task_complete \"{_escape_win(json_status_plain)}\""
+            cmd_error = f"{py_quoted} {hook_quoted} error \"{_escape_win(json_error_plain)}\""
+            cmd_confirmation = f"{py_quoted} {hook_quoted} confirmation_required \"{_escape_win(json_message_plain)}\""
+        else:
+            # POSIX: 使用单引号避免 shell 展开
+            json_cmd_tpl = '{"command": "$COMMAND", "tool": "$TOOL"}'
+            json_status_tpl = '{"status": "$STATUS"}'
+            json_error_tpl = '{"error_type": "$ERROR_TYPE", "error_message": "$ERROR_MESSAGE"}'
+            json_message_tpl = '{"message": "$MESSAGE"}'
+            cmd_session_start = f"{py_quoted} {hook_quoted} session_start"
+            cmd_command_execute = f"{py_quoted} {hook_quoted} command_execute '{json_cmd_tpl}'"
+            cmd_task_complete = f"{py_quoted} {hook_quoted} task_complete '{json_status_tpl}'"
+            cmd_error = f"{py_quoted} {hook_quoted} error '{json_error_tpl}'"
+            cmd_confirmation = f"{py_quoted} {hook_quoted} confirmation_required '{json_message_tpl}'"
+
         return {
             "hooks": {
                 "on_session_start": {
-                    "command": f"python3 {self.hook_script_path} session_start",
+                    "command": cmd_session_start,
                     "enabled": True,
                     "description": "Claude Code 会话开始时触发Claude Notifier"
                 },
                 "on_command_execute": {
-                    "command": f"python3 {self.hook_script_path} command_execute '{{\"command\": \"$COMMAND\", \"tool\": \"$TOOL\"}}'",
+                    "command": cmd_command_execute,
                     "enabled": True,
                     "description": "执行命令时触发通知检查"
                 },
                 "on_task_complete": {
-                    "command": f"python3 {self.hook_script_path} task_complete '{{\"status\": \"$STATUS\"}}'",
+                    "command": cmd_task_complete,
                     "enabled": True,
                     "description": "任务完成时发送通知"
                 },
                 "on_error": {
-                    "command": f"python3 {self.hook_script_path} error '{{\"error_type\": \"$ERROR_TYPE\", \"error_message\": \"$ERROR_MESSAGE\"}}'",
+                    "command": cmd_error,
                     "enabled": True,
                     "description": "发生错误时触发错误通知"
                 },
                 "on_confirmation_required": {
-                    "command": f"python3 {self.hook_script_path} confirmation_required '{{\"message\": \"$MESSAGE\"}}'",
+                    "command": cmd_confirmation,
                     "enabled": True,
                     "description": "需要确认时发送权限通知"
                 }
