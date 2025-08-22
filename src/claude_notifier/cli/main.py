@@ -8,7 +8,13 @@ Claude Notifier 主CLI入口
 
 import sys
 import click
+import logging
 from typing import Optional, List
+
+# 配置日志级别，避免INFO消息在CLI中显示
+logging.getLogger('claude_notifier').setLevel(logging.ERROR)
+# 抑制所有低级别日志消息在CLI中显示
+logging.getLogger().setLevel(logging.ERROR)
 
 # 注意：避免在顶层导入重型依赖，按需在命令中惰性导入
 # 这样 `claude-notifier --version` 仅加载最少模块，降低在 CI 环境卡住的风险
@@ -31,6 +37,11 @@ def cli(ctx, version, status):
         claude-notifier --help
         claude-notifier send --help
     """
+    # 配置日志级别，避免INFO消息在CLI中显示
+    import logging
+    logging.getLogger('claude_notifier').setLevel(logging.ERROR)
+    logging.getLogger().setLevel(logging.ERROR)
+    
     # 确保子命令可以访问上下文
     ctx.ensure_object(dict)
     
@@ -315,11 +326,23 @@ def send(message, channels, event_type, priority, throttle, project):
         if project:
             kwargs['project'] = project
             
+        # 检查是否有可用的通知渠道
+        status_info = notifier.get_status()
+        enabled_channels = status_info['channels']['enabled']
+        
+        if not enabled_channels and not channels_list:
+            click.echo("⚠️  没有配置的通知渠道，消息未发送")
+            click.echo("💡 使用 'claude-notifier config init' 配置通知渠道")
+            return False
+            
         # 发送通知
         success = notifier.send(message, channels_list, event_type, **kwargs)
         
         if success:
-            click.echo("✅ 通知发送成功")
+            if enabled_channels or channels_list:
+                click.echo("✅ 通知发送成功")
+            else:
+                click.echo("⚠️  通知已处理，但没有启用的渠道")
         else:
             click.echo("❌ 通知发送失败")
             sys.exit(1)
@@ -1955,10 +1978,13 @@ def diagnose(full, fix, report):
         diagnostic_results.extend(channel_results)
         
         # 4. 监控系统检查
-        if MONITORING_CLI_AVAILABLE:
+        try:
+            from ..monitoring.dashboard import MonitoringDashboard
             click.echo("\n4️⃣ 监控系统检查...")
             monitoring_results = _diagnose_monitoring()
             diagnostic_results.extend(monitoring_results)
+        except ImportError:
+            diagnostic_results.append({'type': 'warning', 'message': '监控功能未安装或不可用'})
             
         # 5. 性能检查 (如果启用完整诊断)
         if full:
