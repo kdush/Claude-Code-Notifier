@@ -94,6 +94,10 @@ class ConfigManager:
     def is_valid(self) -> bool:
         """检查配置是否有效"""
         try:
+            # 首先检查配置文件是否存在
+            if not os.path.exists(self.config_path):
+                return False
+                
             # 基本验证
             if not isinstance(self.config, dict):
                 return False
