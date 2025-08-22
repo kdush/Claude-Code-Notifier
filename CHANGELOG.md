@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
 
+## [0.0.4b2] - 2025-08-22 (Pre-release: Beta)
+
+### CI/CD 🧰
+- 移除 GitHub Actions `release.yml` 中 `test-install` 步骤的 heredoc + multiprocessing 导入测试，改为同步导入并打印版本，彻底规避 `<stdin>` 导致的 `FileNotFoundError`（macOS/Windows `spawn` 需要物理文件路径）。
+- 增强跨平台稳定性，保留控制台脚本与模块 CLI 的超时与输出校验。
+
+### Packaging 📦
+- 通过 `MANIFEST.in` 明确 `prune src/hooks`，避免将非包内的原始钩子脚本打入 sdist；包内 `claude_notifier/hooks` 资源不受影响。
+
+### Fixed 🛠️
+- 修复 `src/utils/ccusage_integration.py` 中字符串拼接换行问题，使用真实的 `\n` 换行符，保证通知文本展示正确。
+
+### Documentation 📚
+- 更新 `README.md` 与 `README_en.md` 的 “What's New/最新改进” 版本号与说明，并修正固定版本安装示例为 `0.0.4b2`；英文版同步说明 PyPI 版本支持自动配置 Claude Code 钩子。
+
 ## [0.0.4b1] - 2025-08-22 (Pre-release: Beta)
 
 ### Fixed - CLI系统稳定性与用户体验优化 🛠️

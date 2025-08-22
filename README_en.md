@@ -39,7 +39,17 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 - Metrics and effectiveness analysis
 - Config backup and restore
 
-## 🆕 What's New (v0.0.3b4 - Beta)
+## 🆕 What's New (v0.0.4b2 - Beta)
+
+### 🧰 CI/CD and Stability
+- Fixed the heredoc + multiprocessing import test in `release.yml` `test-install` step. Switched to synchronous import and version print to avoid `<stdin>` `FileNotFoundError` on macOS/Windows (`spawn` requires a physical file).
+- Improved cross-platform stability, keeping timeout and output checks for console script and module CLI.
+
+### 📦 Packaging
+- Exclude non-package `src/hooks` from sdist via `MANIFEST.in` (`prune src/hooks`). Package-internal `claude_notifier/hooks` resources remain intact.
+
+### 🛠️ Fixed
+- Correct newline handling in `src/utils/ccusage_integration.py` to use real `\n`, ensuring proper message rendering.
 
 ### 🚀 PyPI Version Claude Code Hook Auto-Configuration (Major Update)
 
@@ -80,7 +90,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 pip install claude-code-notifier
 
 # Or install specific version
-pip install claude-code-notifier==0.0.3b4
+pip install claude-code-notifier==0.0.4b2
 
 # Verify installation
 claude-notifier --version

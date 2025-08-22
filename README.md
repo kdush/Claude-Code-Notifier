@@ -40,7 +40,17 @@
 - **统计监控** - 事件统计和通知效果分析
 - **配置备份** - 支持配置备份和恢复功能
 
-## 🆕 最新改进 (v0.0.3b4 - Beta)
+## 🆕 最新改进 (v0.0.4b2 - Beta)
+
+### 🧰 CI/CD 与稳定性
+- 修复 release 工作流 `test-install` 中 heredoc + multiprocessing 导入测试，改为同步导入并打印版本，避免 `<stdin>` 导致的 FileNotFoundError（macOS/Windows `spawn` 需要物理文件）。
+- 增强跨平台稳定性，保留控制台脚本与模块 CLI 的超时与输出校验。
+
+### 📦 打包与内容优化
+- 在 `MANIFEST.in` 排除 `src/hooks` 非包目录，避免将原始钩子脚本打入 sdist；不影响包内 `claude_notifier/hooks` 资源。
+
+### 🛠️ Bug 修复
+- 修复 `src/utils/ccusage_integration.py` 中换行符处理，使用真实 `\n`，保证通知文本渲染正确。
 
 ### 🚀 PyPI版本Claude Code钩子自动配置（重大更新）
 
@@ -81,7 +91,7 @@
 pip install claude-code-notifier
 
 # 或安装指定版本
-pip install claude-code-notifier==0.0.3b4
+pip install claude-code-notifier==0.0.4b2
 
 # 验证安装
 claude-notifier --version
