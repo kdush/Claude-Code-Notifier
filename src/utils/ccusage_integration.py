@@ -254,7 +254,7 @@ def format_usage_notification(stats, rate_info):
         lines.append('\n⚠️ 限流警告:')
         for w in rate_info['warnings']:
             lines.append(f'  • {w}')
-    return '\\n'.join(lines)
+    return '\n'.join(lines)
 
 stats = get_usage_stats()
 rate_info = check_rate_limits(stats)
