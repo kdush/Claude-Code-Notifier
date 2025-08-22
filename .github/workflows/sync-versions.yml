@@ -50,18 +50,19 @@ jobs:
     - name: Get version information
       id: versions
       run: |
-        # 获取PyPI版本
-        PYPI_VERSION=$(python3 << 'EOF'
-        import requests
-        import json
-        try:
-            response = requests.get('https://pypi.org/pypi/claude-code-notifier/json')
-            data = response.json()
-            print(data['info']['version'])
-        except:
-            print('0.0.0')
-        EOF
-        )
+        # 获取PyPI版本 - 使用临时文件避免stdin执行问题
+        cat > get_pypi_version.py << 'EOF'
+import requests
+import json
+try:
+    response = requests.get('https://pypi.org/pypi/claude-code-notifier/json')
+    data = response.json()
+    print(data['info']['version'])
+except:
+    print('0.0.0')
+EOF
+        PYPI_VERSION=$(python3 get_pypi_version.py)
+        rm -f get_pypi_version.py
         
         # 获取Git版本
         GIT_VERSION=$(python3 -c "
@@ -73,23 +74,24 @@ jobs:
         echo "pypi-version=$PYPI_VERSION" >> $GITHUB_OUTPUT
         echo "git-version=$GIT_VERSION" >> $GITHUB_OUTPUT
         
-        # 版本比较
-        SYNC_NEEDED=$(python3 << 'EOF'
-        from packaging.version import Version
-        pypi_v = "$PYPI_VERSION"
-        git_v = "$GIT_VERSION"
-        
-        try:
-            if Version(git_v) > Version(pypi_v):
-                print("git-ahead")
-            elif Version(pypi_v) > Version(git_v):
-                print("pypi-ahead") 
-            else:
-                print("synced")
-        except:
-            print("unknown")
-        EOF
-        )
+        # 版本比较 - 使用临时文件避免stdin执行问题
+        cat > compare_versions.py << EOF
+from packaging.version import Version
+pypi_v = "$PYPI_VERSION"
+git_v = "$GIT_VERSION"
+
+try:
+    if Version(git_v) > Version(pypi_v):
+        print("git-ahead")
+    elif Version(pypi_v) > Version(git_v):
+        print("pypi-ahead") 
+    else:
+        print("synced")
+except:
+    print("unknown")
+EOF
+        SYNC_NEEDED=$(python3 compare_versions.py)
+        rm -f compare_versions.py
         
         echo "sync-needed=$SYNC_NEEDED" >> $GITHUB_OUTPUT
         
@@ -221,26 +223,32 @@ jobs:
     
     - name: Test version consistency
       run: |
-        # 检查版本文件格式
-        python3 << 'EOF'
-        import sys
-        sys.path.insert(0, 'src')
+        # 检查版本文件格式 - 避免stdin执行以防止macOS multiprocessing问题
+        cat > test_version.py << 'EOF'
+import sys
+sys.path.insert(0, 'src')
+
+try:
+    from claude_notifier.__version__ import __version__, __version_info__
+    print(f"✅ 版本文件读取成功: {__version__}")
+    print(f"✅ 版本信息: {__version_info__}")
+    
+    # 验证版本格式
+    parts = __version__.split('.')
+    assert len(parts) >= 3, "版本号必须包含至少3个部分"
+    assert all(p.replace('a', '').replace('b', '').replace('rc', '').isdigit() or 'a' in p or 'b' in p or 'rc' in p for p in parts), "版本号格式无效"
+    print("✅ 版本格式验证通过")
+    
+except Exception as e:
+    print(f"❌ 版本文件错误: {e}")
+    sys.exit(1)
+EOF
         
-        try:
-            from claude_notifier.__version__ import __version__, __version_info__
-            print(f"✅ 版本文件读取成功: {__version__}")
-            print(f"✅ 版本信息: {__version_info__}")
-            
-            # 验证版本格式
-            parts = __version__.split('.')
-            assert len(parts) >= 3, "版本号必须包含至少3个部分"
-            assert all(p.replace('a', '').replace('b', '').replace('rc', '').isdigit() or 'a' in p or 'b' in p or 'rc' in p for p in parts), "版本号格式无效"
-            print("✅ 版本格式验证通过")
-            
-        except Exception as e:
-            print(f"❌ 版本文件错误: {e}")
-            sys.exit(1)
-        EOF
+        # 执行版本检查脚本
+        python3 test_version.py
+        
+        # 清理临时文件
+        rm -f test_version.py
     
   notify-completion:
     needs: [version-sync, update-install-docs, test-installation]
