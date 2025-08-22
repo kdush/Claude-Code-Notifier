@@ -10,9 +10,11 @@ recursive-include docs *.md *.rst *.txt
 recursive-include config *.yaml *.template *.json
 recursive-include templates *.md *.html *.txt *.jinja2
 
-# 包含脚本文件
+# 包含脚本文件（仅限项目脚本，不包含 src/hooks 原始钩子脚本）
 recursive-include scripts *.sh *.py *.bat
-recursive-include src/hooks *.sh *.py
+
+# 明确排除非包内的 src/hooks 目录，避免将其打包发布
+prune src/hooks
 
 # 包含测试文件
 recursive-include tests *.py *.yaml *.json *.txt
