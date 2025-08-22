@@ -175,32 +175,19 @@ jobs:
       run: |
         python -c "import glob, subprocess, sys; wheels = glob.glob('dist/*.whl'); assert wheels, 'No wheels found in dist/'; print('Installing wheels:', wheels); subprocess.check_call([sys.executable, '-m', 'pip', 'install'] + wheels)"
 
-    - name: Import package and show version
+    - name: Import package and show version (no multiprocessing)
       env:
         CLAUDE_NOTIFIER_SKIP_OPTIONAL_IMPORTS: "1"
       run: |
         python - <<'PY'
-        import multiprocessing as mp, sys
-
-        def worker():
-            try:
-                import claude_notifier
-                from claude_notifier.__version__ import __version__
-                print('Package version:', __version__)
-            except Exception as e:
-                print(f'Import failed: {e}', file=sys.stderr)
-                sys.exit(1)
-
-        if __name__ == '__main__':
-            p = mp.Process(target=worker)
-            p.start()
-            p.join(20)
-            if p.is_alive():
-                print('❌ Import timed out (>20s)', file=sys.stderr)
-                p.terminate()
-                p.join(5)
-                sys.exit(1)
-            sys.exit(p.exitcode or 0)
+        import sys
+        try:
+            import claude_notifier
+            from claude_notifier.__version__ import __version__
+            print('Package version:', __version__)
+        except Exception as e:
+            print(f'Import failed: {e}', file=sys.stderr)
+            sys.exit(1)
         PY
 
     - name: Test console script with timeout (non-blocking)
