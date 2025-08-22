@@ -31,7 +31,7 @@ class UpdateManager:
         self.home_dir = Path.home()
         self.config_dir = self.home_dir / '.claude-notifier'
         self.current_version = self._get_current_version()
-        self.pypi_api_url = "https://pypi.org/pypi/claude-notifier/json"
+        self.pypi_api_url = "https://pypi.org/pypi/claude-code-notifier/json"
         
     def _get_current_version(self) -> str:
         """获取当前安装版本"""
@@ -140,9 +140,9 @@ class UpdateManager:
         cmd = [sys.executable, '-m', 'pip', 'install', '--upgrade']
         
         if target_version:
-            package_spec = f"claude-notifier=={target_version}"
+            package_spec = f"claude-code-notifier=={target_version}"
         else:
-            package_spec = "claude-notifier"
+            package_spec = "claude-code-notifier"
             
         # 添加可选功能
         if extras:
@@ -300,10 +300,10 @@ class UpdateManager:
             from claude_notifier import has_intelligence, has_monitoring
             
             if not has_intelligence():
-                result['suggestions'].append("可安装智能功能: pip install claude-notifier[intelligence]")
+                result['suggestions'].append("可安装智能功能: pip install claude-code-notifier[intelligence]")
                 
             if not has_monitoring():
-                result['suggestions'].append("可安装监控功能: pip install claude-notifier[monitoring]")
+                result['suggestions'].append("可安装监控功能: pip install claude-code-notifier[monitoring]")
                 
         except ImportError as e:
             result['success'] = False
