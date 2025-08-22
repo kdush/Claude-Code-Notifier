@@ -179,16 +179,13 @@ jobs:
       env:
         CLAUDE_NOTIFIER_SKIP_OPTIONAL_IMPORTS: "1"
       run: |
-        python - <<'PY'
-        import sys
-        try:
-            import claude_notifier
-            from claude_notifier.__version__ import __version__
-            print('Package version:', __version__)
-        except Exception as e:
-            print(f'Import failed: {e}', file=sys.stderr)
-            sys.exit(1)
-        PY
+        python -c "import sys; import traceback; print('Trying to import claude_notifier...'); \
+        
+        \ntry:\
+            import claude_notifier; from claude_notifier.__version__ import __version__; print('Package version:', __version__)\
+        
+        \nexcept Exception as e:\
+            print('Import failed:', e, file=sys.stderr); traceback.print_exc(); sys.exit(1)"
 
     - name: Test console script with timeout (non-blocking)
       continue-on-error: true
