@@ -35,9 +35,14 @@ class Notifier:
         logger = logging.getLogger('claude_notifier')
         
         if not logger.handlers:
-            # 控制台处理器
+            # 控制台处理器 - 检查是否在CLI模式下运行
             console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.INFO)
+            # 如果父级logger已设置为ERROR级别，说明在CLI模式下，使用ERROR级别
+            parent_logger = logging.getLogger()
+            if parent_logger.level >= logging.ERROR:
+                console_handler.setLevel(logging.ERROR)
+            else:
+                console_handler.setLevel(logging.INFO)
             
             # 格式化器
             formatter = logging.Formatter(
