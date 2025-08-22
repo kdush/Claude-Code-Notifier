@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
 
+## [0.0.6] - 2025-08-22 (Stable)
+
+### Publishing & Release Workflow 🚀
+- TestPyPI 版本存在检查：发布前调用 API 检测目标版本是否已存在，若已存在则跳过上传，避免 400 重复上传错误。
+- 工作流步骤顺序与 YAML 修复：移除 heredoc，统一采用单行 `python -c`；规范缩进与转义，提升跨平台稳定性。
+- 安装测试稳健性：引入重试与超时控制；在 Python 3.8 环境中固定 pip/setuptools 版本以提升兼容性。
+
+### Documentation 📚
+- 同步更新 README/README_en 的 “What's New/最新改进” 至 0.0.6，并更新固定版本安装示例。
+- 补充发布流程说明，明确 TestPyPI 跳过策略与主 PyPI 发布建议。
+
 ## [0.0.5] - 2025-08-22 (Stable)
 
 ### CI/CD 🧰

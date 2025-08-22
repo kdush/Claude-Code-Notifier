@@ -40,7 +40,7 @@
 - **统计监控** - 事件统计和通知效果分析
 - **配置备份** - 支持配置备份和恢复功能
 
-## 🆕 最新改进 (v0.0.5 - Stable)
+## 🆕 最新改进 (v0.0.6 - Stable)
 
 ### 🧰 CI/CD 与稳定性
 - 修复并稳定跨平台 `test-install` 导入验证：移除 heredoc 与多进程导入测试，改为同步 `import` 并打印版本，避免 macOS/Windows 上 `<stdin>` 导致的 `FileNotFoundError`。
@@ -91,7 +91,7 @@
 pip install claude-code-notifier
 
 # 或安装指定版本
-pip install claude-code-notifier==0.0.5
+pip install claude-code-notifier==0.0.6
 
 # 验证安装
 claude-notifier --version

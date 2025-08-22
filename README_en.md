@@ -39,7 +39,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 - Metrics and effectiveness analysis
 - Config backup and restore
 
-## 🆕 What's New (v0.0.5 - Stable)
+## 🆕 What's New (v0.0.6 - Stable)
 
 ### 🧰 CI/CD and Stability
 - Stabilized cross-platform `test-install` import verification: removed heredoc and multiprocessing; switched to synchronous `import` and version print to avoid `<stdin>` `FileNotFoundError` on macOS/Windows.
@@ -90,7 +90,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 pip install claude-code-notifier
 
 # Or install specific version
-pip install claude-code-notifier==0.0.5
+pip install claude-code-notifier==0.0.6
 
 # Verify installation
 claude-notifier --version

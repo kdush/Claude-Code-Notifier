@@ -14,10 +14,10 @@ on:
         default: 'auto'
         type: choice
         options:
-        - auto
-        - force-pypi
-        - force-git
-        - test-only
+          - auto
+          - force-pypi
+          - force-git
+          - test-only
         
   # 定时检查（每天早上10点）
   schedule:
@@ -27,9 +27,9 @@ jobs:
   version-sync:
     runs-on: ubuntu-latest
     outputs:
-      pypi-version: ${{ steps.versions.outputs.pypi-version }}
-      git-version: ${{ steps.versions.outputs.git-version }}
-      sync-needed: ${{ steps.versions.outputs.sync-needed }}
+      pypi-version: ${{ steps.versions.outputs['pypi-version'] }}
+      git-version: ${{ steps.versions.outputs['git-version'] }}
+      sync-needed: ${{ steps.versions.outputs['sync-needed'] }}
     
     steps:
     - uses: actions/checkout@v4
@@ -50,17 +50,17 @@ jobs:
     - name: Get version information
       id: versions
       run: |
-        # 获取PyPI版本 - 使用临时文件避免stdin执行问题
-        cat > get_pypi_version.py << 'EOF'
-import requests
-import json
-try:
-    response = requests.get('https://pypi.org/pypi/claude-code-notifier/json')
-    data = response.json()
-    print(data['info']['version'])
-except:
-    print('0.0.0')
-EOF
+        # 获取PyPI版本 - 使用临时文件避免stdin执行问题（避免 heredoc 缩进导致 YAML 解析错误）
+        printf '%s\n' \
+          "import requests" \
+          "import json" \
+          "try:" \
+          "    response = requests.get('https://pypi.org/pypi/claude-code-notifier/json')" \
+          "    data = response.json()" \
+          "    print(data['info']['version'])" \
+          "except:" \
+          "    print('0.0.0')" \
+          > get_pypi_version.py
         PYPI_VERSION=$(python3 get_pypi_version.py)
         rm -f get_pypi_version.py
         
@@ -74,22 +74,22 @@ EOF
         echo "pypi-version=$PYPI_VERSION" >> $GITHUB_OUTPUT
         echo "git-version=$GIT_VERSION" >> $GITHUB_OUTPUT
         
-        # 版本比较 - 使用临时文件避免stdin执行问题
-        cat > compare_versions.py << EOF
-from packaging.version import Version
-pypi_v = "$PYPI_VERSION"
-git_v = "$GIT_VERSION"
-
-try:
-    if Version(git_v) > Version(pypi_v):
-        print("git-ahead")
-    elif Version(pypi_v) > Version(git_v):
-        print("pypi-ahead") 
-    else:
-        print("synced")
-except:
-    print("unknown")
-EOF
+        # 版本比较 - 使用临时文件避免stdin执行问题（避免 heredoc 缩进导致 YAML 解析错误）
+        printf '%s\n' \
+          "from packaging.version import Version" \
+          "pypi_v = \"$PYPI_VERSION\"" \
+          "git_v = \"$GIT_VERSION\"" \
+          "" \
+          "try:" \
+          "    if Version(git_v) > Version(pypi_v):" \
+          "        print(\"git-ahead\")" \
+          "    elif Version(pypi_v) > Version(git_v):" \
+          "        print(\"pypi-ahead\")" \
+          "    else:" \
+          "        print(\"synced\")" \
+          "except:" \
+          "    print(\"unknown\")" \
+          > compare_versions.py
         SYNC_NEEDED=$(python3 compare_versions.py)
         rm -f compare_versions.py
         
@@ -101,32 +101,29 @@ EOF
         echo "  Sync: $SYNC_NEEDED"
     
     - name: Update installation scripts
-      if: steps.versions.outputs.sync-needed != 'synced'
+      if: ${{ steps.versions.outputs['sync-needed'] != 'synced' }}
       run: |
         # 更新install.sh中的默认版本
-        LATEST_VERSION="${{ steps.versions.outputs.git-version }}"
+        LATEST_VERSION="${{ steps.versions.outputs['git-version'] }}"
         
         # 创建版本同步报告
-        cat > version-sync-report.md << EOF
-        # 🔄 版本同步报告
+        echo "# 🔄 版本同步报告" > version-sync-report.md
+        echo "" >> version-sync-report.md
+        echo "**生成时间**: $(date -Iseconds)" >> version-sync-report.md
+        echo "**PyPI版本**: ${{ steps.versions.outputs['pypi-version'] }}" >> version-sync-report.md
+        echo "**Git版本**: ${{ steps.versions.outputs['git-version'] }}" >> version-sync-report.md
+        echo "**同步状态**: ${{ steps.versions.outputs['sync-needed'] }}" >> version-sync-report.md
+        echo "" >> version-sync-report.md
+        echo "## 📋 同步操作" >> version-sync-report.md
         
-        **生成时间**: $(date -Iseconds)
-        **PyPI版本**: ${{ steps.versions.outputs.pypi-version }}
-        **Git版本**: ${{ steps.versions.outputs.git-version }}
-        **同步状态**: ${{ steps.versions.outputs.sync-needed }}
-        
-        ## 📋 同步操作
-        
-        EOF
-        
-        case "${{ steps.versions.outputs.sync-needed }}" in
+        case "${{ steps.versions.outputs['sync-needed'] }}" in
           "git-ahead")
             echo "- ✅ Git版本较新，建议发布PyPI更新" >> version-sync-report.md
             ;;
           "pypi-ahead") 
             echo "- ⚠️ PyPI版本较新，需要更新Git版本" >> version-sync-report.md
             # 更新Git版本
-            sed -i "s/__version__ = \".*\"/__version__ = \"${{ steps.versions.outputs.pypi-version }}\"/" src/claude_notifier/__version__.py
+            sed -i "s/__version__ = \".*\"/__version__ = \"${{ steps.versions.outputs['pypi-version'] }}\"/" src/claude_notifier/__version__.py
             ;;
           "unknown")
             echo "- ❌ 版本格式异常，需要手动检查" >> version-sync-report.md
@@ -137,21 +134,21 @@ EOF
         cat version-sync-report.md >> $GITHUB_STEP_SUMMARY
     
     - name: Create version sync PR
-      if: steps.versions.outputs.sync-needed == 'pypi-ahead'
+      if: ${{ steps.versions.outputs['sync-needed'] == 'pypi-ahead' }}
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "chore: 同步版本到 ${{ steps.versions.outputs.pypi-version }}"
-        title: "🔄 自动版本同步: ${{ steps.versions.outputs.pypi-version }}"
+        commit-message: "chore: 同步版本到 ${{ steps.versions.outputs['pypi-version'] }}"
+        title: "🔄 自动版本同步: ${{ steps.versions.outputs['pypi-version'] }}"
         body: |
           ## 📋 版本同步
           
-          **PyPI版本**: ${{ steps.versions.outputs.pypi-version }}
-          **Git版本**: ${{ steps.versions.outputs.git-version }}
+          **PyPI版本**: ${{ steps.versions.outputs['pypi-version'] }}
+          **Git版本**: ${{ steps.versions.outputs['git-version'] }}
           
           ## 🔄 同步内容
           
-          - 更新 `src/claude_notifier/__version__.py` 到版本 ${{ steps.versions.outputs.pypi-version }}
+          - 更新 `src/claude_notifier/__version__.py` 到版本 ${{ steps.versions.outputs['pypi-version'] }}
           - 确保Git和PyPI版本同步
           
           ## ✅ 自动化操作
@@ -159,13 +156,13 @@ EOF
           此PR由GitHub Actions自动创建，用于保持版本一致性。
           
           🤖 Generated by [Version Sync Workflow](https://github.com/${{ github.repository }}/actions/workflows/sync-versions.yml)
-        branch: auto/version-sync-${{ steps.versions.outputs.pypi-version }}
+        branch: auto/version-sync-${{ steps.versions.outputs['pypi-version'] }}
         delete-branch: true
         
   update-install-docs:
     needs: version-sync
     runs-on: ubuntu-latest
-    if: needs.version-sync.outputs.sync-needed != 'synced'
+    if: ${{ needs['version-sync'].outputs['sync-needed'] != 'synced' }}
     
     steps:
     - uses: actions/checkout@v4
@@ -173,11 +170,11 @@ EOF
     - name: Update installation documentation
       run: |
         # 更新README中的版本号
-        GIT_VERSION="${{ needs.version-sync.outputs.git-version }}"
-        PYPI_VERSION="${{ needs.version-sync.outputs.pypi-version }}"
+        GIT_VERSION="${{ needs['version-sync'].outputs['git-version'] }}"
+        PYPI_VERSION="${{ needs['version-sync'].outputs['pypi-version'] }}"
         
         # 智能选择推荐版本
-        if [[ "${{ needs.version-sync.outputs.sync-needed }}" == "git-ahead" ]]; then
+        if [[ "${{ needs['version-sync'].outputs['sync-needed'] }}" == "git-ahead" ]]; then
           RECOMMENDED_VERSION="$GIT_VERSION"
         else
           RECOMMENDED_VERSION="$PYPI_VERSION"  
@@ -207,6 +204,11 @@ EOF
       with:
         python-version: ${{ matrix.python-version }}
     
+    - name: Pin pip for Python 3.8
+      if: ${{ matrix.python-version == '3.8' }}
+      run: |
+        python -m pip install -U 'pip<25' 'setuptools<70' wheel
+    
     - name: Test smart installation script
       run: |
         # 测试智能安装脚本语法
@@ -224,25 +226,25 @@ EOF
     - name: Test version consistency
       run: |
         # 检查版本文件格式 - 避免stdin执行以防止macOS multiprocessing问题
-        cat > test_version.py << 'EOF'
-import sys
-sys.path.insert(0, 'src')
-
-try:
-    from claude_notifier.__version__ import __version__, __version_info__
-    print(f"✅ 版本文件读取成功: {__version__}")
-    print(f"✅ 版本信息: {__version_info__}")
-    
-    # 验证版本格式
-    parts = __version__.split('.')
-    assert len(parts) >= 3, "版本号必须包含至少3个部分"
-    assert all(p.replace('a', '').replace('b', '').replace('rc', '').isdigit() or 'a' in p or 'b' in p or 'rc' in p for p in parts), "版本号格式无效"
-    print("✅ 版本格式验证通过")
-    
-except Exception as e:
-    print(f"❌ 版本文件错误: {e}")
-    sys.exit(1)
-EOF
+        printf '%s\n' \
+          "import sys" \
+          "sys.path.insert(0, 'src')" \
+          "" \
+          "try:" \
+          "    from claude_notifier.__version__ import __version__, __version_info__" \
+          "    print(f'✅ 版本文件读取成功: {__version__}')" \
+          "    print(f'✅ 版本信息: {__version_info__}')" \
+          "    " \
+          "    # 验证版本格式" \
+          "    parts = __version__.split('.')" \
+          "    assert len(parts) >= 3, '版本号必须包含至少3个部分'" \
+          "    assert all(p.replace('a', '').replace('b', '').replace('rc', '').isdigit() or 'a' in p or 'b' in p or 'rc' in p for p in parts), '版本号格式无效'" \
+          "    print('✅ 版本格式验证通过')" \
+          "    " \
+          "except Exception as e:" \
+          "    print(f'❌ 版本文件错误: {e}')" \
+          "    sys.exit(1)" \
+          > test_version.py
         
         # 执行版本检查脚本
         python3 test_version.py
@@ -261,9 +263,9 @@ EOF
         echo "# 🎉 版本同步和优化完成" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## 📊 版本信息" >> $GITHUB_STEP_SUMMARY
-        echo "- **PyPI版本**: ${{ needs.version-sync.outputs.pypi-version }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Git版本**: ${{ needs.version-sync.outputs.git-version }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **同步状态**: ${{ needs.version-sync.outputs.sync-needed }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **PyPI版本**: ${{ needs['version-sync'].outputs['pypi-version'] }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Git版本**: ${{ needs['version-sync'].outputs['git-version'] }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **同步状态**: ${{ needs['version-sync'].outputs['sync-needed'] }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## ✅ 完成的优化" >> $GITHUB_STEP_SUMMARY
         echo "- 🎯 智能安装系统已部署" >> $GITHUB_STEP_SUMMARY

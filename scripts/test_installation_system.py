@@ -145,7 +145,7 @@ class InstallationSystemTests(unittest.TestCase):
             current_version = _pkg_version
         except Exception:
             # 兜底：若无法导入包版本，则使用占位符，但不影响流程
-            current_version = "0.0.5"
+            current_version = "0.0.6"
 
         version_data = {
             "type": "pypi",
