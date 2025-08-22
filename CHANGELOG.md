@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
 
+## [0.0.5] - 2025-08-22 (Stable)
+
+### CI/CD 🧰
+- 修复并稳定跨平台 `test-install` 导入验证：移除 heredoc 与多进程导入测试，改为同步 `import` 并打印版本，避免 macOS/Windows 上 `<stdin>` 导致的 `FileNotFoundError`。
+- 强化 GitHub Actions 跨平台一致性（macOS/Windows/Ubuntu），简化 `python -c` 使用以规避续行与转义差异。
+
+### Packaging 📦
+- `MANIFEST.in` 明确 `prune src/hooks`，避免将非包内的原始钩子脚本打入 sdist；不影响包内 `claude_notifier/hooks` 资源分发。
+
+### Documentation 📚
+- README/README_en 同步至稳定版：更换徽章为 Stable，安装示例固定版本更新至 `0.0.5`，对齐 0.0.5 说明。
+- 同步更新本 Changelog 并标记 0.0.5 为首个稳定版本。
+
 ## [0.0.4b2] - 2025-08-22 (Pre-release: Beta)
 
 ### CI/CD 🧰

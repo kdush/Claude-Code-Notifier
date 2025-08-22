@@ -13,7 +13,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-85%2B-brightgreen.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-244K%20ops%2Fs-orange.svg)](tests/test_performance_benchmarks.py)
-[![Release](https://img.shields.io/badge/release-Beta-orange.svg)](#)
+[![Release](https://img.shields.io/badge/release-Stable-brightgreen.svg)](#)
 
 ## ✨ Features
 
@@ -39,17 +39,17 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 - Metrics and effectiveness analysis
 - Config backup and restore
 
-## 🆕 What's New (v0.0.4b2 - Beta)
+## 🆕 What's New (v0.0.5 - Stable)
 
 ### 🧰 CI/CD and Stability
-- Fixed the heredoc + multiprocessing import test in `release.yml` `test-install` step. Switched to synchronous import and version print to avoid `<stdin>` `FileNotFoundError` on macOS/Windows (`spawn` requires a physical file).
-- Improved cross-platform stability, keeping timeout and output checks for console script and module CLI.
+- Stabilized cross-platform `test-install` import verification: removed heredoc and multiprocessing; switched to synchronous `import` and version print to avoid `<stdin>` `FileNotFoundError` on macOS/Windows.
+- Strengthened GitHub Actions cross-platform consistency (macOS/Windows/Ubuntu), simplified `python -c` usage to avoid line-continuation and escaping issues.
 
 ### 📦 Packaging
-- Exclude non-package `src/hooks` from sdist via `MANIFEST.in` (`prune src/hooks`). Package-internal `claude_notifier/hooks` resources remain intact.
+- Clarified `MANIFEST.in` to `prune src/hooks`, avoiding non-package hook scripts in sdist; package-internal `claude_notifier/hooks` resources remain intact.
 
-### 🛠️ Fixed
-- Correct newline handling in `src/utils/ccusage_integration.py` to use real `\n`, ensuring proper message rendering.
+### 🛠️ Other Fixes
+- Standardized newline handling to ensure correct message rendering.
 
 ### 🚀 PyPI Version Claude Code Hook Auto-Configuration (Major Update)
 
@@ -64,10 +64,10 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 
 ### 🔧 Version Management Improvements
 
-- ✅ **PEP 440 Versioning** - Pre-release specification (`a`/`b`/`rc`), e.g., `0.0.3b4`
-- ✅ **Enhanced CLI Version Info** - `--version` shows "Version Type: Beta" and pre-release warning
-- ✅ **README Beta Badge** - Highlights current pre-release status
-- ✅ **CI/CD Workflow** - GitHub Actions build and publish stable releases to PyPI; pre-releases via repo tags/releases
+- ✅ **PEP 440 Versioning** - Pre-release (`a`/`b`/`rc`) alongside stable releases
+- ✅ **CLI Version Info** - Stable builds omit pre-release warnings; pre-releases show "Version Type: Alpha/Beta/RC"
+- ✅ **README Badge** - Updated to Stable badge
+- ✅ **CI/CD Workflow** - Stable releases via GitHub Actions to PyPI; pre-releases managed via repo tags/releases
 
 ## 📱 Supported Channels
 
@@ -90,7 +90,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 pip install claude-code-notifier
 
 # Or install specific version
-pip install claude-code-notifier==0.0.4b2
+pip install claude-code-notifier==0.0.5
 
 # Verify installation
 claude-notifier --version

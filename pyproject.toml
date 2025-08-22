@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "claude-code-notifier"
 dynamic = ["version"]
-description = "Claude Code智能通知系统 - 轻量级、模块化、生产就绪"
+description = "Claude Code智能通知系统 - 轻量级、模块化、面向开发者"
 readme = "README.md"
 license = {file = "LICENSE.txt"}
 authors = [

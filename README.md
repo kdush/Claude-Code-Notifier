@@ -14,7 +14,7 @@
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-85%2B-brightgreen.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-244K%20ops%2Fs-orange.svg)](tests/test_performance_benchmarks.py)
-[![Release](https://img.shields.io/badge/release-Beta-orange.svg)](#)
+[![Release](https://img.shields.io/badge/release-Stable-brightgreen.svg)](#)
 
 ## ✨ 特性
 
@@ -40,17 +40,17 @@
 - **统计监控** - 事件统计和通知效果分析
 - **配置备份** - 支持配置备份和恢复功能
 
-## 🆕 最新改进 (v0.0.4b2 - Beta)
+## 🆕 最新改进 (v0.0.5 - Stable)
 
 ### 🧰 CI/CD 与稳定性
-- 修复 release 工作流 `test-install` 中 heredoc + multiprocessing 导入测试，改为同步导入并打印版本，避免 `<stdin>` 导致的 FileNotFoundError（macOS/Windows `spawn` 需要物理文件）。
-- 增强跨平台稳定性，保留控制台脚本与模块 CLI 的超时与输出校验。
+- 修复并稳定跨平台 `test-install` 导入验证：移除 heredoc 与多进程导入测试，改为同步 `import` 并打印版本，避免 macOS/Windows 上 `<stdin>` 导致的 `FileNotFoundError`。
+- 强化 GitHub Actions 跨平台一致性（macOS/Windows/Ubuntu），简化 `python -c` 使用以规避续行与转义差异。
 
 ### 📦 打包与内容优化
-- 在 `MANIFEST.in` 排除 `src/hooks` 非包目录，避免将原始钩子脚本打入 sdist；不影响包内 `claude_notifier/hooks` 资源。
+- 在 `MANIFEST.in` 明确 `prune src/hooks`，避免将原始钩子脚本打入 sdist；不影响包内 `claude_notifier/hooks` 资源。
 
-### 🛠️ Bug 修复
-- 修复 `src/utils/ccusage_integration.py` 中换行符处理，使用真实 `\n`，保证通知文本渲染正确。
+### 🛠️ 其他修复
+- 规范换行符处理，保证通知文本渲染正确。
 
 ### 🚀 PyPI版本Claude Code钩子自动配置（重大更新）
 
@@ -65,10 +65,10 @@
 
 ### 🔧 版本管理改进
 
-- ✅ **PEP 440 版本规范** - 采用预发行规范 `a/b/rc`（本次为 `b`），版本号示例：`0.0.3b4`
-- ✅ **CLI 版本提示增强** - `--version` 显示"版本类型: Beta"和"这是预发行版本，可能包含变更"
-- ✅ **README 徽章** - 新增 Beta 徽章，突出当前预发行状态
-- ✅ **CI/CD 工作流** - 使用 GitHub Actions 构建并发布稳定版到 PyPI；预发行以 `a/b/rc` 标签（如 `v0.0.3b4`）提供于仓库 Tag/Release（可选手动发布到 PyPI）
+- ✅ **PEP 440 版本规范** - 采用 `a/b/rc` 预发行规范与稳定版并行策略
+- ✅ **CLI 版本提示** - 稳定版不显示预发行提示；预发行显示"版本类型: Alpha/Beta/RC"
+- ✅ **README 徽章** - 更新为 Stable 徽章
+- ✅ **CI/CD 工作流** - 使用 GitHub Actions 构建并发布稳定版到 PyPI；预发行通过仓库 Tag/Release 管理
 
 ## 📱 支持的通知渠道
 
@@ -91,7 +91,7 @@
 pip install claude-code-notifier
 
 # 或安装指定版本
-pip install claude-code-notifier==0.0.4b2
+pip install claude-code-notifier==0.0.5
 
 # 验证安装
 claude-notifier --version

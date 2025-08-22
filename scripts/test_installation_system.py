@@ -138,9 +138,18 @@ class InstallationSystemTests(unittest.TestCase):
         """测试统一命令包装器"""
         # 创建测试版本信息
         version_file = self.config_dir / 'version.json'
+        # 动态获取包版本，避免硬编码
+        sys.path.insert(0, str(self.project_root / 'src'))
+        try:
+            from claude_notifier.__version__ import __version__ as _pkg_version
+            current_version = _pkg_version
+        except Exception:
+            # 兜底：若无法导入包版本，则使用占位符，但不影响流程
+            current_version = "0.0.5"
+
         version_data = {
             "type": "pypi",
-            "version": "0.0.4b2",
+            "version": current_version,
             "installed_at": "2025-08-21T10:00:00Z"
         }
         
