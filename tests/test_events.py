@@ -15,16 +15,16 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / 'src'))
 
-# 使用现有架构的导入路径
-from events.builtin import (
+# 使用claude_notifier包的导入路径
+from claude_notifier.events.builtin import (
     SensitiveOperationEvent, 
     TaskCompletionEvent,
     RateLimitEvent,
     ErrorOccurredEvent,
     SessionStartEvent
 )
-from events.custom import CustomEvent
-from managers.event_manager import EventManager
+from claude_notifier.events.custom import CustomEvent
+from claude_notifier.managers.event_manager import EventManager
 
 class TestBuiltinEvents(unittest.TestCase):
     """内置事件测试"""
