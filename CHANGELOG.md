@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
 
+## [0.0.7b1] - 2025-08-23 (Pre-release: Beta)
+
+### PyPI Compatibility Fixes 🔧
+- **解决PyPI包相对导入错误**：修复 `attempted relative import with no known parent package` 问题，确保从PyPI安装的包能正常工作。
+- **导入系统重构**：将 `src/claude_notifier/cli/main.py` 中所有相对导入（如 `from ..core` 等）改为绝对导入（`from claude_notifier.core`）。
+- **包结构优化**：移动 `events/`、`templates/`、`managers/` 目录到 `claude_notifier/` 包内，统一包结构，避免导入冲突。
+
+### Testing & Validation ✅
+- **开发环境测试**：通过 `pip install -e .` 开发模式安装测试。
+- **生产环境测试**：通过虚拟环境 `pip install .` 生产模式安装测试。
+- **CLI功能验证**：确认 `claude-notifier` 和 `cn` 命令正常工作，`cn setup` 不再报错。
+
+### Package Structure 📦
+- **清理孤立文件**：移除 `src/managers/` 等孤立目录，避免包结构混乱。
+- **版本信息更新**：升级版本至 `0.0.7b1`，标记为Beta版本进行测试。
+
 ## [0.0.6] - 2025-08-22 (Stable)
 
 ### Publishing & Release Workflow 🚀
