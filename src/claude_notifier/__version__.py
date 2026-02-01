@@ -5,11 +5,12 @@
 Version information for Claude Code Notifier
 """
 
-__version__ = "0.0.7b1"
-__version_info__ = (0, 0, 7, 'beta', 1)
+__version__ = "0.0.8"
+__version_info__ = (0, 0, 8, 'stable', 0)
 
 # 版本历史
 VERSION_HISTORY = {
+    "0.0.8": "稳定版：代码质量与兼容性修复、Hooks API 适配新版本、类型安全增强、CLI 模块重构与优化、测试用例更新",
     "0.0.7b1": "PyPI兼容性修复（Beta版）：解决相对导入错误（attempted relative import with no known parent package）；将所有相对导入改为绝对导入；重新组织包结构确保PyPI安装正常工作",
     "0.0.6": "发布流程稳定性：TestPyPI 版本存在检查并在已存在时跳过上传以规避 400 错误；发布作业步骤顺序与 YAML 修复（移除 heredoc，改用 python -c，统一校验步骤命令）；安装测试加入重试与 Python 3.8 下 pip 限制；文档同步到 0.0.6",
     "0.0.5": "稳定版：跨平台 CI 修复（移除 heredoc 与多进程导入测试，改为同步导入并打印版本）、包内容清理（prune src/hooks）、文档同步，发布首个稳定版本",

@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > 此处记录尚未发布版本的变更。未来规划请查看开发路线图文档：`docs/development-roadmap.md`。
 
+## [0.0.8] - 2026-02-02 (Stable)
+
+### Fixed - 代码质量与兼容性修复 🛠️
+- **🔧 Hooks API 适配** - 修复 `installer.py` 中 `verify_installation()` 和 `get_installation_status()` 方法以适配新版 Claude Code Hooks API（PreToolUse、PostToolUse、Stop、Notification 等列表格式）
+- **🛡️ 类型安全增强** - 修复 `claude_hook.py` 中的类型安全问题：
+  - `on_notification()` 方法的 `message` 参数类型检查
+  - `on_pre_tool_use()` 方法的 `tool_input` 类型检查
+  - 新版 API 中 `session_start` 状态的正确初始化
+- **✅ 测试用例更新** - 更新 `tests/test_events.py` 中 14 个测试用例以匹配实际事件实现
+- **🐛 异常处理优化** - 使用具体异常类型替代裸 `except`（`builtin.py`、`custom.py`）
+- **🗑️ 代码清理** - 删除废弃的 `ConfirmationRequiredEvent` 类
+
+### Enhanced - CLI Commands 模块优化 ✨
+- **📦 CLI 模块重构** - 将 CLI 命令按功能拆分到独立模块（`core`、`config`、`hooks`、`debug`）
+- **🔧 代码质量修复**：
+  - `config.py`: 使用深拷贝避免配置缓存污染
+  - `core.py`: 修复权限比较逻辑，使用数值比较替代字符串比较
+  - `core.py`: 使用 `click.clear()` 替代 `os.system` 清屏
+  - `hooks.py`: 添加 `--yes/-y` 选项支持非交互式卸载（CI/CD 友好）
+  - `debug.py`: 使用 `click.pause()` 替代 `input()`
+
+### Added - 新版 Hooks API 支持 🚀
+- **🎯 PreToolUse 钩子** - 工具使用前触发，支持敏感操作检测（Bash、Edit、Write、DeleteFile 等）
+- **📊 PostToolUse 钩子** - 工具使用后触发，支持错误检测和结果记录
+- **✅ Stop 钩子** - Claude 停止工作时触发，用于任务完成通知
+- **🔔 Notification 钩子** - 处理权限请求（permission_prompt）和空闲提示（idle_prompt）
+- **🔄 向后兼容** - 保留旧版 API 支持，通过命令行参数调用
+
 ## [0.0.7b1] - 2025-08-23 (Pre-release: Beta)
 
 ### PyPI Compatibility Fixes 🔧
