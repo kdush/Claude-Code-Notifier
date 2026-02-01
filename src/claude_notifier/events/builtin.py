@@ -38,7 +38,7 @@ class SensitiveOperationEvent(BaseEvent):
                 data = json.loads(tool_input)
                 return data.get('command', '') or data.get('content', '')
             return tool_input
-        except:
+        except (json.JSONDecodeError, ValueError, KeyError):
             return tool_input
             
     def extract_data(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -183,36 +183,6 @@ class SessionStartEvent(BaseEvent):
             'title': '🚀 会话开始',
             'content': 'Claude Code 会话已启动',
             'action': '开始编程之旅'
-        }
-
-class ConfirmationRequiredEvent(BaseEvent):
-    """待确认操作事件"""
-    def __init__(self):
-        super().__init__('confirmation_required', EventType.CONFIRMATION_REQUIRED, EventPriority.HIGH)
-        
-    def should_trigger(self, context: Dict[str, Any]) -> bool:
-        return context.get('requires_confirmation', False) or \
-               context.get('confirmation_needed', False)
-        
-    def extract_data(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        return {
-            'project': self._get_project_name(),
-            'operation': context.get('operation', '未知操作'),
-            'confirmation_message': context.get('confirmation_message', ''),
-            'timeout': context.get('confirmation_timeout', 30)
-        }
-        
-    def _get_project_name(self) -> str:
-        project_dir = os.environ.get('CLAUDE_PROJECT_DIR')
-        if project_dir:
-            return os.path.basename(project_dir)
-        return 'claude-code'
-        
-    def get_default_message(self) -> Dict[str, Any]:
-        return {
-            'title': '⚠️ 需要确认',
-            'content': '检测到需要用户确认的操作',
-            'action': '请在终端中确认是否继续'
         }
 
 class ErrorOccurredEvent(BaseEvent):
