@@ -1,3 +1,5 @@
+[English Version](installation-solution_en.md)
+
 # 🎯 ~~双轨安装系统优化方案~~ ✅ **已实现**
 
 > **⚠️ 文档状态**: 此方案已在 v0.0.3b4 中完全实现。PyPI版本现已支持Claude Code钩子自动配置，实现了与Git版本的统一用户体验。

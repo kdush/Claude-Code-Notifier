@@ -40,17 +40,26 @@
 - **统计监控** - 事件统计和通知效果分析
 - **配置备份** - 支持配置备份和恢复功能
 
-## 🆕 最新改进 (v0.0.6 - Stable)
+## 🆕 最新改进 (v0.0.8 - Stable)
 
-### 🧰 CI/CD 与稳定性
-- 修复并稳定跨平台 `test-install` 导入验证：移除 heredoc 与多进程导入测试，改为同步 `import` 并打印版本，避免 macOS/Windows 上 `<stdin>` 导致的 `FileNotFoundError`。
-- 强化 GitHub Actions 跨平台一致性（macOS/Windows/Ubuntu），简化 `python -c` 使用以规避续行与转义差异。
+### 🛠️ 代码质量与兼容性修复
+- **🔧 Hooks API 适配** - 修复 `installer.py` 和 `claude_hook.py` 以适配新版 Claude Code Hooks API（PreToolUse、PostToolUse、Stop、Notification 等列表格式）
+- **🛡️ 类型安全增强** - 修复类型检查问题，提升代码健壮性
+- **✅ 测试用例更新** - 更新 14 个测试用例以匹配实际事件实现
+- **🐛 异常处理优化** - 使用具体异常类型替代裸 `except`
+- **🗑️ 代码清理** - 删除废弃的 `ConfirmationRequiredEvent` 类
 
-### 📦 打包与内容优化
-- 在 `MANIFEST.in` 明确 `prune src/hooks`，避免将原始钩子脚本打入 sdist；不影响包内 `claude_notifier/hooks` 资源。
+### ✨ CLI Commands 模块优化
+- **📦 CLI 模块重构** - 将 CLI 命令按功能拆分到独立模块（`core`、`config`、`hooks`、`debug`）
+- **🔧 代码质量修复** - 配置缓存、权限比较、清屏方法等多项优化
+- **🚀 CI/CD 友好** - 添加 `--yes/-y` 选项支持非交互式卸载
 
-### 🛠️ 其他修复
-- 规范换行符处理，保证通知文本渲染正确。
+### � 新版 Hooks API 支持
+- **🎯 PreToolUse 钩子** - 工具使用前触发，支持敏感操作检测（Bash、Edit、Write、DeleteFile 等）
+- **📊 PostToolUse 钩子** - 工具使用后触发，支持错误检测和结果记录
+- **✅ Stop 钩子** - Claude 停止工作时触发，用于任务完成通知
+- **🔔 Notification 钩子** - 处理权限请求（permission_prompt）和空闲提示（idle_prompt）
+- **� 向后兼容** - 保留旧版 API 支持，通过命令行参数调用
 
 ### 🚀 PyPI版本Claude Code钩子自动配置（重大更新）
 
@@ -91,7 +100,7 @@
 pip install claude-code-notifier
 
 # 或安装指定版本
-pip install claude-code-notifier==0.0.6
+pip install claude-code-notifier==0.0.8
 
 # 验证安装
 claude-notifier --version

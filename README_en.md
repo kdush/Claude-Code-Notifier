@@ -39,17 +39,26 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 - Metrics and effectiveness analysis
 - Config backup and restore
 
-## 🆕 What's New (v0.0.6 - Stable)
+## 🆕 What's New (v0.0.8 - Stable)
 
-### 🧰 CI/CD and Stability
-- Stabilized cross-platform `test-install` import verification: removed heredoc and multiprocessing; switched to synchronous `import` and version print to avoid `<stdin>` `FileNotFoundError` on macOS/Windows.
-- Strengthened GitHub Actions cross-platform consistency (macOS/Windows/Ubuntu), simplified `python -c` usage to avoid line-continuation and escaping issues.
+### 🛠️ Code Quality and Compatibility Fixes
+- **🔧 Hooks API Adaptation** - Fixed `installer.py` and `claude_hook.py` to adapt to new Claude Code Hooks API (PreToolUse, PostToolUse, Stop, Notification list format)
+- **🛡️ Type Safety Enhancement** - Fixed type checking issues, improved code robustness
+- **✅ Test Case Updates** - Updated 14 test cases to match actual event implementation
+- **🐛 Exception Handling Optimization** - Used specific exception types instead of bare `except`
+- **🗑️ Code Cleanup** - Removed deprecated `ConfirmationRequiredEvent` class
 
-### 📦 Packaging
-- Clarified `MANIFEST.in` to `prune src/hooks`, avoiding non-package hook scripts in sdist; package-internal `claude_notifier/hooks` resources remain intact.
+### ✨ CLI Commands Module Optimization
+- **📦 CLI Module Refactoring** - Split CLI commands into independent modules (`core`, `config`, `hooks`, `debug`)
+- **🔧 Code Quality Fixes** - Multiple optimizations including config cache, permission comparison, clear screen methods
+- **🚀 CI/CD Friendly** - Added `--yes/-y` option for non-interactive uninstall
 
-### 🛠️ Other Fixes
-- Standardized newline handling to ensure correct message rendering.
+### 🚀 New Hooks API Support
+- **🎯 PreToolUse Hook** - Triggered before tool use, supports sensitive operation detection (Bash, Edit, Write, DeleteFile, etc.)
+- **� PostToolUse Hook** - Triggered after tool use, supports error detection and result logging
+- **✅ Stop Hook** - Triggered when Claude stops working, for task completion notifications
+- **🔔 Notification Hook** - Handles permission requests (permission_prompt) and idle prompts (idle_prompt)
+- **🔄 Backward Compatible** - Retains old API support via command-line arguments
 
 ### 🚀 PyPI Version Claude Code Hook Auto-Configuration (Major Update)
 
@@ -90,7 +99,7 @@ An intelligent Claude Code notification system providing real-time, multi-channe
 pip install claude-code-notifier
 
 # Or install specific version
-pip install claude-code-notifier==0.0.6
+pip install claude-code-notifier==0.0.8
 
 # Verify installation
 claude-notifier --version
