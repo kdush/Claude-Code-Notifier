@@ -3,13 +3,13 @@
 
 import logging
 from typing import Dict, Any, List, Optional
-from ..events.base import BaseEvent
-from ..events.builtin import (
+from claude_notifier.events.base import BaseEvent
+from claude_notifier.events.builtin import (
     SensitiveOperationEvent, TaskCompletionEvent, RateLimitEvent,
     ConfirmationRequiredEvent, SessionStartEvent, ErrorOccurredEvent
 )
-from ..events.custom import CustomEventRegistry
-from ..templates.template_engine import TemplateEngine
+from claude_notifier.events.custom import CustomEventRegistry
+from claude_notifier.templates.template_engine import TemplateEngine
 
 # 配置基础日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

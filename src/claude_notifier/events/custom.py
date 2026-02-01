@@ -4,6 +4,7 @@
 import re
 import json
 import time
+import logging
 from typing import Dict, Any, List, Optional, Callable
 from .base import BaseEvent, EventType, EventPriority
 
@@ -189,7 +190,7 @@ class CustomEvent(BaseEvent):
             import os
             try:
                 return len([f for f in os.listdir('.') if os.path.isfile(f)])
-            except:
+            except OSError:
                 return 0
         else:
             return ''

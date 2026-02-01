@@ -46,15 +46,15 @@ def cli(ctx, version, status):
     ctx.ensure_object(dict)
     
     if version:
-        from ..__version__ import print_version_info
+        from claude_notifier.__version__ import print_version_info
         print_version_info()
         return
         
     if status:
-        from .. import print_feature_status
+        from claude_notifier import print_feature_status
         print_feature_status()
         try:
-            from ..core.notifier import Notifier
+            from claude_notifier.core.notifier import Notifier
             notifier = Notifier()
             status_info = notifier.get_status()
             print(f"\n📊 系统状态:")
@@ -89,7 +89,7 @@ def _first_run_setup_check():
         return
         
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         installer = ClaudeHookInstaller()
         
         # 检测Claude Code
@@ -114,7 +114,7 @@ def _first_run_setup_check():
 def _check_and_suggest_hooks():
     """检查并建议钩子配置"""
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         installer = ClaudeHookInstaller()
         
         status = installer.get_installation_status()
@@ -165,7 +165,7 @@ def setup(auto, claude_code_only):
     # 1. 基础配置检查（除非只配置Claude Code）
     if not claude_code_only:
         try:
-            from ..core.notifier import Notifier
+            from claude_notifier.core.notifier import Notifier
             notifier = Notifier()
             status_info = notifier.get_status()
             
@@ -187,7 +187,7 @@ def setup(auto, claude_code_only):
     
     # 2. Claude Code钩子配置
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         installer = ClaudeHookInstaller()
         
         # 检测Claude Code
@@ -312,13 +312,13 @@ def send(message, channels, event_type, priority, throttle, project):
         if throttle:
             # 尝试使用智能通知器
             try:
-                from .. import IntelligentNotifier
+                from claude_notifier import IntelligentNotifier
                 notifier = IntelligentNotifier()
             except ImportError:
                 click.echo("❌ 智能功能未安装: pip install claude-notifier[intelligence]")
                 return False
         else:
-            from ..core.notifier import Notifier
+            from claude_notifier.core.notifier import Notifier
             notifier = Notifier()
             
         # 构建消息数据
@@ -362,7 +362,7 @@ def test(channels):
         claude-notifier test -c dingtalk,email
     """
     try:
-        from ..core.notifier import Notifier
+        from claude_notifier.core.notifier import Notifier
         notifier = Notifier()
         
         channels_list = None
@@ -414,11 +414,11 @@ def status(intelligence, export):
     """
     try:
         # 基础状态
-        from .. import print_feature_status
+        from claude_notifier import print_feature_status
         print_feature_status()
         
         # 通知器状态
-        from ..core.notifier import Notifier
+        from claude_notifier.core.notifier import Notifier
         notifier = Notifier()
         status_info = notifier.get_status()
         
@@ -439,7 +439,7 @@ def status(intelligence, export):
         # 智能功能状态
         if intelligence:
             try:
-                from .. import IntelligentNotifier
+                from claude_notifier import IntelligentNotifier
                 intelligent_notifier = IntelligentNotifier()
                 intel_status = intelligent_notifier.get_intelligence_status()
                 
@@ -459,7 +459,7 @@ def status(intelligence, export):
         # 钩子状态
         click.echo(f"\n🔗 Claude Code集成:")
         try:
-            from ..hooks.installer import ClaudeHookInstaller
+            from claude_notifier.hooks.installer import ClaudeHookInstaller
             installer = ClaudeHookInstaller()
             hook_status = installer.get_installation_status()
             
@@ -491,14 +491,14 @@ def status(intelligence, export):
             
             if intelligence:
                 try:
-                    from .. import IntelligentNotifier
+                    from claude_notifier import IntelligentNotifier
                     intelligent_notifier = IntelligentNotifier()
                     export_data['intelligence'] = intelligent_notifier.get_intelligence_status()
                 except ImportError:
                     export_data['intelligence'] = {'available': False}
                     
             try:
-                from ..hooks.installer import ClaudeHookInstaller
+                from claude_notifier.hooks.installer import ClaudeHookInstaller
                 installer = ClaudeHookInstaller()
                 export_data['hooks'] = installer.get_installation_status()
             except ImportError:
@@ -522,7 +522,7 @@ def status(intelligence, export):
 def _show_monitoring_status(mode: str, export_file: Optional[str] = None):
     """显示监控系统状态"""
     try:
-        from ..monitoring.dashboard import MonitoringDashboard, DashboardMode
+        from claude_notifier.monitoring.dashboard import MonitoringDashboard, DashboardMode
     except ImportError:
         click.echo(f"\n📊 监控系统: ❌ 监控功能不可用")
         return
@@ -589,7 +589,7 @@ def monitor(mode, start, stop, report, export, watch, interval):
         claude-notifier monitor --export monitoring_data.json
     """
     try:
-        from ..monitoring.dashboard import MonitoringDashboard, DashboardMode
+        from claude_notifier.monitoring.dashboard import MonitoringDashboard, DashboardMode
     except ImportError:
         click.echo("❌ 监控功能不可用，请检查监控模块安装")
         sys.exit(1)
@@ -765,7 +765,7 @@ def config(ctx):
 def _show_config_status():
     """显示配置状态"""
     try:
-        from ..core.notifier import Notifier
+        from claude_notifier.core.notifier import Notifier
         notifier = Notifier()
         status_info = notifier.get_status()
         config_info = status_info['config']
@@ -800,7 +800,7 @@ def _show_config_status():
 def show(format, sensitive):
     """显示完整配置内容"""
     try:
-        from ..core.config import ConfigManager
+        from claude_notifier.core.config import ConfigManager
         import json
         import yaml
         
@@ -829,7 +829,7 @@ def show(format, sensitive):
 def validate(fix):
     """验证配置文件完整性和正确性"""
     try:
-        from ..core.config import ConfigManager
+        from claude_notifier.core.config import ConfigManager
         import os
         import yaml
         
@@ -958,7 +958,7 @@ def validate(fix):
 def backup(backup_dir):
     """备份当前配置"""
     try:
-        from ..core.config import ConfigManager
+        from claude_notifier.core.config import ConfigManager
         import shutil
         import os
         from datetime import datetime
@@ -1010,7 +1010,7 @@ def backup(backup_dir):
 def init(force, template):
     """初始化配置文件"""
     try:
-        from ..core.config import ConfigManager
+        from claude_notifier.core.config import ConfigManager
         import os
         import yaml
         
@@ -1054,7 +1054,7 @@ def init(force, template):
 def channels(enable, disable, list_channels):
     """管理通知渠道配置"""
     try:
-        from ..core.config import ConfigManager
+        from claude_notifier.core.config import ConfigManager
         import yaml
         
         config_manager = ConfigManager()
@@ -1326,7 +1326,7 @@ def hooks(ctx):
 def _show_hooks_status():
     """显示钩子状态概览"""
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         
         installer = ClaudeHookInstaller()
         installer.print_status()
@@ -1351,7 +1351,7 @@ def install(force, detect_only):
     - 错误发生时的报警通知
     """
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         
         installer = ClaudeHookInstaller()
         
@@ -1401,7 +1401,7 @@ def uninstall(backup):
     卸载后Claude Code将不再发送通知。
     """
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         
         installer = ClaudeHookInstaller()
         
@@ -1438,7 +1438,7 @@ def status():
     - 启用的钩子列表
     """
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         
         installer = ClaudeHookInstaller()
         installer.print_status()
@@ -1478,7 +1478,7 @@ def verify(fix):
     - 检查路径和依赖
     """
     try:
-        from ..hooks.installer import ClaudeHookInstaller
+        from claude_notifier.hooks.installer import ClaudeHookInstaller
         
         installer = ClaudeHookInstaller()
         
@@ -1820,7 +1820,7 @@ def _init_notifier_debug():
 
 def _load_config_debug(channel):
     """调试: 加载配置"""
-    from ..core.config import ConfigManager
+    from claude_notifier.core.config import ConfigManager
     config_manager = ConfigManager()
     config = config_manager.get_config()
     
@@ -1840,7 +1840,7 @@ def _validate_channel_debug(channel):
 def _check_intelligence_debug():
     """调试: 智能功能检查"""
     try:
-        from .. import has_intelligence
+        from claude_notifier import has_intelligence
         intel_available = has_intelligence()
         return {'success': True, 'intelligence_available': intel_available}
     except:
@@ -1920,7 +1920,7 @@ def _prepare_debug_environment():
         click.echo(f"❌ 通知器加载失败: {e}")
         
     try:
-        from ..core.config import ConfigManager
+        from claude_notifier.core.config import ConfigManager
         config_manager = ConfigManager()
         debug_env['config'] = config_manager
         click.echo("✅ 配置管理器已加载")
@@ -1930,7 +1930,7 @@ def _prepare_debug_environment():
     # 监控组件 (如果可用)
     if MONITORING_CLI_AVAILABLE:
         try:
-            from ..monitoring.dashboard import MonitoringDashboard
+            from claude_notifier.monitoring.dashboard import MonitoringDashboard
             dashboard = MonitoringDashboard()
             debug_env['dashboard'] = dashboard
             
@@ -1979,7 +1979,7 @@ def diagnose(full, fix, report):
         
         # 4. 监控系统检查
         try:
-            from ..monitoring.dashboard import MonitoringDashboard
+            from claude_notifier.monitoring.dashboard import MonitoringDashboard
             click.echo("\n4️⃣ 监控系统检查...")
             monitoring_results = _diagnose_monitoring()
             diagnostic_results.extend(monitoring_results)
@@ -2037,7 +2037,7 @@ def _diagnose_configuration():
     results = []
     
     try:
-        from ..core.config import ConfigManager
+        from claude_notifier.core.config import ConfigManager
         config_manager = ConfigManager()
         
         if config_manager.is_valid():
@@ -2086,7 +2086,7 @@ def _diagnose_monitoring():
     results = []
     
     try:
-        from ..monitoring.dashboard import MonitoringDashboard
+        from claude_notifier.monitoring.dashboard import MonitoringDashboard
         dashboard = MonitoringDashboard()
         
         if dashboard.statistics_manager:
@@ -2204,7 +2204,7 @@ def _save_diagnostic_report(results, report_file):
 def intelligence(component, stats, reset):
     """智能功能调试"""
     try:
-        from .. import has_intelligence
+        from claude_notifier import has_intelligence
         
         if not has_intelligence():
             click.echo("❌ 智能功能未安装")
@@ -2251,7 +2251,7 @@ def _debug_intelligence_component(component, show_stats, reset):
 def _show_intelligence_overview(show_stats):
     """显示智能功能概览"""
     try:
-        from .. import IntelligentNotifier
+        from claude_notifier import IntelligentNotifier
         
         intelligent_notifier = IntelligentNotifier()
         status = intelligent_notifier.get_intelligence_status()
@@ -2297,7 +2297,7 @@ except ImportError:
 def _add_intelligence_commands():
     """添加智能功能命令"""
     try:
-        from .. import has_intelligence, IntelligentNotifier
+        from claude_notifier import has_intelligence, IntelligentNotifier
         
         if not has_intelligence():
             return
