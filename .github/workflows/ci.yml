@@ -82,7 +82,7 @@ jobs:
         safety check --json --output safety-report.json || true
         
     - name: Upload security reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: security-reports
         path: |
@@ -106,7 +106,7 @@ jobs:
         make ci-build
         
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dist-${{ github.ref_name }}-${{ github.run_number }}
         path: dist/
@@ -127,7 +127,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: dist-${{ github.ref_name }}-${{ github.run_number }}
         path: dist/
@@ -166,7 +166,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: dist-${{ github.ref_name }}-${{ github.run_number }}
         path: dist/
