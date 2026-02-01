@@ -67,84 +67,85 @@ class ClaudeHookInstaller:
             return None
     
     def create_hooks_config(self) -> Dict:
-        """创建钩子配置"""
-        # 统一使用当前 Python 解释器，避免 Windows 上找不到 python3
+        """
+        创建钩子配置
+        
+        使用 Claude Code CLI 最新版本的 hooks API 格式：
+        - PreToolUse: 工具使用前触发（用于敏感操作检测）
+        - PostToolUse: 工具使用后触发
+        - Stop: Claude 停止工作时触发（任务完成通知）
+        - Notification: 通知事件（权限请求、空闲提示）
+        
+        数据通过 stdin 以 JSON 格式传递，响应通过 stdout 返回 JSON
+        """
+        # 统一使用当前 Python 解释器
         py = sys.executable
-        # 如路径内包含空格或在 Windows 上，使用引号包裹
         py_quoted = f'"{py}"' if (os.name == 'nt' or ' ' in py) else py
         hook_path = str(self.hook_script_path)
         hook_quoted = f'"{hook_path}"' if (os.name == 'nt' or ' ' in hook_path) else hook_path
-
-        # 针对不同平台处理 JSON 参数引号
-        if os.name == 'nt':
-            # Windows: 外层使用双引号，需对内部双引号进行反斜杠转义
-            json_cmd_plain = '{"command": "$COMMAND", "tool": "$TOOL"}'
-            json_status_plain = '{"status": "$STATUS"}'
-            json_error_plain = '{"error_type": "$ERROR_TYPE", "error_message": "$ERROR_MESSAGE"}'
-            json_message_plain = '{"message": "$MESSAGE"}'
-
-            def _escape_win(s: str) -> str:
-                # 将双引号转义为 \" 以确保在 cmd/powershell 中作为单个参数传递
-                return s.replace('"', '\\"')
-
-            cmd_session_start = f"{py_quoted} {hook_quoted} session_start"
-            cmd_command_execute = f"{py_quoted} {hook_quoted} command_execute \"{_escape_win(json_cmd_plain)}\""
-            cmd_task_complete = f"{py_quoted} {hook_quoted} task_complete \"{_escape_win(json_status_plain)}\""
-            cmd_error = f"{py_quoted} {hook_quoted} error \"{_escape_win(json_error_plain)}\""
-            cmd_confirmation = f"{py_quoted} {hook_quoted} confirmation_required \"{_escape_win(json_message_plain)}\""
-        else:
-            # POSIX: 使用单引号避免 shell 展开
-            json_cmd_tpl = '{"command": "$COMMAND", "tool": "$TOOL"}'
-            json_status_tpl = '{"status": "$STATUS"}'
-            json_error_tpl = '{"error_type": "$ERROR_TYPE", "error_message": "$ERROR_MESSAGE"}'
-            json_message_tpl = '{"message": "$MESSAGE"}'
-            cmd_session_start = f"{py_quoted} {hook_quoted} session_start"
-            cmd_command_execute = f"{py_quoted} {hook_quoted} command_execute '{json_cmd_tpl}'"
-            cmd_task_complete = f"{py_quoted} {hook_quoted} task_complete '{json_status_tpl}'"
-            cmd_error = f"{py_quoted} {hook_quoted} error '{json_error_tpl}'"
-            cmd_confirmation = f"{py_quoted} {hook_quoted} confirmation_required '{json_message_tpl}'"
+        
+        # 基础命令（新版 API 通过 stdin 传递数据，无需命令行参数）
+        base_command = f"{py_quoted} {hook_quoted}"
 
         return {
             "hooks": {
-                "on_session_start": {
-                    "command": cmd_session_start,
-                    "enabled": True,
-                    "description": "Claude Code 会话开始时触发Claude Notifier"
-                },
-                "on_command_execute": {
-                    "command": cmd_command_execute,
-                    "enabled": True,
-                    "description": "执行命令时触发通知检查"
-                },
-                "on_task_complete": {
-                    "command": cmd_task_complete,
-                    "enabled": True,
-                    "description": "任务完成时发送通知"
-                },
-                "on_error": {
-                    "command": cmd_error,
-                    "enabled": True,
-                    "description": "发生错误时触发错误通知"
-                },
-                "on_confirmation_required": {
-                    "command": cmd_confirmation,
-                    "enabled": True,
-                    "description": "需要确认时发送权限通知"
-                }
-            },
-            "settings": {
-                "log_level": "info",
-                "timeout": 5000,
-                "claude_notifier": {
-                    "enabled": True,
-                    "version": "pypi",
-                    "config_dir": str(self.notifier_config_dir)
-                }
+                # PreToolUse: 工具使用前触发，用于敏感操作检测
+                "PreToolUse": [
+                    {
+                        # 匹配敏感工具：Bash命令、文件编辑、文件写入、文件删除等
+                        "matcher": "Bash|Edit|Write|MultiEdit|DeleteFile|NotebookEdit",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": base_command
+                            }
+                        ]
+                    }
+                ],
+                # PostToolUse: 工具使用后触发（可用于错误检测）
+                "PostToolUse": [
+                    {
+                        # 匹配可能产生错误的工具
+                        "matcher": "Bash|Task",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": base_command
+                            }
+                        ]
+                    }
+                ],
+                # Stop: Claude 停止工作时触发（任务完成通知）
+                "Stop": [
+                    {
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": base_command
+                            }
+                        ]
+                    }
+                ],
+                # Notification: 权限请求和空闲提示
+                "Notification": [
+                    {
+                        # 匹配权限请求和空闲提示
+                        "matcher": "permission_prompt|idle_prompt",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": base_command
+                            }
+                        ]
+                    }
+                ]
             },
             "_metadata": {
                 "installer": "claude-notifier-pypi",
+                "api_version": "2.0",
                 "installed_at": str(os.times()),
-                "hook_script": str(self.hook_script_path)
+                "hook_script": str(self.hook_script_path),
+                "config_dir": str(self.notifier_config_dir)
             }
         }
     
@@ -202,8 +203,8 @@ class ClaudeHookInstaller:
             with open(self.hooks_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
             
-            # 检查必要的钩子
-            required_hooks = ['on_session_start', 'on_command_execute', 'on_task_complete']
+            # 检查必要的钩子（新版 API 格式）
+            required_hooks = ['PreToolUse', 'Stop']
             hooks = config.get('hooks', {})
             
             for hook_name in required_hooks:
@@ -211,8 +212,11 @@ class ClaudeHookInstaller:
                     self.logger.error(f"缺少必要钩子: {hook_name}")
                     return False
                 
-                if not hooks[hook_name].get('enabled', False):
-                    self.logger.warning(f"钩子未启用: {hook_name}")
+                # 新版 API 格式：hooks 的值是数组
+                hook_list = hooks[hook_name]
+                if not isinstance(hook_list, list) or len(hook_list) == 0:
+                    self.logger.warning(f"钩子配置无效: {hook_name}")
+                    return False
             
             # 检查钩子脚本
             if not self.hook_script_path.exists():
@@ -273,8 +277,9 @@ class ClaudeHookInstaller:
                 status['hooks_valid'] = True
                 hooks = config.get('hooks', {})
                 
-                for hook_name, hook_config in hooks.items():
-                    if hook_config.get('enabled', False):
+                # 新版 API 格式：hooks 的值是数组，检查是否有配置
+                for hook_name, hook_list in hooks.items():
+                    if isinstance(hook_list, list) and len(hook_list) > 0:
                         status['enabled_hooks'].append(hook_name)
                         
             except Exception as e:
